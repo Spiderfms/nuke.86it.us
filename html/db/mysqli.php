@@ -172,10 +172,8 @@ class sql_db
 
     function union_secure($query) {
          # check if it is a SELECT query
-//        if (strtoupper($query[0]) == 'S') {
           if (strtoupper((string) $query[0]) == 'S') {
              # SPLIT when theres 'UNION (ALL|DISTINT|SELECT)'
-//           $query_parts = preg_split('/(union)([\s\ \*\/]+)(all|distinct|select)/i', $query, -1, PREG_SPLIT_NO_EMPTY);
              $query_parts = preg_split('#(union)([\s\ \*\/]+)(all|distinct|select)#i', (string) $query, -1, PREG_SPLIT_NO_EMPTY);
              # and then merge the query_parts:
              if ((is_countable($query_parts) ? count($query_parts) : 0) > 1) 
