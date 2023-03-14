@@ -22,11 +22,21 @@
 if(!defined("SQL_LAYER"))
 {
 
-define("SQL_LAYER","mysqli");
-define("SQL_NUM", "MYSQL_NUM");
-define("SQL_BOTH", "MYSQL_BOTH");
-define("SQL_ASSOC", "MYSQL_ASSOC");
-define('END_TRANSACTION', "2");
+  if(!defined('SQL_LAYER')){
+  define("SQL_LAYER","mysqli");
+  }
+  if(!defined('MYSQL_NUM')){
+  define("SQL_NUM", "MYSQL_NUM");
+  }
+  if(!defined('MYSQL_BOTH')){
+  define("SQL_BOTH", "MYSQL_BOTH");
+  }
+  if(!defined('MYSQL_ASSOC')){
+  define("SQL_ASSOC", "MYSQL_ASSOC");
+  }
+  if(!defined('END_TRANSACTION')){
+  define('END_TRANSACTION', "2");
+  }
 
 class sql_db
 {
