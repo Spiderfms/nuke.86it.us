@@ -76,7 +76,7 @@ if (!function_exists("floatval")) {
 }
 if ($phpver >= '4.0.4pl1' && isset($_SERVER['HTTP_USER_AGENT']) && strstr($_SERVER['HTTP_USER_AGENT'],'compatible')) {
 	if (extension_loaded('zlib')) {
-    	@ob_end_clean();
+    	ob_end_clean();
     	ob_start('ob_gzhandler');
   	}
 } elseif ($phpver > '4.0' && isset($_SERVER['HTTP_ACCEPT_ENCODING']) && !empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
@@ -85,7 +85,8 @@ if ($phpver >= '4.0.4pl1' && isset($_SERVER['HTTP_USER_AGENT']) && strstr($_SERV
       		$do_gzip_compress = true;
       		ob_start(array('ob_gzhandler',5));
       		ob_implicit_flush(0);
-      		if (ereg("MSIE", $_SERVER['HTTP_USER_AGENT'])) {
+      		/* if (ereg("MSIE", $_SERVER['HTTP_USER_AGENT'])) { */
+      		if (preg_match('#MSIE#m', $_SERVER['HTTP_USER_AGENT'])) {
 				header('Content-Encoding: gzip');
       		}
     	}
@@ -191,22 +192,22 @@ if(defined('FORUM_ADMIN')) {
 }
 
 // Include the required files
-@require_once(INCLUDE_PATH."config.php");
+require_once(INCLUDE_PATH."config.php");
 
 if(!$dbname) {
     die("<br><br><center><img src=images/logo.gif><br><br><b>There seems that PHP-Nuke isn't installed yet.<br>(The values in config.php file are the default ones)<br><br>You can proceed with the <a href='./install/index.php'>web installation</a> now.</center></b>");
 }
 
-@require_once(INCLUDE_PATH."db/db.php");
+require_once(INCLUDE_PATH."db/db.php");
 
 /* FOLLOWING TWO LINES ARE DEPRECATED BUT ARE HERE FOR OLD MODULES COMPATIBILITY */
 /* PLEASE START USING THE NEW SQL ABSTRACTION LAYER. SEE MODULES DOC FOR DETAILS */
-@require_once(INCLUDE_PATH."includes/sql_layer.php");
+require_once(INCLUDE_PATH."includes/sql_layer.php");
 $dbi = sql_connect($dbhost, $dbuname, $dbpass, $dbname);
 
-@require_once(INCLUDE_PATH."includes/ipban.php");
+require_once(INCLUDE_PATH."includes/ipban.php");
 if (file_exists(INCLUDE_PATH."includes/custom_files/custom_mainfile.php")) {
-	@include_once(INCLUDE_PATH."includes/custom_files/custom_mainfile.php");
+	include_once(INCLUDE_PATH."includes/custom_files/custom_mainfile.php");
 }
 
 if (!defined('FORUM_ADMIN')) {
@@ -275,9 +276,9 @@ $pagetitle = "";
 // Error reporting, to be set in config.php
 error_reporting(E_ALL^E_NOTICE);
 if ($display_errors == 1) {
-  @ini_set('display_errors', 1);
+  ini_set('display_errors', 1);
 } else {
-  @ini_set('display_errors', 0);
+  ini_set('display_errors', 0);
 }
 
 if (!defined('FORUM_ADMIN')) {
