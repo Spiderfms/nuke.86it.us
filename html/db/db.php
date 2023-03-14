@@ -1,8 +1,5 @@
 <?php
-/* -- -----------------------------------------------------------
- * PHP-Nuke Titanium : Enhanced and Advanced
- * -- -----------------------------------------------------------
- *
+/* -------------------------------------------------------------
  * >> Database
  *
  * @filename    db.php
@@ -11,9 +8,9 @@
  * @date        Nov 24, 2011
  * @notes       n/a
  *
- * -- -----------------------------------------------------------
+ * -------------------------------------------------------------
  * // Legal Stuff
- * -- -----------------------------------------------------------
+ * -------------------------------------------------------------
  *
  * (c) Copyright 2001 The phpBB Group
  * support@phpbb.com
@@ -23,7 +20,20 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  */
-if (!defined('PHP_NUKE') || isset($_REQUEST['dbtype'])) 
+
+/************************************************************************/
+/* PHP-NUKE: Advanced Content Management System                         */
+/* ============================================                         */
+/*                                                                      */
+/* Copyright (c) 2007 by Francisco Burzi                                */
+/* http://phpnuke.org                                                   */
+/*                                                                      */
+/* This program is free software. You can redistribute it and/or modify */
+/* it under the terms of the GNU General Public License as published by */
+/* the Free Software Foundation; either version 2 of the License.       */
+/************************************************************************/
+
+if (!defined('NUKE_BASIC') || isset($_REQUEST['dbtype'])) 
 die('Quit trying to hack my website!');
 $dbtype = 'mysqli';
 $dbtype = strtolower($dbtype);
@@ -62,7 +72,7 @@ print '</td></tr>';
 print '<tr><td align="center">';
 print '<h1 class="myclass">';
 
-exit("<br /><br /><div align='center'><img src='images/logo.png'><br /><br /><strong>There seems to be a problem with the MariaDB server, sorry for the inconvenience.<br /><br />We should be back shortly...</strong></div>");
+exit("<br /><br /><div align='center'><img src='images/logo.gif'><br /><br /><strong>There seems to be a problem with the MariaDB server, sorry for the inconvenience.<br /><br />We should be back shortly...</strong></div>");
 
 print '</h1>';
 print '<br />';
