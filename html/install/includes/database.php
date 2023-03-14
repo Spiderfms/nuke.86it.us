@@ -15,6 +15,14 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+ /*
+ * Applied rules:
+ * SimplifyUselessVariableRector
+ * RemoveUnusedVariableAssignRector
+ * RemoveUnusedForeachKeyRector
+ * RemoveNullPropertyInitializationRector
+ */
+ 
 // no direct access
 defined( '_VALID_MOS' ) or die( 'Restricted access' );
 
@@ -35,7 +43,7 @@ class database {
 	/** @var Internal variable to hold the connector resource */
 	var $_resource		= '';
 	/** @var Internal variable to hold the last query cursor */
-	var $_cursor		= null;
+	var $_cursor;
 	/** @var boolean Debug option */
 	var $_debug			= 0;
 	/** @var int The limit for the query */
@@ -45,7 +53,7 @@ class database {
 	/** @var int A counter for the number of queries performed by the object instance */
 	var $_ticker		= 0;
 	/** @var array A log of queries */
-	var $_log			= null;
+	var $_log;
 	/** @var string The null/zero date string */
 	var $_nullDate		= '0000-00-00 00:00:00';
 	/** @var string Quote for named objects */
@@ -92,7 +100,7 @@ class database {
 				}
 			}
 		}
-		if ($db != '' && !mysql_select_db( $db, $this->_resource )) {
+		if ($db != '' && !mysql_select_db( $db )) {
 			$mosSystemError = 3;
 			if ($goOffline) {
 				$basePath = dirname( __FILE__ );
@@ -277,12 +285,12 @@ class database {
 		}
 		$this->_errorNum = 0;
 		$this->_errorMsg = '';
-		$this->_cursor = mysql_query( $this->_sql, $this->_resource );
+		$this->_cursor = mysql_query( $this->_sql );
 		if (!$this->_cursor) {
-			$this->_errorNum = mysql_errno( $this->_resource );
-			$this->_errorMsg = mysql_error( $this->_resource )." SQL=$this->_sql";
+			$this->_errorNum = mysql_errno();
+			$this->_errorMsg = mysql_error()." SQL=$this->_sql";
 			if ($this->_debug) {
-				trigger_error( mysql_error( $this->_resource ), E_USER_NOTICE );
+				trigger_error( mysql_error(), E_USER_NOTICE );
 				//echo "<pre>" . $this->_sql . "</pre>\n";
 				if (function_exists( 'debug_backtrace' )) {
 					foreach( debug_backtrace() as $back) {
@@ -301,14 +309,14 @@ class database {
 	 * @return int The number of affected rows in the previous operation
 	 */
 	function getAffectedRows() {
-		return mysql_affected_rows( $this->_resource );
+		return mysql_affected_rows();
 	}
 
 	function query_batch( $abort_on_error=true, $p_transaction_safe = false) {
 		$this->_errorNum = 0;
 		$this->_errorMsg = '';
 		if ($p_transaction_safe) {
-			$si = mysql_get_server_info( $this->_resource );
+			$si = mysql_get_server_info();
 			preg_match_all( "/(\d+)\.(\d+)\.(\d+)/i", $si, $m );
 			if ($m[1] >= 4) {
 				$this->_sql = 'START TRANSACTION;' . $this->_sql . '; COMMIT;';
@@ -323,11 +331,11 @@ class database {
 		foreach ($query_split as $command_line) {
 			$command_line = trim( $command_line );
 			if ($command_line != '') {
-				$this->_cursor = mysql_query( $command_line, $this->_resource );
+				$this->_cursor = mysql_query( $command_line );
 				if (!$this->_cursor) {
 					$error = 1;
-					$this->_errorNum .= mysql_errno( $this->_resource ) . ' ';
-					$this->_errorMsg .= mysql_error( $this->_resource )." SQL=$command_line <br />";
+					$this->_errorNum .= mysql_errno() . ' ';
+					$this->_errorMsg .= mysql_error()." SQL=$command_line <br />";
 					if ($abort_on_error) {
 						return $this->_cursor;
 					}
@@ -362,7 +370,7 @@ class database {
 				$first = false;
 			}
 			$buf .= "<tr>";
-			foreach ($row as $k=>$v) {
+			foreach ($row as $v) {
 				$buf .= "<td bgcolor=\"#ffffff\">$v</td>";
 			}
 			$buf .= "</tr>";
@@ -549,7 +557,7 @@ class database {
 		if (!$this->query()) {
 			return false;
 		}
-		$id = mysql_insert_id( $this->_resource );
+		$id = mysql_insert_id();
 		($verbose) && print "id=[$id]<br />\n";
 		if ($keyName && $id) {
 			$object->$keyName = $id;
@@ -600,11 +608,11 @@ class database {
 	}
 
 	function insertid() {
-		return mysql_insert_id( $this->_resource );
+		return mysql_insert_id();
 	}
 
 	function getVersion() {
-		return mysql_get_server_info( $this->_resource );
+		return mysql_get_server_info();
 	}
 
 	/**
@@ -676,7 +684,7 @@ class mosDBTable {
 	/** @var string Error message */
 	var $_error 	= '';
 	/** @var mosDatabase Database connector */
-	var $_db 		= null;
+	var $_db;
 
 	/**
 	*	Object constructor to set table and key field
@@ -1112,7 +1120,6 @@ class mosDBTable {
 		if ($oid !== null) {
 			$this->$k = intval( $oid );
 		}
-		$time = date( 'H:i:s' );
 		$nullDate = $this->_db->getNullDate();
 		$query = "UPDATE $this->_tbl"
 		. "\n SET checked_out = 0, checked_out_time = '$nullDate'"
@@ -1280,9 +1287,7 @@ class mosDBTable {
 			}
 			$xml .= '<' . $k . '><![CDATA[' . $v . ']]></' . $k . '>';
 		}
-		$xml .= '</record>';
 
-		return $xml;
+		return $xml . '</record>';
 	}
 }
-?>
