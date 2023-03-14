@@ -125,7 +125,7 @@ correctly.
 	</td>
 	<td align="left">
 	<?php
-	if (@file_exists('../config.php') &&  @is_writable( '../config.php' )){
+	if (file_exists('../config.php') &&  is_writable( '../config.php' )){
 		echo '<b><font color="green">Writeable</font></b>';
 	} else if (is_writable( '..' )) {
 		echo '<b><font color="green">Writeable</font></b>';
