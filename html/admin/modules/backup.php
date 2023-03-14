@@ -36,19 +36,19 @@ if ($row['radminsuper'] == 1) {
 			case french :
 			// French Text
 			$strNoTablesFound	= "Aucune table n'a été trouvée dans cette base.";
-			$strHost		= "Serveur";
+			$strHost		    = "Serveur";
 			$strDatabase		= "Base de données";
 			$strTableStructure	= "Structure de la table";
 			$strDumpingData		= "Contenu de la table";
-			$strError		= "Erreur";
+			$strError		    = "Erreur";
 			$strSQLQuery		= "requête SQL";
 			$strMySQLSaid		= "MySQL a répondu:";
-			$strBack		= "Retour";
+			$strBack		    = "Retour";
 			$strFileName		= "Sauvegarde BD";
-			$strName		= "Sauvegarde de la base de données";
-			$strDone		= "effectuée le";
-			$strat			= "à";
-			$strby			= "par";
+			$strName		    = "Sauvegarde de la base de données";
+			$strDone		    = "effectuée le";
+			$strat			    = "à";
+			$strby			    = "par";
 			$date_jour = date ("d-m-Y");
 			break;
 
@@ -61,7 +61,7 @@ if ($row['radminsuper'] == 1) {
 			$strDumpingData = "Dumping data for table";
 			$strError = "Error";
 			$strSQLQuery = "SQL-query";
-			$strMySQLSaid = "MySQL said: ";
+			$strMySQLSaid = "MySQLi said: ";
 			$strBack = "Back";
 			$strFileName = "Save Database";
 			$strName = "Database saved";
