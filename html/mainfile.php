@@ -27,6 +27,39 @@ if(!defined('END_TRANSACTION')) {
   define('END_TRANSACTION', 2);
 }
 
+# Define File
+define('NUKE_BASIC', '8.3.1');
+define('NUKE_EVO', '2.0.9e');
+define('NUKE_TITANIUM', '4.0.4');
+define('NUKE_PLATINUM', '7.6.6');
+
+define('PHPBB_TITANIUM', '2.0.25');
+define('PHPBB_TITANIUM_LAST_UPDATE', 'Tuesday Jan 28th, 2023');
+
+define('NUKE_BUILD', '8312092023');
+define('TITANIUM_BUILD', '20940402282023');
+define('EVO_BUILD', '2098312023');
+define('PLATINUM_BUILD', '7658312023');
+
+define('CUR_NUKE', 'NUKE_BASIC');
+define('CUR_EVO', 'NUKE_EVO');
+define('CUR_TITANIUM', 'NUKE_TITANIUM');
+define('CUR_PLATINUM', 'NUKE_PLATINUM');
+
+define('BASIC_EDITION', 'Nuke');
+define('EVO_EDITION', 'Xtreme');
+define('TITANIUM_EDITION', 'AN602');
+define('PLATINUM_EDITION', 'PNPv3');
+
+define('PHPVERS', phpversion());
+
+define('NUKE_VERSION', NUKE_BASIC . ' ' . BASIC_EDITION);
+define('EVO_VERSION', NUKE_EVO . ' ' . EVO_EDITION);
+define('TITANIUM_VERSION', NUKE_TITANIUM . ' ' . TITANIUM_EDITION);
+define('PLATINUM_VERSION', NUKE_PLATINUM . ' ' . PLATINUM_EDITION);
+
+define('PHP_5', version_compare(PHPVERS, '5.0.0', '>='));
+
 // Get php version
 $phpver = phpversion();
 
