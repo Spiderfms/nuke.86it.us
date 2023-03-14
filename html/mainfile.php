@@ -245,7 +245,7 @@ define('NUKE_ADMIN_DIR', NUKE_BASE_DIR . 'admin/');
 
 define('NUKE_RSS_DIR', NUKE_INCLUDE_DIR . 'rss/');
 
-define('NUKE_DB_DIR', NUKE_INCLUDE_DIR . 'db/');
+define('NUKE_DB_DIR', NUKE_BASE_DIR . 'db/');
 
 define('NUKE_ADMIN_MODULE_DIR', NUKE_ADMIN_DIR . 'modules/');
 
@@ -265,6 +265,12 @@ define('INCLUDE_PATH', NUKE_BASE_DIR);
 define('GZIPSUPPORT', extension_loaded('zlib'));
 define('GDSUPPORT', extension_loaded('gd'));
 define('CAN_MOD_INI', !stristr(ini_get('disable_functions'), 'ini_set'));
+
+function get_microtime() 
+{
+    list($usec, $sec) = explode(' ', microtime());
+    return ($usec + $sec);
+}
 
 if (!function_exists("floatval")) {
     function floatval($inputval) {
