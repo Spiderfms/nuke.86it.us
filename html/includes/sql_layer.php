@@ -73,7 +73,8 @@ class ResultSet {
 
 function sql_connect($host, $user, $password, $db)
 {
-global $dbtype;
+global $dbtype, $dbname;
+
 switch ($dbtype) {
 
     case "MySQL":
@@ -83,7 +84,7 @@ switch ($dbtype) {
     break;;
 
     case "MySQLi":
-        $dbi= new sql_db($dbhost, $dbuname, $dbpass, $dbname, false);
+        $dbi=mysqli_connect($host, $user, $password);
 	    mysqli_select_db($db);
         return $dbi;
     break;;
