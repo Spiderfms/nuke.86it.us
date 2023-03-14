@@ -15,9 +15,7 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
-$version_number = "8.1";
-$filedate = filemtime("version.php");
-$filedate = date("F d, Y", $filedate);
-$version = "PHP-Nuke $version_number (Release Date: $filedate)";
-
-?>
+$version_number = "8.3.2";
+$installdate = filemtime("version.php");
+$installdate = date("F d, Y", $installdate);
+$version = "PHP-Nuke $version_number (Install Date: $installdate)";
