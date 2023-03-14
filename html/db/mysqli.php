@@ -92,7 +92,7 @@ class sql_db
 		$this->server = $sqlserver;
 		$this->dbname = $database;
 		
-		$newURL = 'setup';
+		$newURL = 'install';
 		
 		if($sqlpassword == ''):
 		 header("Location: $newURL");
@@ -109,8 +109,8 @@ class sql_db
 				# not sure why this was removed i see no explanation, Thanks Dick!
 				if (version_compare($this->mysql_version, '4.1.3', '>='))
 				{
-					mysqli_query("SET NAMES 'utf8'", $this->db_connect_id);
-					mysqli_query("SET CHARACTER SET 'utf8'", $this->db_connect_id);
+				//	mysqli_query("SET NAMES 'utf8'", $this->db_connect_id);
+				//	mysqli_query("SET CHARACTER SET 'utf8'", $this->db_connect_id);
 				}
 
 				$this->connect_id = $this->db_connect_id;
