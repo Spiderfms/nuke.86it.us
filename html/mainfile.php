@@ -36,41 +36,32 @@ function include_secure($file_name)
     $file_name =  preg_replace("/\.[\.\/]*\//", "", $file_name);
     include_once($file_name);
 }
-if ($phpver < '4.1.0') {
-  $_GET = $HTTP_GET_VARS;
-  $_POST = $HTTP_POST_VARS;
-  $_SERVER = $HTTP_SERVER_VARS;
-  $_FILES = $HTTP_POST_FILES;
-  $_ENV = $HTTP_ENV_VARS;
-  if($_SERVER['REQUEST_METHOD'] == "POST") {
-    $_REQUEST = $_POST;
-  } elseif($_SERVER['REQUEST_METHOD'] == "GET") {
-    $_REQUEST = $_GET;
-  }
-  if(isset($HTTP_COOKIE_VARS)) {
-    $_COOKIE = $HTTP_COOKIE_VARS;
-  }
-  if(isset($HTTP_SESSION_VARS)) {
-    $_SESSION = $HTTP_SESSION_VARS;
-  }
-}
 
 // override old superglobals if php is higher then 4.1.0
-if($phpver >= '4.1.0') {
-  $HTTP_GET_VARS = $_GET;
-  $HTTP_POST_VARS = $_POST;
-  $HTTP_SERVER_VARS = $_SERVER;
-  $HTTP_POST_FILES = $_FILES;
-  $HTTP_ENV_VARS = $_ENV;
-  $PHP_SELF = $_SERVER['PHP_SELF'];
-  if(isset($_SESSION)) {
-    $HTTP_SESSION_VARS = $_SESSION;
-  }
-  if(isset($_COOKIE)) {
-    $HTTP_COOKIE_VARS= $_COOKIE;
-  }
+if(!ini_get('register_globals')){ 
+	$import = true;
+	# Need register_globals so try the built in import function
+	if (function_exists('import_request_variables')){
+		import_request_variables('GPC');
+	} else { 
+		function pphp_nuke_import_globals($array)
+		{
+			foreach ($array as $k => $v):
+			  global $$k;
+			  $$k = $v;
+			endforeach;
+		}
+		if(!empty($_GET)){
+		  pphp_nuke_import_globals($_GET);
+		} 
+		if(!empty($_POST)){
+		  pphp_nuke_import_globals($_POST);
+		}
+		if(!empty($_COOKIE)){
+		  pphp_nuke_import_globals($_COOKIE);
+		}
+	}
 }
-
 // After doing those superglobals we can now use one
 // and check if this file isnt being accessed directly
 
@@ -79,29 +70,36 @@ if (stristr(htmlentities($_SERVER['PHP_SELF']), "mainfile.php")) {
     exit();
 }
 
+define('GZIPSUPPORT', extension_loaded('zlib'));
+define('GDSUPPORT', extension_loaded('gd'));
+define('CAN_MOD_INI', !stristr(ini_get('disable_functions'), 'ini_set'));
+
 if (!function_exists("floatval")) {
     function floatval($inputval) {
         return (float)$inputval;
     }
 }
-if ($phpver >= '4.0.4pl1' && isset($_SERVER['HTTP_USER_AGENT']) && strstr($_SERVER['HTTP_USER_AGENT'],'compatible')) {
-	if (extension_loaded('zlib')) {
-    	ob_end_clean();
-    	ob_start('ob_gzhandler');
-  	}
-} elseif ($phpver > '4.0' && isset($_SERVER['HTTP_ACCEPT_ENCODING']) && !empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-  	if (strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
-    	if (extension_loaded('zlib')) {
-      		$do_gzip_compress = true;
-      		ob_start(array('ob_gzhandler',5));
-      		ob_implicit_flush(0);
-      		/* if (ereg("MSIE", $_SERVER['HTTP_USER_AGENT'])) { */
-      		if (preg_match('#MSIE#m', $_SERVER['HTTP_USER_AGENT'])) {
-				header('Content-Encoding: gzip');
-      		}
-    	}
-  	}
-}
+
+$do_gzip_compress = false;
+
+if (GZIPSUPPORT && !ini_get('zlib.output_compression') 
+&& isset($_SERVER['HTTP_ACCEPT_ENCODING']) 
+&& preg_match('/gzip/i', $_SERVER['HTTP_ACCEPT_ENCODING'])):
+    
+	if (version_compare(PHPVERS, '8.0.0', '>=')): 
+        ob_end_clean(); 
+		ob_start('ob_gzhandler');
+    else:
+        $do_gzip_compress = true;
+        ob_start();
+        ob_implicit_flush(0);
+        header('Content-Encoding: gzip');
+    endif;
+
+else:
+    ob_start();
+    ob_implicit_flush(0);
+endif;
 
 $sanitize_rules = array("newlang"=>"/[a-z][a-z]/i","redirect"=>"/[a-z0-9]*/i");
 foreach($_REQUEST as $key=>$value)
