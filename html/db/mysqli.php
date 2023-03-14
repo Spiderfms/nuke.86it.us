@@ -636,7 +636,7 @@ class sql_db
 	{
 	  if($this->db_connect_id):
 	  $result  = '<div class="poweredby"> <a class="poweredby" href="http://www.php-nuke-titanium.86it.us/" target="_blank">Powered by PHP-Nuke Titanium v'.NUKE_TITANIUM.' | &copy; 2005, 2022 PHP-Nuke Titanium Group</a></div>';
-	  $result .= 'MySQL Database Server: ';
+	  $result .= 'MySQLi Database Server: ';
 	  $result .= mysqli_get_server_info($this->db_connect_id);
 	  return $result;
 		else:
