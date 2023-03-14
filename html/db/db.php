@@ -57,6 +57,10 @@ switch($dbtype) {
 		include("".$the_include."/mysql.php");
 		break;
 
+	case 'MySQLi':
+		include("".$the_include."/mysqli.php");
+		break;
+
 	case 'mysql4':
 		include("".$the_include."/mysql4.php");
 		break;
