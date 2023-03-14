@@ -15,11 +15,6 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
-if (file_exists( '../config.php' ) && filesize( '../config.php' ) != 4867) {
-	header( 'Location: ../index.php' );
-	exit();
-}
-
 error_reporting( E_ALL );
 
 header ("Cache-Control: no-cache, must-revalidate");	// HTTP/1.1
@@ -60,4 +55,3 @@ function mosMakePassword($length) {
 	return $makepass;
 }
 
-?>
