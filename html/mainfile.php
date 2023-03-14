@@ -12,6 +12,16 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/*
+ * Applied rules:
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * SimplifyUselessVariableRector
+ * RemoveLastReturnRector
+ * SimplifyMirrorAssignRector
+ * RemoveAlwaysTrueIfConditionRector
+ * RemoveUnreachableStatementRector
+ */
+ 
 // End the transaction
 if(!defined('END_TRANSACTION')) {
   define('END_TRANSACTION', 2);
@@ -149,34 +159,34 @@ $htmltags .= "[ <a href=\"javascript:history.go(-1)\"><b>Go Back</b></a> ]</cent
 
 if (!defined('ADMIN_FILE')) {
  foreach ($_GET as $sec_key => $secvalue) {
- if((eregi("<[^>]*script*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*object*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*iframe*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*applet*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*meta*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*style*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*form*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*img*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*onmouseover *\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*body *\"?[^>]*", $secvalue)) ||
-  (eregi("\([^>]*\"?[^)]*\)", $secvalue)) ||
-  (eregi("\"", $secvalue)) ||
-  (eregi("forum_admin", $sec_key)) ||
-  (eregi("inside_mod", $sec_key)))
+ if((preg_match('#<[^>]*script*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*object*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*iframe*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*applet*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*meta*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*style*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*form*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*img*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*onmouseover *"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*body *"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#\([^>]*"?[^\)]*\)#mi', $secvalue)) ||
+  (preg_match('#"#mi', $secvalue)) ||
+  (preg_match('#forum_admin#mi', $sec_key)) ||
+  (preg_match('#inside_mod#mi', $sec_key)))
   {
    die ($htmltags);
   }
 }
 
  foreach ($_POST as $secvalue) {
-  if ((eregi("<[^>]*iframe*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*object*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*applet*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*meta*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*onmouseover*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]script*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]*body*\"?[^>]*", $secvalue)) ||
-  (eregi("<[^>]style*\"?[^>]*", $secvalue))) {
+  if ((preg_match('#<[^>]*iframe*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*object*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*applet*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*meta*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*onmouseover*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]script*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]*body*"?[^>]*#mi', $secvalue)) ||
+  (preg_match('#<[^>]style*"?[^>]*#mi', $secvalue))) {
    die ($htmltags);
   }
  }
@@ -860,15 +870,15 @@ function check_words($Message) {
 			$Replace = $CensorReplace;
 			if ($CensorMode == 1) {
 				for ($i = 0; $i < count($CensorList); $i++) {
-					$EditedMessage = eregi_replace("$CensorList[$i]([^a-zA-Z0-9])","$Replace\\1",$EditedMessage);
+					$EditedMessage = preg_replace("$CensorList[$i]([^a-zA-Z0-9])","$Replace\\1",$EditedMessage);
 				}
 			} elseif ($CensorMode == 2) {
 				for ($i = 0; $i < count($CensorList); $i++) {
-					$EditedMessage = eregi_replace("(^|[^[:alnum:]])$CensorList[$i]","\\1$Replace",$EditedMessage);
+					$EditedMessage = preg_replace("(^|[^[:alnum:]])$CensorList[$i]","\\1$Replace",$EditedMessage);
 				}
 			} elseif ($CensorMode == 3) {
 				for ($i = 0; $i < count($CensorList); $i++) {
-					$EditedMessage = eregi_replace("$CensorList[$i]","$Replace",$EditedMessage);
+					$EditedMessage = preg_replace("$CensorList[$i]","$Replace",$EditedMessage);
 				}
 			}
 		}
@@ -932,16 +942,16 @@ function check_html ($str, $strip="") {
 	if ($strip == "nohtml")
 	$AllowableHTML=array('');
 	$str = stripslashes($str);
-	$str = eregi_replace("<[[:space:]]*([^>]*)[[:space:]]*>",'<\\1>', $str);
+	$str = preg_replace('#<[013\s]*([^>]*)[013\s]*>#mi','<\\1>', $str);
 	// Delete all spaces from html tags .
-	$str = eregi_replace("<a[^>]*href[[:space:]]*=[[:space:]]*\"?[[:space:]]*([^\" >]*)[[:space:]]*\"?[^>]*>",'<a href="\\1">', $str);
+	$str = preg_replace('#<a[^>]*href[013\s]*=[013\s]*"?[013\s]*([^" >]*)[013\s]*"?[^>]*>#mi','<a href="\\1">', $str);
 	// Delete all attribs from Anchor, except an href, double quoted.
-	$str = eregi_replace("<[[:space:]]* img[[:space:]]*([^>]*)[[:space:]]*>", '', $str);
+	$str = preg_replace('#<[013\s]* img[013\s]*([^>]*)[013\s]*>#mi', '', $str);
 	// Delete all img tags
-	$str = eregi_replace("<a[^>]*href[[:space:]]*=[[:space:]]*\"?javascript[[:punct:]]*\"?[^>]*>", '', $str);
+	$str = preg_replace('#<a[^>]*href[013\s]*=[013\s]*"?javascript[[:punct:]]*"?[^>]*>#mi', '', $str);
 	// Delete javascript code from a href tags -- Zhen-Xjell @ http://nukecops.com
 	$tmp = "";
-	while (ereg("<(/?[[:alpha:]]*)[[:space:]]*([^>]*)>",$str,$reg)) {
+	while (preg_match('#<(\/?[[:alpha:]]*)[013\s]*([^>]*)>#m',$str,$reg)) {
 		$i = strpos($str,$reg[0]);
 		$l = strlen($reg[0]);
 		if ($reg[1][0] == "/") $tag = strtolower(substr($reg[1],1));
@@ -964,7 +974,7 @@ function check_html ($str, $strip="") {
 	return $str;
 	exit;
 	/* Squash PHP tags unconditionally */
-	$str = ereg_replace("<\?","",$str);
+	$str = preg_replace('#<\?#m',"",$str);
 	return $str;
 }
 
@@ -1192,10 +1202,10 @@ function headlines($bid, $cenbox=0) {
 			$items = explode("</item>",$string);
 			$content = "<font class=\"content\">";
 			for ($i=0;$i<10;$i++) {
-				$link = ereg_replace(".*<link>","",$items[$i]);
-				$link = ereg_replace("</link>.*","",$link);
-				$title2 = ereg_replace(".*<title>","",$items[$i]);
-				$title2 = ereg_replace("</title>.*","",$title2);
+				$link = preg_replace('#.*<link>#m',"",$items[$i]);
+				$link = preg_replace('#<\/link>.*#m',"",$link);
+				$title2 = preg_replace('#.*<title>#m',"",$items[$i]);
+				$title2 = preg_replace('#<\/title>.*#m',"",$title2);
 				$title2 = stripslashes($title2);
 				if (empty($items[$i]) AND $cont != 1) {
 					$content = "";
@@ -1256,7 +1266,7 @@ function automated_news() {
 	while ($row = $db->sql_fetchrow($result)) {
 		$anid = intval($row['anid']);
 		$time = $row['time'];
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $date);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', $time, $date);
 		if (($date[1] <= $year) AND ($date[2] <= $month) AND ($date[3] <= $day)) {
 			if (($date[4] < $hour) AND ($date[5] >= $min) OR ($date[4] <= $hour) AND ($date[5] <= $min)) {
 				$result2 = $db->sql_query("SELECT * FROM ".$prefix."_autonews WHERE anid='$anid'");
@@ -1392,7 +1402,7 @@ function removecrlf($str) {
 }
 
 function validate_mail($email) {
-  if(strlen($email) < 7 || !eregi("^[_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,6}$",$email)) {
+  if(strlen($email) < 7 || !preg_match('#^[_\\\\\.0-9a-z\-]+@([0-9a-z][0-9a-z\-]+\.)+[a-z]{2,6}$#mi',$email)) {
      OpenTable();
      echo _ERRORINVEMAIL;
      CloseTable();
@@ -1543,8 +1553,18 @@ function redir($content) {
 			$pos = $endpos+1;
 		} else {
 			if (!strcasecmp(strtok($tag," "),"A")) {
-				if (eregi("HREF[ \t\n\r\v]*=[ \t\n\r\v]*\"([^\"]*)\"",$tag,$regs));
-				else if (eregi("HREF[ \t\n\r\v]*=[ \t\n\r\v]*([^ \t\n\r\v]*)",$tag,$regs));
+				if (preg_match('#HREF[ 	
+
+]*=[ 	
+
+]*"([^"]*)"#mi',$tag,$regs));
+				else if (preg_match('#HREF[ 	
+
+]*=[ 	
+
+]*([^ 	
+
+]*)#mi',$tag,$regs));
 				else $regs[1] = "";
 				if ($regs[1]) {
 					$location = $regs[1];
