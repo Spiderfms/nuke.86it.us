@@ -103,6 +103,165 @@ if (stristr(htmlentities($_SERVER['PHP_SELF']), "mainfile.php")) {
     exit();
 }
 
+# Absolute Path Mod - 01/01/2012 by Ernest Allen Buffington START
+$rel_path=[];
+$rel_path['file']   = str_replace('\\', "/", realpath(__DIR__));
+$server_ary         = pathinfo(realpath(basename((string) $_SERVER['PHP_SELF'])));
+$rel_path['server'] = str_replace('\\', "/", $server_ary['dirname']);
+$rel_path['uri']    = realpath(basename(substr((string) $_SERVER['REQUEST_URI'], 0, strpos((string) $_SERVER['REQUEST_URI'], '?'))));
+$script_abs_path    = pathinfo(realpath($_SERVER['SCRIPT_FILENAME']));
+$rel_path['script'] = str_replace('\\', "/",$script_abs_path['dirname']);
+
+if(($rel_path['file'] === $rel_path['script']) && (strlen((string) $_SERVER['DOCUMENT_ROOT']) < strlen($script_abs_path['dirname']))): 
+
+    $href_path = '/'.str_replace($_SERVER['DOCUMENT_ROOT'], '', $rel_path['script']);
+
+    if (substr($href_path, 0, 2) == '//'): 
+    $href_path = substr($href_path, 1);
+	endif;
+
+elseif(strlen($rel_path['file']) == (strlen((string) $_SERVER['DOCUMENT_ROOT']) - 1)): 
+
+    $href_path = '';
+
+elseif(strlen($rel_path['script']) > strlen((string) $_SERVER['DOCUMENT_ROOT']) && (strlen((string) $_SERVER['DOCUMENT_ROOT']) > strlen($rel_path['file']))): 
+
+    $href_path = '';
+
+elseif(strlen($rel_path['file']) > strlen((string) $_SERVER['DOCUMENT_ROOT'])):
+
+	$href_path = '/'.str_replace($_SERVER['DOCUMENT_ROOT'], '', $rel_path['file']);
+
+	if(substr($href_path, 0, 2) == '//'): 
+        $href_path = substr($href_path, 1);
+	endif;
+
+else: 
+
+    $href_path = 'https://'.$_SERVER['SERVER_NAME'];
+	$href_path_http = 'http://'.$_SERVER['SERVER_NAME'];
+
+endif;
+
+unset ($rel_path);
+unset ($server_ary);
+unset ($script_abs_path);
+
+# BASE Directory
+define('TITANIUM_BASE_DIR', __DIR__ . '/');
+
+# HTTP & HTTPS
+define('HTTPS', $href_path . '/');
+define('HTTP', $href_path_http . '/');
+
+# Modules Directory
+define('MODULES', TITANIUM_BASE_DIR . 'modules/');
+
+# ADMIN Directory
+define('TITANIUM_ADMIN_DIR', TITANIUM_BASE_DIR . 'admin/'); 
+define('TITANIUM_ADMIN_MODULE_DIR', TITANIUM_ADMIN_DIR . 'modules/');
+
+# INCLUDES Directories
+define('TITANIUM_INCLUDE_DIR', TITANIUM_BASE_DIR . 'includes/');
+define('TITANIUM_INCLUDE_HREF_DIR', $href_path . '/includes/');
+
+# CSS Directory
+define('TITANIUM_CSS_DIR', TITANIUM_INCLUDE_DIR . 'css/');
+
+# CERT Directory
+define('TITANIUM_CERT_DIR', TITANIUM_INCLUDE_DIR . 'certs'); // pem directory
+
+# GLOBAL CSS DIR
+define('TITANIUM_CSS_HREF_DIR', $href_path . '/includes/css/');
+
+# lytebox
+define('TITANIUM_LYTEBOX_HREF_DIR', $href_path . '/includes/lytebox/');
+
+# lightbox
+define('TITANIUM_LIGHTBOX_HREF_DIR', $href_path . '/includes/lightbox/');
+
+# cache
+define('TITANIUM_CACHE_DIR', TITANIUM_INCLUDE_DIR . 'cache/');
+
+# classes
+define('TITANIUM_CLASSES_DIR', TITANIUM_INCLUDE_DIR . 'classes/');
+
+# DB Directory
+define('TITANIUM_DB_DIR', TITANIUM_INCLUDE_DIR . 'db/');
+
+# MODULES Directory
+define('TITANIUM_HREF_MODULES_DIR', $href_path . '/modules/'); 
+define('TITANIUM_MODULES_DIR', TITANIUM_BASE_DIR . 'modules/');
+define('TITANIUM_MODULES_IMAGE_DIR', $href_path . '/modules/');
+# BLOCKS Directory
+define('TITANIUM_BLOCKS_DIR', TITANIUM_BASE_DIR . 'blocks/');
+# IMAGES Directory
+define('TITANIUM_IMAGES_DIR', TITANIUM_BASE_DIR . '/images/');
+define('TITANIUM_IMAGES_BASE_DIR', $href_path . '/images/');
+# LANGUAGE Directory
+define('TITANIUM_LANGUAGE_DIR', TITANIUM_BASE_DIR . 'language/');
+define('TITANIUM_LANGUAGE_CUSTOM_DIR', TITANIUM_LANGUAGE_DIR . 'custom/');
+# STYLE Directory
+define('TITANIUM_THEMES_DIR', TITANIUM_BASE_DIR . 'themes/');
+define('TITANIUM_THEMES_IMAGE_DIR', $href_path . '/themes/');
+define('TITANIUM_THEMES_MAIN_DIR',  $href_path . '/themes/');
+# FORUMS Directory
+define('TITANIUM_FORUMS_DIR', TITANIUM_MODULES_DIR . 'Forums/');
+define('TITANIUM_FORUMS_ADMIN_DIR', TITANIUM_FORUMS_DIR . 'admin/');
+define('TITANIUM_FORUMS_ADMIN_HREF_DIR', $href_path . '/modules/Forums/admin/');
+# OTHER Directories
+define('TITANIUM_RSS_DIR', TITANIUM_INCLUDE_DIR . 'rss/');
+define('TITANIUM_STATS_DIR', TITANIUM_THEMES_DIR);
+# Absolute Path Mod - 01/01/2012 by Ernest Allen Buffington END
+
+# Inspired by phoenix-cms at website-portals.net
+# Absolute Nuke directory
+define('NUKE_BASE_DIR', __DIR__ . '/');
+# Absolute Nuke directory + includes
+define('NUKE_VENDOR_DIR', NUKE_BASE_DIR . 'includes/vendor/');
+define('NUKE_ZEND_DIR', NUKE_BASE_DIR . 'includes/Zend/');
+
+define('NUKE_BLOCKS_DIR', NUKE_BASE_DIR . 'blocks/');
+
+define('NUKE_CSS_DIR', 'includes/css/');
+
+define('NUKE_IMAGES_DIR', NUKE_BASE_DIR . 'images/');
+
+define('NUKE_INCLUDE_DIR', NUKE_BASE_DIR . 'includes/');
+
+define('NUKE_JQUERY_INCLUDE_DIR', 'includes/js/');
+
+define('NUKE_JQUERY_SCRIPTS_DIR', 'includes/js/scripts/');
+
+define('NUKE_LANGUAGE_DIR', NUKE_BASE_DIR . 'language/');
+
+define('NUKE_MODULES_DIR', NUKE_BASE_DIR . 'modules/');
+
+define('NUKE_THEMES_DIR', NUKE_BASE_DIR . 'themes/');
+
+define('NUKE_THEMES_SAVE_DIR', NUKE_INCLUDE_DIR . 'saved_themes/');
+
+define('NUKE_ADMIN_DIR', NUKE_BASE_DIR . 'admin/');
+
+define('NUKE_RSS_DIR', NUKE_INCLUDE_DIR . 'rss/');
+
+define('NUKE_DB_DIR', NUKE_INCLUDE_DIR . 'db/');
+
+define('NUKE_ADMIN_MODULE_DIR', NUKE_ADMIN_DIR . 'modules/');
+
+define('NUKE_FORUMS_DIR', (defined("IN_ADMIN") ? './../' : 'modules/Forums/'));
+
+define('NUKE_CACHE_DIR', NUKE_INCLUDE_DIR . 'cache/');
+define('NUKE_CACHE_DELETE_DIR', NUKE_INCLUDE_DIR . 'cache');
+
+
+define('NUKE_CLASSES_DIR', NUKE_INCLUDE_DIR . 'classes/');
+
+define('NUKE_CLASS_EXCEPTION_DIR',  NUKE_CLASSES_DIR . 'exceptions/');
+
+# define the INCLUDE PATH
+define('INCLUDE_PATH', NUKE_BASE_DIR);
+
 define('GZIPSUPPORT', extension_loaded('zlib'));
 define('GDSUPPORT', extension_loaded('gd'));
 define('CAN_MOD_INI', !stristr(ini_get('disable_functions'), 'ini_set'));
@@ -223,20 +382,36 @@ if (!defined('ADMIN_FILE')) {
  }
 }
 
-// Define the INCLUDE PATH
-if(defined('FORUM_ADMIN')) {
-	define('INCLUDE_PATH', '../../../');
-} elseif(defined('INSIDE_MOD')) {
-	define('INCLUDE_PATH', '../../');
-} else {
-	define('INCLUDE_PATH', './');
-}
-
 // Include the required files
 require_once(INCLUDE_PATH."config.php");
 
 if(!$dbname) {
-    die("<br><br><center><img src=images/logo.gif><br><br><b>There seems that PHP-Nuke isn't installed yet.<br>(The values in config.php file are the default ones)<br><br>You can proceed with the <a href='./install/index.php'>web installation</a> now.</center></b>");
+print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+print '<html xmlns="http://www.w3.org/1999/xhtml">';
+
+print '<head>';
+print '<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />';
+print '<title>Network Database Access Temporarily Denied</title>';
+print '<style>';
+print 'h1.myclass {font-size: 11pt; font-style: normal; color: white; text-align: center}';
+print '.txt {font-size: 11pt; font-style: normal; color: red; text-align: center}';
+print 'h1.myclass2 {font-size: 20pt; font-style: normal; color: red; text-align: center}';
+print 'table { background-color: #FFFFFF; }';
+print 'body { background-color: #FFFFFF; }';
+print '</style>';
+print '</head>';
+
+print '<body>';
+print '<table align="center" border="0" width="35%">';
+print '<tr><td align="center">';
+print '<h1 class="myclass2">';
+print 'Network Database Access Temporarily Denied';
+print '</h1>';
+print '</td></tr>';
+print '<tr><td align="center">';
+print '<h1 class="myclass">';
+
+exit("<br /><br /><div class='txt' align='center'><img src='images/logo.gif'><br /><br /><strong>You have not setup your config.php file...<br /><br />Your config.php resides in the root of your website!</strong></div>");
 }
 
 require_once(INCLUDE_PATH."db/db.php");
