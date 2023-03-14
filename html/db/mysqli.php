@@ -102,12 +102,12 @@ class sql_db
 		$this->server = $sqlserver;
 		$this->dbname = $database;
 		
-		$newURL = 'install';
+		//$newURL = 'install';
 		
-		if($sqlpassword == ''):
-		 header("Location: $newURL");
-         die();
-		endif;
+		//if($sqlpasswordz == ''):
+		// header("Location: $newURL");
+         //die();
+		//endif;
 
 		if ($this->dbname != '') {
 			//$this->db_connect_id = mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
