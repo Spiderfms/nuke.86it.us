@@ -15,6 +15,11 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/*
+ *Applied rules:
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+*/
+
 // Set flag that this is a parent file
 define( "_VALID_MOS", 1 );
 
@@ -128,7 +133,10 @@ function populate_db( &$database, $sqlfile='nuke.sql') {
  */
 function split_sql($sql) {
 	$sql = trim($sql);
-	$sql = ereg_replace("\n#[^\n]*\n", "\n", $sql);
+	$sql = preg_replace('#
+#\[\^
+\]\*
+#m', "\n", $sql);
 
 	$buffer = array();
 	$ret = array();
