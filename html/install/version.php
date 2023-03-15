@@ -18,4 +18,4 @@
 $version_number = "8.3.2";
 $installdate = filemtime("version.php");
 $installdate = date("F d, Y", $installdate);
-$version = "PHP-Nuke $version_number (Install Date: $installdate)";
+$version = "PHP-Nuke $version_number (Release Date: $installdate)";

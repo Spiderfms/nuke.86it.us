@@ -74,7 +74,7 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 </div>
 <div class="clr"></div>
 
-<h1>Pre-installation check for:<br/><?php echo $version; ?></h1>
+<h1><?php echo $version; ?></h1>
 <div class="install-text">
 If any of these items are highlighted
 in red then please take actions to correct them. Failure to do so
@@ -89,10 +89,10 @@ correctly.
 <table class="content">
 <tr>
 	<td class="item">
-	PHP version >= 4.3.0
+	PHP version >= 8.1.3 
 	</td>
 	<td align="left">
-	<?php echo phpversion() < '4.3' ? '<b><font color="red">No</font></b>' : '<b><font color="green">Yes</font></b>';?>
+	<?php echo phpversion() < '8.1' ? '<b><font color="red">No</font></b>' : '<b><font color="green">Yes</font></b>';?>
 	</td>
 </tr>
 <tr>
@@ -113,10 +113,10 @@ correctly.
 </tr>
 <tr>
 	<td>
-	&nbsp; - MySQL support
+	&nbsp; - MySQLi support
 	</td>
 	<td align="left">
-	<?php echo function_exists( 'mysql_connect' ) ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Unavailable</font></b>';?>
+	<?php echo function_exists( 'mysqli_connect' ) ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Unavailable</font></b>';?>
 	</td>
 </tr>
 <tr>
@@ -167,8 +167,6 @@ However, PHP-Nuke will still operate if your settings do not quite match the rec
 $php_recommended_settings = array(array ('Safe Mode','safe_mode','OFF'),
 array ('Display Errors','display_errors','ON'),
 array ('File Uploads','file_uploads','ON'),
-array ('Magic Quotes GPC','magic_quotes_gpc','ON'),
-array ('Magic Quotes Runtime','magic_quotes_runtime','OFF'),
 array ('Register Globals','register_globals','OFF'),
 array ('Output Buffering','output_buffering','OFF'),
 array ('Session auto start','session.auto_start','OFF'),

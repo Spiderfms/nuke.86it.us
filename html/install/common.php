@@ -35,9 +35,7 @@ function mosGetParam( &$arr, $name, $def=null, $mask=0 ) {
 			if (!($mask&_MOS_ALLOWHTML)) {
 				$arr[$name] = strip_tags( $arr[$name] );
 			}
-			if (!get_magic_quotes_gpc()) {
 				$arr[$name] = addslashes( $arr[$name] );
-			}
 		}
 		return $arr[$name];
 	} else {

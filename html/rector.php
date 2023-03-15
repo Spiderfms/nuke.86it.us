@@ -27,8 +27,8 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
         //__DIR__ . '/admin',
         //__DIR__ . '/blocks',
-        //__DIR__ . '/install/includes/database.php',
-		__DIR__ . '/install/install2.php',
+        __DIR__ . '/install/includes/database.php',
+		//__DIR__ . '/install/install2.php',
 		//__DIR__ . '/install',
         //__DIR__ . '/includes',
         //__DIR__ . '/install',
