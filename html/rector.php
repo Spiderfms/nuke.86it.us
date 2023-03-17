@@ -1,6 +1,7 @@
 <?php
 
 use Rector\Config\RectorConfig;
+use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
 
@@ -20,10 +21,30 @@ use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
 use Rector\Php70\Rector\Ternary\TernaryToSpaceshipRector;
 use Rector\Php70\Rector\Variable\WrapVariableVariableNameInCurlyBracesRector;
 
-use Rector\Php71\Rector\FuncCall\CountOnNullRector;
 use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
+use Rector\Php71\Rector\FuncCall\CountOnNullRector;
+use Rector\Php71\Rector\BooleanOr\IsIterableRector;
+use Rector\Php71\Rector\List_\ListToArrayDestructRector;
+use Rector\Php71\Rector\TryCatch\MultiExceptionCatchRector;
+use Rector\Php71\Rector\ClassConst\PublicConstantVisibilityRector;
+
+use Rector\Php72\Rector\FuncCall\CreateFunctionToAnonymousFunctionRector;
+use Rector\Php72\Rector\FuncCall\GetClassOnNullRector;
+use Rector\Php72\Rector\Assign\ListEachRector;
+use Rector\Php72\Rector\Assign\ReplaceEachAssignmentWithKeyCurrentRector;
+use Rector\Php72\Rector\FuncCall\StringsAssertNakedRector;
+use Rector\Php72\Rector\Unset_\UnsetCastRector;
+use Rector\Php72\Rector\While_\WhileEachToForeachRector;
+
+use Rector\Php73\Rector\FuncCall\ArrayKeyFirstLastRector;
+use Rector\Php73\Rector\BooleanOr\IsCountableRector;
+use Rector\Php73\Rector\FuncCall\JsonThrowOnErrorRector;
+use Rector\Php73\Rector\FuncCall\RegexDashEscapeRector;
+use Rector\Php73\Rector\FuncCall\SetCookieRector;
+use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
+
 //use Rector\MysqlToMysqli\Rector\Assign\MysqlAssignToMysqliRector;
 //use Rector\MysqlToMysqli\Rector\FuncCall\MysqlFuncCallToMysqliRector;
 //use Rector\MysqlToMysqli\Rector\FuncCall\MysqlPConnectToMysqliConnectRector;
@@ -33,6 +54,7 @@ return static function (RectorConfig $rectorConfig): void {
     // A. run whole set
     $rectorConfig->sets([
 		SetList::PHP_82,
+		LevelSetList::UP_TO_PHP_82,
     ]);
 
     // B. or single rule
@@ -58,13 +80,39 @@ return static function (RectorConfig $rectorConfig): void {
 	$rectorConfig->rule(WrapVariableVariableNameInCurlyBracesRector::class);
 	
 	// 71
+	$rectorConfig->rule(BinaryOpBetweenNumberAndStringRector::class);
 	$rectorConfig->rule(CountOnNullRector::class);
-	$rectorConfig->rule(::class);
-	$rectorConfig->rule(::class);
-	$rectorConfig->rule(::class);
-	$rectorConfig->rule(::class);
-	$rectorConfig->rule(::class);
-	$rectorConfig->rule(::class);
+	$rectorConfig->rule(IsIterableRector::class);
+	$rectorConfig->rule(ListToArrayDestructRector::class);
+	$rectorConfig->rule(MultiExceptionCatchRector::class);
+	$rectorConfig->rule(PublicConstantVisibilityRector::class);
+	
+	// 72
+	$rectorConfig->rule(CreateFunctionToAnonymousFunctionRector::class);
+	$rectorConfig->rule(GetClassOnNullRector::class);
+	$rectorConfig->rule(ListEachRector::class);
+	$rectorConfig->rule(ReplaceEachAssignmentWithKeyCurrentRector::class);
+	$rectorConfig->rule(StringsAssertNakedRector::class);
+	$rectorConfig->rule(UnsetCastRector::class);
+	$rectorConfig->rule(WhileEachToForeachRector::class);
+	
+	// 73
+	$rectorConfig->rule(ArrayKeyFirstLastRector::class);
+	$rectorConfig->rule(IsCountableRector::class);
+	$rectorConfig->rule(JsonThrowOnErrorRector::class);
+	$rectorConfig->rule(RegexDashEscapeRector::class);
+	$rectorConfig->rule(SetCookieRector::class);
+	$rectorConfig->rule(StringifyStrNeedlesRector::class);
+	
+	// 74
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
 	
 	// 82
 	$rectorConfig->rule(Utf8DecodeEncodeToMbConvertEncodingRector::class);
