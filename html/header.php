@@ -14,7 +14,7 @@
 
 if (stristr(htmlentities($_SERVER['PHP_SELF']), "header.php")) {
 	Header("Location: index.php");
-	fdie();
+	die();
 }
 
 define('NUKE_HEADER', true);
@@ -50,7 +50,9 @@ function head() {
 		$pagetitle;
 	
 	$ThemeSel = get_theme();
+	
 	include_secure("themes/$ThemeSel/theme.php");
+	
 	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
 	echo '<html xmlns="http://www.w3.org/1999/xhtml">';
 	echo "<head>\n";
@@ -64,31 +66,26 @@ function head() {
 	  	<link rel="stylesheet" href="themes/<?php echo $ThemeSel?>/orbit-1.2.3.css">
 
 	  	
-		<!-- Attach necessary JS -->
-		<script type="text/javascript" src="themes/<?php echo $ThemeSel?>/jquery-1.5.1.min.js"></script>
-		<script type="text/javascript" src="themes/<?php echo $ThemeSel?>/jquery.orbit-1.2.3.min.js"></script>	
+	<!-- Attach necessary JS -->
+	<script type="text/javascript" src="themes/<?php echo $ThemeSel?>/jquery-1.5.1.min.js"></script>
+	<script type="text/javascript" src="themes/<?php echo $ThemeSel?>/jquery.orbit-1.2.3.min.js"></script>	
 		
-			<!--[if IE]>
-			     <style type="text/css">
-			         .timer { display: none !important; }
-			         div.caption { background:transparent; filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000,endColorstr=#99000000);zoom: 1; }
-			    </style>
-			<![endif]-->
+	<!--[if IE]>
+     <style type="text/css">
+      .timer { display: none !important; }
+      div.caption { background:transparent; filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000,endColorstr=#99000000);zoom: 1; }
+    </style>
+	<![endif]-->
 		
-		<!-- Run the plugin -->
-		<script type="text/javascript">
-			$(window).load(function() {
-				$('#featured').orbit();
-			});
-		</script>
-
-    
+	<!-- Run the plugin -->
+	<script type="text/javascript">
+	$(window).load(function() {
+	$('#featured').orbit();
+	});
+	</script>
     <!-- end banner org_green -->
     
-
-
-
-<!-- End Quantcast tag -->
+    <!-- End Quantcast tag -->
 	<?php
 	include("includes/meta.php");
 	include("includes/javascript.php");
