@@ -63,10 +63,16 @@ define('PHP_5', version_compare(PHPVERS, '5.0.0', '>='));
 // Get php version
 $phpver = phpversion();
 
-// convert superglobals if php is lower then 4.1.0
+//define once
+function define_once($constant, $value) 
+{
+    if(!defined($constant)): 
+      define($constant, $value);
+	endif;
+}
+// secure the file
 function include_secure($file_name)
 {
-    $file_name =  preg_replace("/\.[\.\/]*\//", "", $file_name);
     include_once($file_name);
 }
 
@@ -77,7 +83,7 @@ if(!ini_get('register_globals')){
 	if (function_exists('import_request_variables')){
 		import_request_variables('GPC');
 	} else { 
-		function pphp_nuke_import_globals($array)
+		function php_nuke_import_globals($array)
 		{
 			foreach ($array as $k => $v):
 			  global $$k;
@@ -85,19 +91,19 @@ if(!ini_get('register_globals')){
 			endforeach;
 		}
 		if(!empty($_GET)){
-		  pphp_nuke_import_globals($_GET);
+		  php_nuke_import_globals($_GET);
 		} 
 		if(!empty($_POST)){
-		  pphp_nuke_import_globals($_POST);
+		  php_nuke_import_globals($_POST);
 		}
 		if(!empty($_COOKIE)){
-		  pphp_nuke_import_globals($_COOKIE);
+		  php_nuke_import_globals($_COOKIE);
 		}
 	}
 }
+
 // After doing those superglobals we can now use one
 // and check if this file isnt being accessed directly
-
 if (stristr(htmlentities($_SERVER['PHP_SELF']), "mainfile.php")) {
     header("Location: index.php");
     exit();
@@ -113,34 +119,22 @@ $script_abs_path    = pathinfo(realpath($_SERVER['SCRIPT_FILENAME']));
 $rel_path['script'] = str_replace('\\', "/",$script_abs_path['dirname']);
 
 if(($rel_path['file'] === $rel_path['script']) && (strlen((string) $_SERVER['DOCUMENT_ROOT']) < strlen($script_abs_path['dirname']))): 
-
     $href_path = '/'.str_replace($_SERVER['DOCUMENT_ROOT'], '', $rel_path['script']);
-
     if (substr($href_path, 0, 2) == '//'): 
     $href_path = substr($href_path, 1);
 	endif;
-
 elseif(strlen($rel_path['file']) == (strlen((string) $_SERVER['DOCUMENT_ROOT']) - 1)): 
-
     $href_path = '';
-
 elseif(strlen($rel_path['script']) > strlen((string) $_SERVER['DOCUMENT_ROOT']) && (strlen((string) $_SERVER['DOCUMENT_ROOT']) > strlen($rel_path['file']))): 
-
     $href_path = '';
-
 elseif(strlen($rel_path['file']) > strlen((string) $_SERVER['DOCUMENT_ROOT'])):
-
 	$href_path = '/'.str_replace($_SERVER['DOCUMENT_ROOT'], '', $rel_path['file']);
-
 	if(substr($href_path, 0, 2) == '//'): 
-        $href_path = substr($href_path, 1);
+    $href_path = substr($href_path, 1);
 	endif;
-
 else: 
-
     $href_path = 'https://'.$_SERVER['SERVER_NAME'];
 	$href_path_http = 'http://'.$_SERVER['SERVER_NAME'];
-
 endif;
 
 unset ($rel_path);
@@ -148,70 +142,57 @@ unset ($server_ary);
 unset ($script_abs_path);
 
 # BASE Directory
-define('TITANIUM_BASE_DIR', __DIR__ . '/');
-
+define('BASE_DIR', __DIR__ . '/');
 # HTTP & HTTPS
 define('HTTPS', $href_path . '/');
 define('HTTP', $href_path_http . '/');
-
 # Modules Directory
-define('MODULES', TITANIUM_BASE_DIR . 'modules/');
-
+define('MODULES', BASE_DIR . 'modules/');
 # ADMIN Directory
-define('TITANIUM_ADMIN_DIR', TITANIUM_BASE_DIR . 'admin/'); 
-define('TITANIUM_ADMIN_MODULE_DIR', TITANIUM_ADMIN_DIR . 'modules/');
-
+define('ADMIN_DIR', BASE_DIR . 'admin/'); 
+define('ADMIN_MODULE_DIR', ADMIN_DIR . 'modules/');
 # INCLUDES Directories
-define('TITANIUM_INCLUDE_DIR', TITANIUM_BASE_DIR . 'includes/');
-define('TITANIUM_INCLUDE_HREF_DIR', $href_path . '/includes/');
-
+define('INCLUDE_DIR', BASE_DIR . 'includes/');
+define('INCLUDE_HREF_DIR', $href_path . '/includes/');
 # CSS Directory
-define('TITANIUM_CSS_DIR', TITANIUM_INCLUDE_DIR . 'css/');
-
+define('CSS_DIR', INCLUDE_DIR . 'css/');
 # CERT Directory
-define('TITANIUM_CERT_DIR', TITANIUM_INCLUDE_DIR . 'certs'); // pem directory
-
+define('CERT_DIR', INCLUDE_DIR . 'certs'); // pem directory
 # GLOBAL CSS DIR
-define('TITANIUM_CSS_HREF_DIR', $href_path . '/includes/css/');
-
+define('CSS_HREF_DIR', $href_path . '/includes/css/');
 # lytebox
-define('TITANIUM_LYTEBOX_HREF_DIR', $href_path . '/includes/lytebox/');
-
+define('LYTEBOX_HREF_DIR', $href_path . '/includes/lytebox/');
 # lightbox
-define('TITANIUM_LIGHTBOX_HREF_DIR', $href_path . '/includes/lightbox/');
-
+define('LIGHTBOX_HREF_DIR', $href_path . '/includes/lightbox/');
 # cache
-define('TITANIUM_CACHE_DIR', TITANIUM_INCLUDE_DIR . 'cache/');
-
+define('CACHE_DIR', INCLUDE_DIR . 'cache/');
 # classes
-define('TITANIUM_CLASSES_DIR', TITANIUM_INCLUDE_DIR . 'classes/');
-
+define('CLASSES_DIR', INCLUDE_DIR . 'classes/');
 # DB Directory
-define('TITANIUM_DB_DIR', TITANIUM_INCLUDE_DIR . 'db/');
-
+define('DB_DIR', INCLUDE_DIR . 'db/');
 # MODULES Directory
-define('TITANIUM_HREF_MODULES_DIR', $href_path . '/modules/'); 
-define('TITANIUM_MODULES_DIR', TITANIUM_BASE_DIR . 'modules/');
-define('TITANIUM_MODULES_IMAGE_DIR', $href_path . '/modules/');
+define('HREF_MODULES_DIR', $href_path . '/modules/'); 
+define('MODULES_DIR', BASE_DIR . 'modules/');
+define('MODULES_IMAGE_DIR', $href_path . '/modules/');
 # BLOCKS Directory
-define('TITANIUM_BLOCKS_DIR', TITANIUM_BASE_DIR . 'blocks/');
+define('BLOCKS_DIR', BASE_DIR . 'blocks/');
 # IMAGES Directory
-define('TITANIUM_IMAGES_DIR', TITANIUM_BASE_DIR . '/images/');
-define('TITANIUM_IMAGES_BASE_DIR', $href_path . '/images/');
+define('IMAGES_DIR', BASE_DIR . '/images/');
+define('IMAGES_BASE_DIR', $href_path . '/images/');
 # LANGUAGE Directory
-define('TITANIUM_LANGUAGE_DIR', TITANIUM_BASE_DIR . 'language/');
-define('TITANIUM_LANGUAGE_CUSTOM_DIR', TITANIUM_LANGUAGE_DIR . 'custom/');
+define('LANGUAGE_DIR', BASE_DIR . 'language/');
+define('LANGUAGE_CUSTOM_DIR', LANGUAGE_DIR . 'custom/');
 # STYLE Directory
-define('TITANIUM_THEMES_DIR', TITANIUM_BASE_DIR . 'themes/');
-define('TITANIUM_THEMES_IMAGE_DIR', $href_path . '/themes/');
-define('TITANIUM_THEMES_MAIN_DIR',  $href_path . '/themes/');
+define('THEMES_DIR', BASE_DIR . 'themes/');
+define('THEMES_IMAGE_DIR', $href_path . '/themes/');
+define('THEMES_MAIN_DIR',  $href_path . '/themes/');
 # FORUMS Directory
-define('TITANIUM_FORUMS_DIR', TITANIUM_MODULES_DIR . 'Forums/');
-define('TITANIUM_FORUMS_ADMIN_DIR', TITANIUM_FORUMS_DIR . 'admin/');
-define('TITANIUM_FORUMS_ADMIN_HREF_DIR', $href_path . '/modules/Forums/admin/');
+define('FORUMS_DIR', MODULES_DIR . 'Forums/');
+define('FORUMS_ADMIN_DIR', FORUMS_DIR . 'admin/');
+define('FORUMS_ADMIN_HREF_DIR', $href_path . '/modules/Forums/admin/');
 # OTHER Directories
-define('TITANIUM_RSS_DIR', TITANIUM_INCLUDE_DIR . 'rss/');
-define('TITANIUM_STATS_DIR', TITANIUM_THEMES_DIR);
+define('RSS_DIR', INCLUDE_DIR . 'rss/');
+define('STATS_DIR', THEMES_DIR);
 # Absolute Path Mod - 01/01/2012 by Ernest Allen Buffington END
 
 # Inspired by phoenix-cms at website-portals.net
@@ -220,43 +201,24 @@ define('NUKE_BASE_DIR', __DIR__ . '/');
 # Absolute Nuke directory + includes
 define('NUKE_VENDOR_DIR', NUKE_BASE_DIR . 'includes/vendor/');
 define('NUKE_ZEND_DIR', NUKE_BASE_DIR . 'includes/Zend/');
-
 define('NUKE_BLOCKS_DIR', NUKE_BASE_DIR . 'blocks/');
-
 define('NUKE_CSS_DIR', 'includes/css/');
-
 define('NUKE_IMAGES_DIR', NUKE_BASE_DIR . 'images/');
-
 define('NUKE_INCLUDE_DIR', NUKE_BASE_DIR . 'includes/');
-
 define('NUKE_JQUERY_INCLUDE_DIR', 'includes/js/');
-
 define('NUKE_JQUERY_SCRIPTS_DIR', 'includes/js/scripts/');
-
 define('NUKE_LANGUAGE_DIR', NUKE_BASE_DIR . 'language/');
-
 define('NUKE_MODULES_DIR', NUKE_BASE_DIR . 'modules/');
-
 define('NUKE_THEMES_DIR', NUKE_BASE_DIR . 'themes/');
-
 define('NUKE_THEMES_SAVE_DIR', NUKE_INCLUDE_DIR . 'saved_themes/');
-
 define('NUKE_ADMIN_DIR', NUKE_BASE_DIR . 'admin/');
-
 define('NUKE_RSS_DIR', NUKE_INCLUDE_DIR . 'rss/');
-
 define('NUKE_DB_DIR', NUKE_BASE_DIR . 'db/');
-
 define('NUKE_ADMIN_MODULE_DIR', NUKE_ADMIN_DIR . 'modules/');
-
 define('NUKE_FORUMS_DIR', (defined("IN_ADMIN") ? './../' : 'modules/Forums/'));
-
 define('NUKE_CACHE_DIR', NUKE_INCLUDE_DIR . 'cache/');
 define('NUKE_CACHE_DELETE_DIR', NUKE_INCLUDE_DIR . 'cache');
-
-
 define('NUKE_CLASSES_DIR', NUKE_INCLUDE_DIR . 'classes/');
-
 define('NUKE_CLASS_EXCEPTION_DIR',  NUKE_CLASSES_DIR . 'exceptions/');
 
 # define the INCLUDE PATH
@@ -432,6 +394,8 @@ if (file_exists(INCLUDE_PATH."includes/custom_files/custom_mainfile.php")) {
 	include_once(INCLUDE_PATH."includes/custom_files/custom_mainfile.php");
 }
 
+require_once(INCLUDE_PATH."includes/functions_nuke.php");
+
 if (!defined('FORUM_ADMIN')) {
 if(empty($admin_file)) {
    	die ("You must set a value for admin_file in config.php");
@@ -500,7 +464,7 @@ error_reporting(E_ALL^E_NOTICE);
 if ($display_errors == 1) {
   ini_set('display_errors', 1);
 } else {
-  ini_set('display_errors', 0);
+  ini_set('display_errors', 1);
 }
 
 if (!defined('FORUM_ADMIN')) {
@@ -1024,7 +988,7 @@ function cookiedecode($user) {
     global $cookie, $db, $user_prefix;
     static $pass;
     if(!is_array($user)) {
-        $user = base64_decode($user);
+        $user = base64_decode($user ?? '');
         $user = addslashes($user);
         $cookie = explode(":", $user);
     } else {
@@ -1077,18 +1041,26 @@ function check_words($Message) {
 	global $CensorMode, $CensorReplace, $EditedMessage;
 	include("config.php");
 	$EditedMessage = $Message;
+    $CensorList = [];
+
+    if(empty($Message)): 
+      return '';
+	endif;
+	
+	$CensorReplace = [];
+	
 	if ($CensorMode != 0) {
 		if (is_array($CensorList)) {
 			$Replace = $CensorReplace;
-			if ($CensorMode == 1) {
+			if (isset($CensorMode) && $CensorMode === 1) {
 				for ($i = 0; $i < count($CensorList); $i++) {
 					$EditedMessage = preg_replace("$CensorList[$i]([^a-zA-Z0-9])","$Replace\\1",$EditedMessage);
 				}
-			} elseif ($CensorMode == 2) {
+			} elseif (isset($CensorMode) && $CensorMode === 2) {
 				for ($i = 0; $i < count($CensorList); $i++) {
 					$EditedMessage = preg_replace("(^|[^[:alnum:]])$CensorList[$i]","\\1$Replace",$EditedMessage);
 				}
-			} elseif ($CensorMode == 3) {
+			} elseif (isset($CensorMode) && $CensorMode === 3) {
 				for ($i = 0; $i < count($CensorList); $i++) {
 					$EditedMessage = preg_replace("$CensorList[$i]","$Replace",$EditedMessage);
 				}
@@ -1163,22 +1135,40 @@ function check_html ($str, $strip="") {
 	$str = preg_replace('#<a[^>]*href[013\s]*=[013\s]*"?javascript[[:punct:]]*"?[^>]*>#mi', '', $str);
 	// Delete javascript code from a href tags -- Zhen-Xjell @ http://nukecops.com
 	$tmp = "";
-	while (preg_match('#<(\/?[[:alpha:]]*)[013\s]*([^>]*)>#m',$str,$reg)) {
+	while (preg_match('#<(\/?[[:alpha:]]*)[013\s]*([^>]*)>#m',$str,$reg)) 
+	{
 		$i = strpos($str,$reg[0]);
 		$l = strlen($reg[0]);
-		if ($reg[1][0] == "/") $tag = strtolower(substr($reg[1],1));
-		else $tag = strtolower($reg[1]);
-		if ($a = $AllowableHTML[$tag])
-		if ($reg[1][0] == "/") $tag = "</$tag>";
-		elseif (($a == 1) || ($reg[2] == "")) $tag = "<$tag>";
-		else {
-			# Place here the double quote fix function.
-			$attrb_list=delQuotes($reg[2]);
-			// A VER
-			//$attrb_list = ereg_replace("&","&amp;",$attrb_list);
-			$tag = "<$tag" . $attrb_list . ">";
-		} # Attribs in tag allowed
-		else $tag = "";
+		$a = [];
+		
+		if ($reg[1][0] == "/") 
+		{
+		  $tag = strtolower(substr($reg[1],1));
+		}
+		else 
+		{ 
+		  $tag = strtolower($reg[1]);
+		}
+		
+		if(isset($AllowableHTML[$tag])) 
+		{
+		  if ($a = $AllowableHTML[$tag]) {
+		     if ($reg[1][0] == "/") { 
+		       $tag = "</$tag>";
+		     }
+		     elseif (($a == 1) || ($reg[2] == "")) {
+		       $tag = "<$tag>";
+		     } else {
+			   # Place here the double quote fix function.
+			   $attrb_list=delQuotes($reg[2]);
+			   // A VER
+			   //$attrb_list = ereg_replace("&","&amp;",$attrb_list);
+			   $tag = "<$tag" . $attrb_list . ">";
+		     } # Attribs in tag allowed
+		   } else { 
+		     $tag = "";
+		   }
+		}
 		$tmp .= substr($str,0,$i) . $tag;
 		$str = substr($str,$i+$l);
 	}
@@ -1543,15 +1533,15 @@ function public_message() {
 			$t_off = "";
 		}
 		if (!is_user($user) OR (is_user($user) AND ($pm_show == 1))) {
-			$c_mid = base64_decode($p_msg);
+			$c_mid = base64_decode($p_msg ?? '');
 			$c_mid = addslashes($c_mid);
 			$c_mid = intval($c_mid);
 			$result2 = $db->sql_query("SELECT mid, content, date, who FROM ".$prefix."_public_messages WHERE mid > '$c_mid' ORDER BY date ASC LIMIT 1");
 			$row2 = $db->sql_fetchrow($result2);
-			$mid = intval($row2['mid']);
-			$content = filter($row2['content'], "nohtml");
-			$tdate = $row2['date'];
-			$who = filter($row2['who'], "nohtml");
+			$mid = intval($row2['mid'] ?? '');
+			$content = filter($row2['content'] ?? '', "nohtml");
+			$tdate = $row2['date'] ?? '';
+			$who = filter($row2['who'] ?? '', "nohtml");
 			if ((!isset($c_mid)) OR ($c_mid = $mid)) {
 				$public_msg = "<br><table width=\"90%\" border=\"1\" cellspacing=\"2\" cellpadding=\"0\" bgcolor=\"FFFFFF\" align=\"center\"><tr><td>\n";
 				$public_msg .= "<table width=\"100%\" border=\"0\" cellspacing=\"1\" cellpadding=\"2\" bgcolor=\"FF0000\"><tr><td>\n";

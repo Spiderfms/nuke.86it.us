@@ -43,7 +43,7 @@ if ($httpref == 1) {
     if (isset($_SERVER['HTTP_REFERER'])) {
     $referer = $_SERVER['HTTP_REFERER'];
     $referer = check_html($referer, "nohtml");
-    if (eregi("nuke_", $referer) && eregi("into", $referer) && eregi("from", $referer)) {
+    if (stristr("nuke_", $referer) && stristr("into", $referer) && stristr("from", $referer)) {
     	$referer = "";
     }
     }
