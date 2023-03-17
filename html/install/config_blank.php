@@ -9,7 +9,7 @@
 /* ============================================                         */
 /*                                                                      */
 /* Copyright (c) 2002 by Francisco Burzi                                */
-/* http://phpnuke.org                                                   */
+/* http://www.phpnuke.coders.exchange                                   */
 /*                                                                      */
 /* This program is free software. You can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */

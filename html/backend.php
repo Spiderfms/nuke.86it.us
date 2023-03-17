@@ -4,8 +4,8 @@
 /* PHP-NUKE: Web Portal System                                          */
 /* ===========================                                          */
 /*                                                                      */
-/* Copyright (c) 2007 by Francisco Burzi                                */
-/* http://phpnuke.org                                                   */
+/* Copyright (c) 2023 by Francisco Burzi                                */
+/* http://www.phpnuke.coders.exchange                                   */
 /*                                                                      */
 /* This program is free software. You can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -30,8 +30,12 @@ if (isset($cat) && !empty($cat)) {
 }
 
 echo "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n\n";
-echo "<!DOCTYPE rss PUBLIC \"-//Netscape Communications//DTD RSS 0.91//EN\"\n";
-echo " \"http://my.netscape.com/publish/formats/rss-0.91.dtd\">\n\n";
+
+echo '!DOCTYPE rss [';
+echo '<!ENTITY % HTMLspec PUBLIC';
+echo '"-//W3C//ENTITIES Latin 1 for XHTML//EN"';
+echo '"http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent">';
+echo '%HTMLspec;';
 echo "<rss version=\"0.91\">\n\n";
 echo "<channel>\n";
 echo "<title>".htmlentities($sitename)."</title>\n";
@@ -51,5 +55,3 @@ while ($row = $db->sql_fetchrow($result)) {
 }
 echo "</channel>\n";
 echo "</rss>";
-
-?>

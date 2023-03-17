@@ -4,8 +4,8 @@
 /* PHP-NUKE: Advanced Content Management System                         */
 /* ============================================                         */
 /*                                                                      */
-/* Copyright (c) 2007 by Francisco Burzi                                */
-/* http://phpnuke.org                                                   */
+/* Copyright (c) 2023 by Francisco Burzi                                */
+/* http://www.phpnuke.coders.exchange                                   */
 /*                                                                      */
 /* PHP-Nuke Installer was based on Joomla Installer                     */
 /* Joomla is Copyright (c) by Open Source Matters                       */
@@ -14,18 +14,225 @@
 /* it under the terms of the GNU General Public License as published by */
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
+error_reporting(E_ALL ^ E_NOTICE);
 
+if(defined('IN_NUKE')):
+  die ("Error 404 - Page Not Found");
+endif;
+
+define("IN_NUKE",true);
+define('INSETUP',true);
+
+require_once( 'version.php' );
+
+require_once("setup_config.php");
+require_once("functions.php");
+require_once(SETUP_NUKE_INCLUDES_DIR.'functions_selects.php');
+
+global $db, $dbhost, $dbname, $dbuname, $dbpass, $dbtype, $prefix, $user_prefix, $admin_file, $directory_mode, $file_mode, $debug, $use_cache, $persistency;
+
+$error = ((!isset($gpl) OR $gpl != "yes" OR !isset($lgpl) OR $lgpl != "yes") AND !isset($postback));
+$errors = ["db_host"=>false, "db_host_msg"=>"", "db_user"=>false, "db_user_msg"=>"", "db_name"=>false, "upload_directory"=>false, "upload_directory"=>false];
+
+if (!isset($db_type)) 
+$db_type = "MySQLi";
+if (!isset($db_host)) 
+$db_host = "localhost";
+if (!isset($db_user)) 
+$db_user = "";
+if (!isset($db_pass)) 
+$db_pass = "";
+if (!isset($db_name)) 
+$db_name = "";
+if (!isset($db_prefix)) 
+$db_prefix = "nuke";
+if (!isset($db_persistency)) 
+$db_persistency = "false";
+if (!isset($upload_directory)) 
+$upload_directory = "uploads";
+if (!isset($use_rsa)) 
+$use_rsa = "false";
+if (!isset($rsa_modulo)) 
+$rsa_modulo = 0;
+if (!isset($rsa_public)) 
+$rsa_public = 0;
+if (!isset($rsa_private)) 
+$rsa_private = 0;
+
+$showpanel = false;
+
+
+//Configuration file prototype. Copyright Notice included ;)
+$configproto = <<<EOF
+<?php
+/* ---------------------------------
+Database Configuration
+You have to Configure your Database
+Connection Here. Here is a Quick
+Explanation:
+
+db_type: your Database Type
+    Possible Options:
+        MySQL
+        MySQL4
+        MySQLi
+        Postgres
+        MSSQL
+        Oracle
+        MSAccess
+        MSSQL-ODBC
+        DB2
+
+db_host     : Host where your Database Runs
+db_port     : Not Used
+db_user     : Database Username
+db_password : Database Password
+db_name     : Database Name on Server
+db_prefix   : Prefix for Tables
+persistency : Connection Persistency
+--------------------------------- */
+\$db_type        = "$db_type";
+\$db_host        = "$db_host";
+\$db_user        = "$db_user";
+\$db_pass        = "$db_pass";
+\$db_name        = "$db_name";
+\$db_prefix      = "$db_prefix"; //Without "_"
+\$db_persistency = $db_persistency;
+
+/* ---------------------------------
+RSA Engine Configuration
+Make sure you ran rsa_keygen BEFORE
+Configuring RSA. You NEED a VALID
+Key Pair to Enable RSA.
+You can Copy & Paste the rsa_keygen Output
+--------------------------------- */
+\$use_rsa     = $use_rsa;
+\$rsa_modulo  = $rsa_modulo;
+\$rsa_public  = $rsa_public;
+\$rsa_private = $rsa_private;
+
+/*----------------------------------
+Torrent Upload Directory
+You can Change the Default Setting,
+but Remember that it MUST be Writeable
+by httpd/IUSR_MACHINE User
+----------------------------------*/
+\$uploads_dir = "$upload_directory";
+
+?>
+EOF;
+?>
+<?php
 // Set flag that this is a parent file
 define( "_VALID_MOS", 1 );
 
-// Include common.php
+/** Include common.php */
 require_once( 'common.php' );
-require_once( './includes/database.php' );
 
-$DBhostname = mosGetParam( $_POST, 'DBhostname', '' );
-$DBuserName = mosGetParam( $_POST, 'DBuserName', '' );
-$DBpassword = mosGetParam( $_POST, 'DBpassword', '' );
-$DBname  	= mosGetParam( $_POST, 'DBname', '' );
+require_once(SETUP_INCLUDE_DIR."configdata.php");
+require_once(SETUP_UDL_DIR."database.php");
+require_once(BASE_DIR.'functions.php');
+
+$db = new sql_db($db_host, $db_user, $db_pass, $db_name, $db_persistency);
+
+$_SESSION['dbhost'] = $db_host;
+$_SESSION['dbuser'] = $db_user;
+$_SESSION['dbpass'] = $db_pass;
+$_SESSION['dbname'] = $db_name;
+$_SESSION['dbtype'] = $db_type;
+$_SESSION['user_prefix'] = $db_prefix;
+$_SESSION['prefix'] = $db_prefix;
+
+$can_proceed = true;
+				
+$nuke_name = "PHP-Nuke v8.3.2 ";
+$sql_version = '10.3.38-MariaDB'; //mysqli_get_server_info();
+$os = '';
+
+if (!isset($_SESSION['language']) || $_SESSION['language'] == 'english'){
+    $_SESSION['language'] = $_POST['language'] ?? 'english';
+}
+
+if ($_SESSION['language']){
+    if (is_file(BASE_DIR.'language/' . $_SESSION['language'] . '.php')){
+        include(BASE_DIR.'language/' . $_SESSION['language'] . '.php');
+		include(BASE_DIR.'language/lang_english/' . $_SESSION['language'] . '-lang-install.php');
+	} else {
+        include(BASE_DIR.'language/lang_english/english-lang-install.php');
+    }
+}
+
+if(function_exists('ob_gzhandler') && !ini_get('zlib.output_compression')):
+  ob_start('ob_gzhandler');
+else:
+  ob_start();
+endif;
+
+ob_implicit_flush(0);
+
+define("_VERSION","8.3.2");
+
+if(!ini_get("register_globals")): 
+  if (phpversion() < '5.4'): 
+    import_request_variables('GPC');
+  else:
+    # EXTR_PREFIX_SAME will extract all variables, and only prefix ones that exist in the current scope.
+	extract($_REQUEST, EXTR_PREFIX_SAME,'GPS');
+  endif;
+endif;
+
+$step = 5;
+
+$total_steps = '10';
+$next_step = $step+1;
+$continue_button = '<input type="hidden" name="step" value="'.$next_step.'" /><input type="submit" class="button" name="submit" value="'.$install_lang['continue'].' '.$next_step.'" />';
+
+check_required_files();
+
+$safemodcheck = ini_get('safe_mod');
+
+if ($safemodcheck == 'On' || $safemodcheck == 'on' || $safemodcheck == true){
+    echo '<table id="menu" border="1" width="100%">';
+    echo '  <tr>';
+    echo '    <th id="rowHeading" align="center">'.$nuke_name.' '.$install_lang['installer_heading'].' '.$install_lang['failed'].'</th>';
+    echo '  </tr>';
+    echo '  <tr>';
+    echo '    <td align="center"><span style="color: #ff0000;"><strong>'.$install_lang['safe_mode'].'</strong></span></td>';
+    echo '  </tr>';
+    echo '</table>';
+    exit;
+}
+
+if (isset($_POST['download_file']) && !empty($_SESSION['configData']) && !$_POST['continue']){
+    header("Content-Type: text/x-delimtext; name=config.php");
+    header("Content-disposition: attachment; filename=config.php");
+    $configData = $_SESSION['configData'];
+    echo $configData;
+    exit;
+}
+else {
+$configData = [];
+}
+
+require_once(SETUP_GRAPHICS_DIR."graphics.php");
+
+global $cookiedata_admin, $cookiedata;
+
+if(!isset($cookiedata_admin))
+$cookiedata_admin = '';
+if(!isset($cookiedata))
+$cookiedata = '';
+if(!isset($cookie_location))
+$cookie_location = (string) $_SERVER['PHP_SELF'];
+
+setcookie('admin',$cookiedata_admin, ['expires' => time()+2_592_000, 'path' => $cookie_location]);
+setcookie('user',$cookiedata, ['expires' => time()+2_592_000, 'path' => $cookie_location]);
+
+if(isset($dbhost)){ $DBhostname = $dbhost; } else { $DBhostname = mosGetParam( $_POST, 'DBhostname', '' ); }
+if(isset($dbuname)){ $DBuserName = $dbuname; } else { $DBuserName = mosGetParam( $_POST, 'DBuserName', '' ); }
+if(isset($dbpass)){ $DBpassword = $dbpass; } else { $DBpassword = mosGetParam( $_POST, 'DBpassword', '' ); }
+if(isset($dbname)){ $DBname = $dbname; } else { $DBname = mosGetParam( $_POST, 'DBname', '' ); }
+
 $sitename  	= mosGetParam( $_POST, 'sitename', '' );
 $adminEmail = mosGetParam( $_POST, 'adminEmail', '');
 $siteUrl  	= mosGetParam( $_POST, 'siteUrl', '' );
@@ -71,11 +278,7 @@ if($DBhostname && $DBuserName && $DBname) {
 }
 
 if ($sitename) {
-	if (!get_magic_quotes_gpc()) {
-		$configArray['sitename'] = addslashes($sitename);
-	} else {
 		$configArray['sitename'] = $sitename;
-	}
 } else {
 	echo "<form name=\"stepBack\" method=\"post\" action=\"install3.php\">
 		<input type=\"hidden\" name=\"DBhostname\" value=\"$DBhostname\" />
@@ -111,7 +314,7 @@ if ($siteUrl) {
 	$config .= "# PHP-NUKE: Advanced Content Management System\n";
 	$config .= "# ============================================\n";
 	$config .= "#\n";
-	$config .= "# Copyright (c) 2007 by Francisco Burzi\n";
+	$config .= "# Copyright (c) 2023 by Francisco Burzi (Frank)\n";
 	$config .= "# http://phpnuke.org\n";
 	$config .= "#\n";
 	$config .= "# This program is free software. You can redistribute it and/or modify\n";
@@ -155,14 +358,14 @@ if ($siteUrl) {
 	$config .= "\$dbname = \"{$configArray['DBname']}\";\n";
 	$config .= "\$prefix = \"nuke\";\n";
 	$config .= "\$user_prefix = \"nuke\";\n";
-	$config .= "\$dbtype = \"MySQL\";\n";
+	$config .= "\$dbtype = \"MySQLi\";\n";
 	$skey = mosMakePassword(40);
 	$config .= "\$sitekey = \"$skey\";\n";
 	$config .= "\$subscription_url = \"\";\n";
 	$config .= "\$admin_file = \"admin\";\n";
 	$config .= "\n";
 	$config .= "/**********************************************************************/\n";
-	$config .= "/* You finished to configure the Database. Now you can change all     */\n";
+	$config .= "/* You have finished configuring the Database. Now you can change all */\n";
 	$config .= "/* you want in the Administration Section.   To enter just launch     */\n";
 	$config .= "/* your web browser pointing it to http://xxxxxx.xxx/admin.php        */\n";
 	$config .= "/* (Change xxxxxx.xxx to your domain name, for example: phpnuke.org)  */\n";
@@ -171,7 +374,7 @@ if ($siteUrl) {
 	$config .= "/* new site. In that menu you can change all you need to change.      */\n";
 	$config .= "/*                                                                    */\n";
 	$config .= "/* Congratulations! now you have an automated news portal!            */\n";
-	$config .= "/* Thanks for choose PHP-Nuke: The Future of the Web                  */\n";
+	$config .= "/* Thanks for choosing PHP-Nuke: The Future of the Web                */\n";
 	$config .= "/**********************************************************************/\n";
 	$config .= "\n";
 	$config .= "// DO NOT TOUCH ANYTHING BELOW THIS LINE UNTIL YOU KNOW WHAT YOU'RE DOING\n";
@@ -187,12 +390,12 @@ if ($siteUrl) {
 	$config .= "\$tipath = \"images/topics/\";\n";
 	$config .= "\n";
 	$config .= "//***************************************************************\n";
-	$config .= "// IF YOU WANT TO LEGALY REMOVE ANY COPYRIGHT NOTICES PLAY FAIR AND CHECK: http://phpnuke.org/modules.php?name=Commercial_License\n";
+	$config .= "// IF YOU WANT TO LEGALY REMOVE ANY COPYRIGHT NOTICES PLAY FAIR AND CHECK: http://phpnuke.coders.exchange/modules.php?name=Commercial_License\n";
 	$config .= "// COPYRIGHT NOTICES ARE GPL SECTION 2(c) COMPLIANT AND CAN'T BE REMOVED WITHOUT PHP-NUKE'S AUTHOR WRITTEN AUTHORIZATION\n";
 	$config .= "// THE USE OF COMMERCIAL LICENSE MODE FOR PHP-NUKE HAS BEEN APPROVED BY THE FSF (FREE SOFTWARE FOUNDATION)\n";
 	$config .= "// YOU CAN REQUEST INFORMATION ABOUT THIS TO GNU.ORG REPRESENTATIVE. THE EMAIL THREAD REFERENCE IS #213080\n";
 	$config .= "// YOU'RE NOT AUTHORIZED TO CHANGE THE FOLLOWING VARIABLE'S VALUE UNTIL YOU ACQUIRE A COMMERCIAL LICENSE\n";
-	$config .= "// (http://phpnuke.org/modules.php?name=Commercial_License)\n";
+	$config .= "// (http://phpnuke.coders.exchange/modules.php?name=Commercial_License)\n";
 	$config .= "//***************************************************************\n";
 	$config .= "\n";
 	$config .= "\$commercial_license = 0;\n";
@@ -206,20 +409,19 @@ if ($siteUrl) {
 		$canWrite = false;
 	}
 
-	$database = new database( $DBhostname, $DBuserName, $DBpassword, $DBname );
+	$database = new sql_db($db_host, $db_user, $db_pass, $db_name, $db_persistency);
 	$nullDate = $database->getNullDate();
 
 	// create the admin user
 	$cryptpass = md5( $adminPassword );
-	$query = "INSERT INTO nuke_authors VALUES ('admin', 'God', 'http://', '$adminEmail', '$cryptpass', 0, 1, '')";
-	$database->setQuery( $query );
-	$database->query();
+	$sql="INSERT INTO nuke_authors VALUES ('admin', 'God', 'http://', '$adminEmail', '$cryptpass', 0, 1, '') ";
+	$result=$db->sql_query($sql);
 
 	// touch config table
 	$date = date("F Y");
-	$query = "UPDATE nuke_config SET sitename='$sitename', nukeurl='$siteUrl', startdate='$date', adminmail='$adminEmail', backend_title='$sitename', notify_email='$adminEmail'";
-	$database->setQuery( $query );
-	$database->query();
+	$sql="UPDATE nuke_config SET sitename='$sitename', nukeurl='$siteUrl', startdate='$date', adminmail='$adminEmail', backend_title='$sitename', notify_email='$adminEmail' ";
+	$result=$db->sql_query($sql);
+
 
 } else {
 ?>
@@ -242,7 +444,7 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>PHP-Nuke - Installer</title>
+<title>PHP-Nuke <?=_VERSION?> - Installer</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <link rel="stylesheet" href="install.css" type="text/css" />
 </head>
@@ -256,15 +458,15 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 	<form action="dummy" name="form" id="form">
 	<div class="install">
 		<div id="stepbar">
-			<div class="step-off">pre-installation check</div>
-			<div class="step-off">license</div>
-			<div class="step-off">step 1</div>
-			<div class="step-off">step 2</div>
-			<div class="step-off">step 3</div>
-			<div class="step-on">step 4</div>
+			<div class="step-off">Pre-installation Check</div>
+			<div class="step-off">License</div>
+			<div class="step-off">Step 1</div>
+			<div class="step-off">Step 2</div>
+			<div class="step-off">Step 3</div>
+			<div class="step-on">Step 4</div>
 		</div>
 		<div id="right">
-			<div id="step">step 4</div>
+			<div id="step">Step 4</div>
 			<div class="far-right">
 				<input class="button" type="button" name="runSite" value="View Site"
 <?php
@@ -284,7 +486,7 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 ?>/>
 			</div>
 			<div class="clr"></div>
-			<h1>Congratulations! PHP-Nuke is installed</h1>
+			<h1>Congratulations! PHP-Nuke <?=_VERSION?> is installed</h1>
 			<div class="install-text">
 				<p>Click the "View Site" button to start PHP-Nuke site or "Administration"
 					to take you to administrator login.</p>
@@ -311,7 +513,7 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 						</tr>
 						<tr>
 							<td align="center">
-								<textarea rows="20" cols="60" name="configcode" onclick="javascript:this.form.configcode.focus();this.form.configcode.select();" ><?php echo htmlspecialchars( $config );?></textarea>
+								<textarea rows="20" cols="60" name="configcode" onClick="javascript:this.form.configcode.focus();this.form.configcode.select();" ><?php echo htmlspecialchars( $config );?></textarea>
 							</td>
 						</tr>
 <?php						} ?>

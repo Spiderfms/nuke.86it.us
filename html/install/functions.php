@@ -847,6 +847,21 @@ function getscrapedata($url, $display=false, $info = false) {
         return $page;
 }
 
+function nuke_sqlerror($sql) { //Returns SQL Error
+        global $db;
+        $err = [];
+        $err = $db->sql_error();
+        echo "<br />\n";
+        echo "<font class=\"err\">";
+        echo _nuke_sql_error1.$sql;
+        echo "<br />";
+        echo _nuke_sql_error2.$err["code"];
+        echo "<br />";
+        echo _nuke_sql_error3.$err["message"];
+        echo "</font>";
+        $db->sql_query("",END_TRANSACTION);
+}
+
 function check_chmod($file_check)
 {
 

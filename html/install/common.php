@@ -4,8 +4,8 @@
 /* PHP-NUKE: Advanced Content Management System                         */
 /* ============================================                         */
 /*                                                                      */
-/* Copyright (c) 2007 by Francisco Burzi                                */
-/* http://phpnuke.org                                                   */
+/* Copyright (c) 2023 by Francisco Burzi                                */
+/* http://www.phpnuke.coders.exchange                                   */
 /*                                                                      */
 /* PHP-Nuke Installer was based on Joomla Installer                     */
 /* Joomla is Copyright (c) by Open Source Matters                       */
@@ -42,14 +42,18 @@ function mosGetParam( &$arr, $name, $def=null, $mask=0 ) {
 		return $def;
 	}
 }
-
+/**
+* Utility password function to generate random password for the admin setup
+* @author Ernest Allen Buffington
+* @date 3/16/2023 9:52 PM
+*/
 function mosMakePassword($length) {
-	$salt = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	$len = strlen($salt);
-	$makepass="";
-	mt_srand(10000000*(double)microtime());
-	for ($i = 0; $i < $length; $i++)
-	$makepass .= $salt[mt_rand(0,$len - 1)];
+	$makepass = '';
+	$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	$limit = strlen($characters) - 1;
+	for ($i = 0; $i < $length; $i++) {
+        $makepass .= $characters[rand(0, $limit)];
+    }
 	return $makepass;
 }
 

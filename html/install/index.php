@@ -4,8 +4,8 @@
 /* PHP-NUKE: Advanced Content Management System                         */
 /* ============================================                         */
 /*                                                                      */
-/* Copyright (c) 2007 by Francisco Burzi                                */
-/* http://phpnuke.org                                                   */
+/* Copyright (c) 2023 by Francisco Burzi                                */
+/* http://www.phpnuke.coders.exchange                                   */
 /*                                                                      */
 /* PHP-Nuke Installer was based on Joomla Installer                     */
 /* Joomla is Copyright (c) by Open Source Matters                       */
@@ -14,11 +14,115 @@
 /* it under the terms of the GNU General Public License as published by */
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
+define("IN_NUKE",true);
+define('INSETUP',true);
+
+error_reporting(E_ALL ^ E_NOTICE);
 
 require_once( 'version.php' );
 
+require_once("setup_config.php");
+require_once("functions.php");
+require_once(SETUP_NUKE_INCLUDES_DIR.'functions_selects.php');
+
+global $dbhost, $dbname, $dbuname, $dbpass, $dbtype, $prefix, $user_prefix, $admin_file, $directory_mode, $file_mode, $debug, $use_cache, $persistency;
+
+// Set flag that this is a parent file
+define( "_VALID_MOS", 1 );
+
 /** Include common.php */
-include_once( 'common.php' );
+require_once( 'common.php' );
+require_once(SETUP_UDL_DIR."database.php");
+
+$nuke_name = "PHP-Nuke v8.3.2 ";
+$sql_version = '10.3.38-MariaDB'; //mysqli_get_server_info();
+$os = '';
+
+if (!isset($_SESSION['language']) || $_SESSION['language'] == 'english'){
+    $_SESSION['language'] = $_POST['language'] ?? 'english';
+}
+
+if ($_SESSION['language']){
+    if (is_file(BASE_DIR.'language/' . $_SESSION['language'] . '.php')){
+        include(BASE_DIR.'language/' . $_SESSION['language'] . '.php');
+		include(BASE_DIR.'language/lang_english/' . $_SESSION['language'] . '-lang-install.php');
+	} else {
+        include(BASE_DIR.'language/lang_english/english-lang-install.php');
+    }
+}
+
+if(function_exists('ob_gzhandler') && !ini_get('zlib.output_compression')):
+  ob_start('ob_gzhandler');
+else:
+  ob_start();
+endif;
+
+ob_implicit_flush(0);
+
+define("_VERSION","8.3.2");
+
+if(!ini_get("register_globals")): 
+  if (phpversion() < '5.4'): 
+    import_request_variables('GPC');
+  else:
+    # EXTR_PREFIX_SAME will extract all variables, and only prefix ones that exist in the current scope.
+	extract($_REQUEST, EXTR_PREFIX_SAME,'GPS');
+  endif;
+endif;
+
+$step = 0;
+
+$total_steps = '10';
+$next_step = $step+1;
+$continue_button = '<input type="hidden" name="step" value="'.$next_step.'" /><input type="submit" class="button" name="submit" value="'.$install_lang['continue'].' '.$next_step.'" />';
+check_required_files();
+
+$safemodcheck = ini_get('safe_mod');
+
+if ($safemodcheck == 'On' || $safemodcheck == 'on' || $safemodcheck == true){
+    echo '<table id="menu" border="1" width="100%">';
+    echo '  <tr>';
+    echo '    <th id="rowHeading" align="center">'.$nuke_name.' '.$install_lang['installer_heading'].' '.$install_lang['failed'].'</th>';
+    echo '  </tr>';
+    echo '  <tr>';
+    echo '    <td align="center"><span style="color: #ff0000;"><strong>'.$install_lang['safe_mode'].'</strong></span></td>';
+    echo '  </tr>';
+    echo '</table>';
+    exit;
+}
+
+if (isset($_POST['download_file']) && !empty($_SESSION['configData']) && !$_POST['continue']){
+    header("Content-Type: text/x-delimtext; name=config.php");
+    header("Content-disposition: attachment; filename=config.php");
+    $configData = $_SESSION['configData'];
+    echo $configData;
+    exit;
+}
+
+require_once(SETUP_GRAPHICS_DIR."graphics.php");
+
+global $cookiedata_admin, $cookiedata;
+
+if(!isset($cookiedata_admin))
+$cookiedata_admin = '';
+if(!isset($cookiedata))
+$cookiedata = '';
+if(!isset($cookie_location))
+$cookie_location = (string) $_SERVER['PHP_SELF'];
+
+setcookie('admin',$cookiedata_admin, ['expires' => time()+2_592_000, 'path' => $cookie_location]);
+setcookie('user',$cookiedata, ['expires' => time()+2_592_000, 'path' => $cookie_location]);
+
+/**
+ * Operating System Analysis
+ * Useful for setup help
+ */
+if(strtoupper(substr(PHP_OS,0,3)) == "WIN"): 
+  $os = "Windows";
+else: 
+  $os = "Linux";
+endif;
+
 
 function get_php_setting($val) {
 	$r =  (ini_get($val) == '1' ? 1 : 0);
@@ -38,7 +142,7 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>PHP-Nuke Installer</title>
+<title>PHP-Nuke <?=_VERSION?> Installer</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <link rel="shortcut icon" href="../../images/favicon.ico" />
 <link rel="stylesheet" href="install.css" type="text/css" />
@@ -54,17 +158,17 @@ echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?".">";
 <div id="ctr" align="center">
 <div class="install">
 <div id="stepbar">
-<div class="step-on">pre-installation check</div>
-<div class="step-off">license</div>
-<div class="step-off">step 1</div>
-<div class="step-off">step 2</div>
-<div class="step-off">step 3</div>
-<div class="step-off">step 4</div>
+<div class="step-on">Pre-Installation Check</div>
+<div class="step-off">License</div>
+<div class="step-off">Step 1</div>
+<div class="step-off">Step 2</div>
+<div class="step-off">Step 3</div>
+<div class="step-off">Step 4</div>
 </div>
 
 <div id="right">
 
-<div id="step">pre-installation check</div>
+<div id="step">Pre-Installation Check</div>
 
 <div class="far-right">
 	<input name="Button2" type="submit" class="button" value="Next >>" onclick="window.location='install.php';" />
@@ -89,12 +193,149 @@ correctly.
 <table class="content">
 <tr>
 	<td class="item">
-	PHP version >= 8.1.3 
+	&nbsp; - PHP Version 
 	</td>
 	<td align="left">
-	<?php echo phpversion() < '8.1' ? '<b><font color="red">No</font></b>' : '<b><font color="green">Yes</font></b>';?>
+	<?php echo phpversion() < '8.1' ? '<b><font color="red">No</font></b>' : '<b><font color="green">'.phpversion().'</font></b>';?>
 	</td>
 </tr>
+
+<tr>
+	<td>
+	&nbsp; - Operating System
+	</td>
+	<td align="left">
+	<?php echo '<b><font color="green">'.$os.'</font></b>'?>
+	</td>
+</tr>
+<tr>
+
+<tr>
+	<td>
+	&nbsp; - safe mode support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('safe_mod')  ? '<b><font color="red">Available</font></b>' : '<b><font color="green">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - cgi-fcgi support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('cgi-fcgi')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - json support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('json')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - mbstring support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('mbstring')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - hash support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('hash')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - openssl support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('openssl')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - Phar support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('Phar')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - xml support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('xml')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - SimpleXML support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('SimpleXML')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - xmlreader support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('xmlreader')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - xmlwriter support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('xmlwriter')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - xsl support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('xsl')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - Zend OPcache support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('Zend OPcache')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - zip support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('zip')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
 <tr>
 	<td>
 	&nbsp; - zlib compression support
@@ -104,6 +345,18 @@ correctly.
 	</td>
 </tr>
 <tr>
+
+
+<tr>
+	<td>
+	&nbsp; - tokenizer support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('tokenizer')  ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Off</font></b>';?>
+	</td>
+</tr>
+
+
 	<td>
 	&nbsp; - GD graphics support
 	</td>
@@ -111,6 +364,7 @@ correctly.
 	<?php echo extension_loaded('gd') ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Unavailable</font></b>';?>
 	</td>
 </tr>
+
 <tr>
 	<td>
 	&nbsp; - MySQLi support
@@ -119,6 +373,35 @@ correctly.
 	<?php echo function_exists( 'mysqli_connect' ) ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Unavailable</font></b>';?>
 	</td>
 </tr>
+
+<tr>
+	<td>
+	&nbsp; - cURL support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('curl') ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Unavailable</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - DOM/XML
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('dom') ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Unavailable</font></b>';?>
+	</td>
+</tr>
+
+<tr>
+	<td>
+	&nbsp; - fileinfo support
+	</td>
+	<td align="left">
+	<?php echo extension_loaded('fileinfo') ? '<b><font color="green">Available</font></b>' : '<b><font color="red">Unavailable</font></b>';?>
+	</td>
+</tr>
+
+
 <tr>
 	<td valign="top" class="item">
 	config.php
@@ -175,8 +458,8 @@ array ('Session auto start','session.auto_start','OFF'),
 foreach ($php_recommended_settings as $phprec) {
 ?>
 <tr>
-	<td class="item"><?php echo $phprec[0]; ?>:</td>
-	<td class="toggle"><?php echo $phprec[2]; ?>:</td>
+	<td class="item"><?php echo $phprec[0]; ?></td>
+	<td class="toggle"><?php echo $phprec[2]; ?></td>
 	<td>
 	<?php
 	if ( get_php_setting($phprec[1]) == $phprec[2] ) {
@@ -231,7 +514,7 @@ writableCell( 'ultramode.txt' );
 </div>
 
 <div class="ctr">
-	<a href="http://phpnuke.org" target="_blank">PHP-Nuke</a> is Free Software released under the GNU/GPL License.
+	<a href="http://www.phpnuke.coders.exchange" target="_blank">PHP-Nuke <?=_VERSION?></a> is Free Software released under the GNU/GPL License.
 </div>
 
 </body>

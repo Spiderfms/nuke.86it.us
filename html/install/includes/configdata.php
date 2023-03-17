@@ -49,13 +49,15 @@ db_name     : Database Name on Server
 db_prefix   : Prefix for Tables
 persistency : Connection Persistency
 --------------------------------- */
-$db_type        = "MySQLi";
-$db_host        = "localhost";
-$db_user        = "theghost_abode";
-$db_pass        = "xwdNPADv86ha";
-$db_name        = "theghost_abode";
-$db_prefix      = "nuke"; //Without "_"
-$db_persistency = false;
+global $rsa_private, $rsa_public, $rsa_modulo, $use_rsa, $uploads_dir, $dbhost, $dbname, $dbuname, $dbpass, $dbtype, $prefix, $user_prefix, $admin_file, $directory_mode, $file_mode, $debug, $use_cache, $persistency;
+
+$db_type        = $dbtype;
+$db_host        = $dbhost;
+$db_user        = $dbuname;
+$db_pass        = $dbpass;
+$db_name        = $dbname;
+$db_prefix      = $prefix;
+$db_persistency = $persistency;
 
 /* ---------------------------------
 RSA Engine Configuration
@@ -76,5 +78,3 @@ but Remember that it MUST be Writeable
 by httpd/IUSR_MACHINE User
 ----------------------------------*/
 $uploads_dir = "uploads";
-
-?>

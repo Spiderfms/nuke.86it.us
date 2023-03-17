@@ -22,21 +22,7 @@
 
 require_once(SETUP_INCLUDE_DIR."configdata.php");
 require_once(SETUP_UDL_DIR."database.php");
-
-function nuke_sqlerror($sql) { //Returns SQL Error
-        global $db;
-        $err = [];
-        $err = $db->sql_error();
-        echo "<br />\n";
-        echo "<font class=\"err\">";
-        echo _nuke_sql_error1.$sql;
-        echo "<br />";
-        echo _nuke_sql_error2.$err["code"];
-        echo "<br />";
-        echo _nuke_sql_error3.$err["message"];
-        echo "</font>";
-        $db->sql_query("",END_TRANSACTION);
-}
+require_once(BASE_DIR."functions.php");
 
 echo "<p align=\"center\"><font size=\"5\">"._step4."</font></p>\n";
 echo "<p>&nbsp</p>";
@@ -99,7 +85,7 @@ if ($can_proceed) {
         echo "</p>\n";
         unset($installscript);
 		
-		$sql="ALTER TABLE ".$db_prefix."_bbsmilies ADD PRIMARY KEY (`smilies_id`) ";
+		$sql="ALTER TABLE ".$db_prefix."_bbsmilies ADD PRIMARY KEY (`country`) ";
 		$result=$db->sql_query($sql);
 		$sql="ALTER TABLE ".$db_prefix."_bbsmilies MODIFY `smilies_id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37 ";
 		$result=$db->sql_query($sql);

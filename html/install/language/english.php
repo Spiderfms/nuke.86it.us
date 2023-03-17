@@ -137,6 +137,11 @@ define("_nuke_sql_error1", "Error Executing SQL Query ");
 define("_nuke_sql_error2", "Error ID: ");
 define("_nuke_sql_error3", "Error Message: ");
 define("_tblcreating", "Creating Table <strong>**table**</strong>...");
+define("_tblaltering", "Altering Table <strong>**table**</strong>...");
+define("_tblpopulating", "Populating Table <strong>**table**</strong>...");
+
+
+
 define("_installcategories", "Creating Default Categories...");
 define("_installsmiles", "Installing Default Smiley's...");
 define("_step4failed", "A Fatal Error Occurred during Setup.  Please Fix the above Error and try running the Setup again, or Refreshing your Browser.");

@@ -25,24 +25,19 @@
 if (!defined('IN_NUKE'))
     die ("You Can't Access this File Directly");
 
+require_once("setup_config.php");
+
 define("BEGIN_TRANSACTION",1);
 define("END_TRANSACTION",-1);
 
-switch($db_type) {
+global $dbtype;
+$dbtype = strtolower($dbtype);
 
-        case 'MySQL':
-                require("udl/mysql.php");
-                break;
-
-        case 'MySQL4':
-                require("udl/mysql4.php");
-                break;
-        case 'MySQLi':
+switch($dbtype) {
+        case 'mysqli':
                 require("udl/mysqli.php");
                 break;
         default:
                 die("No database set!!! Check config file");
-
 }
 
-?>

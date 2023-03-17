@@ -4,8 +4,8 @@
 /* PHP-NUKE: Advanced Content Management System                         */
 /* ============================================                         */
 /*                                                                      */
-/* Copyright (c) 2007 by Francisco Burzi                                */
-/* http://phpnuke.org                                                   */
+/* Copyright (c) 2023 by Francisco Burzi                                */
+/* http://www.phpnuke.coders.exchange                                   */
 /*                                                                      */
 /* PHP-Nuke Installer was based on Joomla Installer                     */
 /* Joomla is Copyright (c) by Open Source Matters                       */

@@ -5,7 +5,7 @@
 /* ===========================                                          */
 /*                                                                      */
 /* Copyright (c) 2002 by Francisco Burzi                                */
-/* http://phpnuke.org                                                   */
+/* http://www.phpnuke.coders.exchange                                   */
 /*                                                                      */
 /* postgres fix by Rubén Campos - Oscar Silla                         */
 /*                                                                      */

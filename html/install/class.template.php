@@ -183,7 +183,7 @@ class Template {
 		$this->files_template[$handle] = $user->theme . '\'';
 
 		$recompile = false;
-		if (!file_exists($filename) || @filesize($filename) === 0)
+		if (!file_exists($filename) || filesize($filename) === 0)
 		{
 			$recompile = true;
 		}
@@ -195,7 +195,7 @@ class Template {
 				$this->files[$handle] = $this->files_inherit[$handle];
 				$this->files_template[$handle] = $user->theme;
 			}
-			$recompile = (@filemtime($filename) < filemtime($this->files[$handle])) ? true : false;
+			$recompile = (filemtime($filename) < filemtime($this->files[$handle])) ? true : false;
 		}
 		// Recompile page if the original template is newer, otherwise load the compiled version
 		if (!$recompile)
@@ -704,7 +704,7 @@ class Template {
 							// Add the block reference for the last child.
 							$varref .= "['" . $blocks[0] . "']";
 						}
-						$token = "@sizeof($varref)";
+						$token = "sizeof($varref)";
 					}
 					else if (!empty($token))
 					{
@@ -810,7 +810,7 @@ class Template {
 		switch ($expr_type)
 		{
 			case 'even':
-				if (@$tokens[$expr_end] == 'by')
+				if ($tokens[$expr_end] == 'by')
 				{
 					$expr_end++;
 					$expr_arg = $tokens[$expr_end++];
@@ -823,7 +823,7 @@ class Template {
 			break;
 
 			case 'odd':
-				if (@$tokens[$expr_end] == 'by')
+				if ($tokens[$expr_end] == 'by')
 				{
 					$expr_end++;
 					$expr_arg = $tokens[$expr_end++];
@@ -836,7 +836,7 @@ class Template {
 			break;
 
 			case 'div':
-				if (@$tokens[$expr_end] == 'by')
+				if ($tokens[$expr_end] == 'by')
 				{
 					$expr_end++;
 					$expr_arg = $tokens[$expr_end++];
@@ -933,12 +933,12 @@ class Template {
 		$filename = $this->cache_dir.$theme.'_'.str_replace("admin/","admin_",(string) $handle).'.'.$phpEx;
 		//die($filename);
 		$data = "<?php\n if (!defined('IN_PMBT'))\n{\n include_once './../security.php';\n}\n" . ((str_starts_with((string) $data, '<?php')) ? substr((string) $data, 5) : ' ?>' . $data);
-		if ($fp = @fopen($filename, 'wb'))
+		if ($fp = fopen($filename, 'wb'))
 		{
-			@flock($fp, LOCK_EX);
-			@fwrite ($fp, $data);
-			@flock($fp, LOCK_UN);
-			@fclose($fp);
+			flock($fp, LOCK_EX);
+			fwrite ($fp, $data);
+			flock($fp, LOCK_UN);
+			fclose($fp);
 
 			//phpbb_chmod($filename, CHMOD_READ | CHMOD_WRITE);
 		}
@@ -1021,4 +1021,4 @@ class Template {
 		return true;
 	}
 }
-?>
+
