@@ -35,7 +35,7 @@ function RecommendSite($mess="0") {
 	."<table align=\"left\" border=\"0\" cellpadding=\"5\" cellspacing=\"5\"><tr><td>"
 	."<form action=\"modules.php?name=$module_name\" method=\"post\">"
 	."<input type=\"hidden\" name=\"op\" value=\"SendSite\">";
-	if (is_user($user)) {
+	if (is_user()) {
 		$row = $db->sql_fetchrow($db->sql_query("SELECT username, user_email from ".$user_prefix."_users where user_id = '".intval($cookie[0])."'"));
 		$yn = filter($row['username'], "nohtml");
 		$ye = filter($row['user_email'], "nohtml");

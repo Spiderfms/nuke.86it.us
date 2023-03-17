@@ -33,7 +33,7 @@ $row = $db->sql_fetchrow($db->sql_query("SELECT main_module from ".$prefix."_mai
 $name = $row['main_module'];
 define('HOME_FILE', true);
 
-if (isset($url) AND is_admin($admin)) {
+if (isset($url) AND is_admin()) {
 	$url = urldecode($url);
 	echo "<meta http-equiv=\"refresh\" content=\"0; url=$url\">";
 	die();
@@ -81,7 +81,7 @@ if (stripos_clone($name,"..") || (isset($file) && stripos_clone($file,"..")) || 
 		define('INDEX_FILE', true);
 		include("header.php");
 		OpenTable();
-		if (is_admin($admin)) {
+		if (is_admin()) {
 			echo "<center><font class=\"\"><b>"._HOMEPROBLEM."</b></font><br><br>[ <a href=\"".$admin_file.".php?op=modules\">"._ADDAHOME."</a> ]</center>";
 		} else {
 			echo "<center>"._HOMEPROBLEMUSER."</center>";

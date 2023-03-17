@@ -23,7 +23,7 @@ get_lang($module_name);
 
 function theindex($new_topic="0") {
    global $db, $storyhome, $topicname, $topicimage, $topictext, $datetime, $user, $cookie, $nukeurl, $prefix, $multilingual, $currentlang, $articlecomm, $sitename, $user_news, $userinfo;
-        if (is_user($user)) { getusrinfo($user); }
+        if (is_user()) { getusrinfo($user); }
 	$new_topic = intval($new_topic);
 	if ($multilingual == 1) {
 		$querylang = "AND (alanguage='$currentlang' OR alanguage='')";
@@ -232,7 +232,7 @@ function rate_article($sid, $score, $random_num="0", $gfx_check) {
 function rate_complete($sid, $rated=0, $score) {
 	global $sitename, $user, $cookie, $module_name, $userinfo;
 	$r_options = "";
-	if (is_user($user)) {
+	if (is_user()) {
                 getusrinfo($user);
 		if (isset($userinfo['umode'])) { $r_options .= "&amp;mode=".$userinfo['umode']; }
 		if (isset($userinfo['uorder'])) { $r_options .= "&amp;order=".$userinfo['uorder']; }

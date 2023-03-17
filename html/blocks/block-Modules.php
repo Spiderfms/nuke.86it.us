@@ -63,7 +63,7 @@ if (file_exists("themes/$ThemeSel/module.php")) {
 	    $m_title2 = $custom_title;
 	}
 	if ($m_title != $main_module) {
-	    if ((is_admin($admin) AND $view == 2) OR $view != 2) {
+	    if ((is_admin() AND $view == 2) OR $view != 2) {
 		$content .= "<li><a href=\"modules.php?name=$m_title\">$m_title2</li>";
 	    }
 	}
@@ -71,7 +71,7 @@ if (file_exists("themes/$ThemeSel/module.php")) {
     /* If you're Admin you and only you can see Inactive modules and test it */
     /* If you copied a new module is the /modules/ directory, it will be added to the database */
     
-    if (is_admin($admin)) {
+    if (is_admin()) {
 	$handle=opendir('modules');
 	while ($file = readdir($handle)) {
 	    if ( (!ereg("[.]",$file)) ) {

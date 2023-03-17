@@ -25,7 +25,7 @@ if (isset($username) && (ereg("[^a-zA-Z0-9_-]",$username))) {
     die("Illegal username...");
 }
 
-if(is_user($user)) {
+if(is_user()) {
 	include("modules/$module_name/navbar.php");
 }
 
@@ -288,12 +288,12 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 			$online = _ONLINE;
 		}
 		echo "<br><br>"._USERSTATUS.": <b>$online</b><br>\n";
-		if (($userinfo['newsletter'] == 1) AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2]) OR (is_admin($admin) AND ($userinfo['newsletter'] == 1))) {
+		if (($userinfo['newsletter'] == 1) AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2]) OR (is_admin() AND ($userinfo['newsletter'] == 1))) {
 			echo "<i>"._SUBSCRIBED."</i><br>";
-		} elseif ((isset($cookie[1])) AND ($userinfo['newsletter'] == 0) AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2]) OR (is_admin($admin) AND ($userinfo['newsletter'] == 0))) {
+		} elseif ((isset($cookie[1])) AND ($userinfo['newsletter'] == 0) AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2]) OR (is_admin() AND ($userinfo['newsletter'] == 0))) {
 			echo "<i>"._NOTSUBSCRIBED."</i><br>";
 		}
-		if (is_user($user) AND $cookie[1] == "$username" OR is_admin($admin)) {
+		if (is_user() AND $cookie[1] == "$username" OR is_admin()) {
 			$numpoints = $db->sql_fetchrow($db->sql_query("SELECT points FROM ".$user_prefix."_users WHERE user_id = '".intval($cookie[0])."'"));
 			$n_points = intval($numpoints['points']);
 			echo ""._YOUHAVEPOINTS." <b>$n_points</b><br>";
@@ -333,7 +333,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				}
 			}
 			echo "$content<br><br>";
-			if (is_admin($admin)) {
+			if (is_admin()) {
 				$subnum = $db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_subscriptions WHERE userid='".intval($userinfo['user_id'])."'"));
 				if ($subnum != 0) {
 					echo "<center><b>"._ADMSUB."</b></center><br>";
@@ -374,7 +374,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				echo "[ <a href=\"modules.php?name=Journal&amp;file=search&amp;bywhat=aid&amp;forwhat=$username\">"._READMYJOURNAL."</a> ]<br>";
 			}
 		}
-		if (is_admin($admin)) {
+		if (is_admin()) {
 			echo "<br>";
 			OpenTable2();
 			if ($userinfo['last_ip'] != 0) {
@@ -421,7 +421,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 			echo "<tr><td valign=\"middle\"><img src=\"images/karma/3.gif\" border=\"0\" alt=\""._KARMADEVIL."\" title=\""._KARMADEVIL."\"></td><td>"._KARMADEVILREF."</td></tr></table>";
 			CloseTable2();
 		}
-		if (((is_user($user) AND $cookie[1] != $username) OR is_admin($admin)) AND is_active("Private_Messages")) { echo "<br>[ <a href=\"modules.php?name=Private_Messages&amp;mode=post&amp;u=".intval($userinfo['user_id'])."\">"._USENDPRIVATEMSG." $username_pm</a> ]<br>\n"; }
+		if (((is_user() AND $cookie[1] != $username) OR is_admin()) AND is_active("Private_Messages")) { echo "<br>[ <a href=\"modules.php?name=Private_Messages&amp;mode=post&amp;u=".intval($userinfo['user_id'])."\">"._USENDPRIVATEMSG." $username_pm</a> ]<br>\n"; }
 		echo "</center></font>";
 	} else {
 		echo "<center>"._NOINFOFOR." ".htmlentities($username)."</center>";
@@ -597,7 +597,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 
 function main($user) {
 	global $stop, $module_name, $redirect, $mode, $t, $f, $gfx_chk;
-	if(!is_user($user)) {
+	if(!is_user()) {
 		include("header.php");
 		if ($stop) {
 			OpenTable();
@@ -610,7 +610,7 @@ function main($user) {
 			CloseTable();
 			echo "<br>\n";
 		}
-		if (!is_user($user)) {
+		if (!is_user()) {
 			OpenTable();
 			mt_srand ((double)microtime()*1000000);
 			$maxran = 1000000;
@@ -635,7 +635,7 @@ function main($user) {
 			CloseTable();
 		}
 		include("footer.php");
-	} elseif (is_user($user)) {
+	} elseif (is_user()) {
 		global $cookie;
 		cookiedecode($user);
 		userinfo($cookie[1]);
@@ -644,7 +644,7 @@ function main($user) {
 
 function new_user() {
 	global $my_headlines, $module_name, $db, $gfx_chk, $user;
-	if (!is_user($user)) {
+	if (!is_user()) {
 		mt_srand ((double)microtime()*1000000);
 		$maxran = 1000000;
 		$random_num = mt_rand(0, $maxran);
@@ -721,7 +721,7 @@ function new_user() {
 		."<center><font class=\"content\">[ <a href=\"modules.php?name=$module_name\">"._USERLOGIN."</a> | <a href=\"modules.php?name=$module_name&amp;op=pass_lost\">"._PASSWORDLOST."</a> ]</font></center>\n";
 		CloseTable();
 		include("footer.php");
-	} elseif (is_user($user)) {
+	} elseif (is_user()) {
 		global $cookie;
 		cookiedecode($user);
 		userinfo($cookie[1]);
@@ -730,7 +730,7 @@ function new_user() {
 
 function pass_lost() {
 	global $user, $module_name;
-	if (!is_user($user)) {
+	if (!is_user()) {
 		include("header.php");
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._USERREGLOGIN."</b></font></center>\n";
@@ -748,7 +748,7 @@ function pass_lost() {
 		."<center><font class=\"content\">[ <a href=\"modules.php?name=$module_name\">"._USERLOGIN."</a> | <a href=\"modules.php?name=$module_name&amp;op=new_user\">"._REGNEWUSER."</a> ]</font></center>\n";
 		CloseTable();
 		include("footer.php");
-	} elseif(is_user($user)) {
+	} elseif(is_user()) {
 		global $cookie;
 		cookiedecode($user);
 		userinfo($cookie[1]);
@@ -907,7 +907,7 @@ function edituser() {
 	global $prefix, $db, $user, $userinfo, $cookie, $module_name, $bgcolor2, $bgcolor3;
 	cookiedecode($user);
 	getusrinfo($user);
-	if ((is_user($user)) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+	if ((is_user()) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
 		include("header.php");
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._PERSONALINFO."</b></font></center>";
@@ -1260,7 +1260,7 @@ function edithome() {
 	global $user, $userinfo, $Default_Theme, $cookie, $broadcast_msg, $user_news, $storyhome, $module_name;
 	cookiedecode($user);
 	getusrinfo($user);
-	if ((is_user($user)) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+	if ((is_user()) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
 		include ("header.php");
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._HOMECONFIG."</b></font></center>";
@@ -1319,7 +1319,7 @@ function chgtheme() {
 	global $user, $userinfo, $Default_Theme, $cookie, $module_name, $db, $prefix;
 	cookiedecode($user);
 	getusrinfo($user);
-	if ((is_user($user)) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+	if ((is_user()) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
 		$row = $db->sql_fetchrow($db->sql_query("SELECT overwrite_theme from ".$prefix."_config"));
 		$overwrite_theme = intval($row['overwrite_theme']);
 		if ($overwrite_theme != 1) {
@@ -1426,7 +1426,7 @@ function editcomm() {
 	global $user, $userinfo, $cookie, $module_name;
 	cookiedecode($user);
 	getusrinfo($user);
-	if ((is_user($user)) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+	if ((is_user()) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
 		include ("header.php");
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._COMMENTSCONFIG."</b></font></center>";
@@ -1511,7 +1511,7 @@ function avatarlist($avatarcategory) {
 	cookiedecode($user);
 	getusrinfo($user);
 	include("header.php");
-	if ((is_user($user)) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) { // SecurityReason Fix 2005 - sp3x -> check if we are user if not then Access Denied
+	if ((is_user()) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) { // SecurityReason Fix 2005 - sp3x -> check if we are user if not then Access Denied
 	$avatarcatname = ereg_replace ("_", "&nbsp;", $avatarcategory);
 	$avatarcategory = htmlspecialchars($avatarcategory); //SecurityReason Fix 2005 - sp3x 
 	title("".$avatarcategory." Avatar Gallery");
@@ -1574,7 +1574,7 @@ function avatarsave($avatar, $category) {
       $allow_avatar_local = $row['config_value']; 
    } 
    else { $allow_avatar_local = 0; } 
-   if (is_user($user) AND $allow_avatar_local) { 
+   if (is_user() AND $allow_avatar_local) { 
 		getusrinfo($user);
 		cookiedecode($user);
 		include("header.php");
@@ -1607,7 +1607,7 @@ function avatarlinksave($avatar) {
 	  $allow_avatar_remote = $row['config_value']; 
 	} 
 	else { $allow_avatar_remote = 0; } 
-	if (is_user($user) AND $allow_avatar_remote) { 
+	if (is_user() AND $allow_avatar_remote) { 
 		getusrinfo($user);
 		cookiedecode($user);
 		include("header.php");
@@ -1639,7 +1639,7 @@ function broadcast($the_message, $who) {
 		Header("Location: modules.php?name=".$module_name);
 		die();
 	}
-	if ((is_user($user)) AND (strtolower($who) == strtolower($cookie[1])) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+	if ((is_user()) AND (strtolower($who) == strtolower($cookie[1])) AND (strtolower($userinfo['username']) == strtolower($cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
 		$who = $cookie[1];
 		$the_message = filter($the_message, "nohtml", 1);
 		if ($broadcast_msg == 1) {
@@ -1666,7 +1666,7 @@ function broadcast($the_message, $who) {
 
 function my_headlines($hid, $url=0) {
 	global $prefix, $db, $user;
-	if (!is_user($user) || empty($url)) {
+	if (!is_user() || empty($url)) {
 		die();
 	}
 	$hid = intval($hid);
@@ -1725,7 +1725,7 @@ function CoolSize($size) {
 
 function change_karma($user_id, $karma) {
 	global $admin, $user_prefix, $db, $module_name;
-	if (!is_admin($admin)) {
+	if (!is_admin()) {
 		Header("location: index.php");
 		die();
 	} else {
@@ -1836,7 +1836,7 @@ switch($op) {
 	break;
 
         case "my_headlines":
-	  if (is_user($user)) {
+	  if (is_user()) {
 		if (!empty($url)) {
                   my_headlines($hid, $url);
 		} else { die(); }

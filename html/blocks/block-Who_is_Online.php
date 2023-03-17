@@ -21,7 +21,7 @@ global $user, $cookie, $prefix, $db, $user_prefix;
 
 cookiedecode($user);
 if (isset($_SERVER['REMOTE_ADDR'])) { $ip = $_SERVER['REMOTE_ADDR']; }
-if (is_user($user))
+if (is_user())
 {
     $uname = $cookie[1];
     $guest = 0;
@@ -44,7 +44,7 @@ $who_online = "<div style='padding:10px'><div align=\"center\"><span class=\"con
 
 $content = "$who_online";
 
-if (is_user($user)) {
+if (is_user()) {
     if (is_active("Private_Messages")) {
 	$row = $db->sql_fetchrow($db->sql_query("SELECT user_id FROM ".$user_prefix."_users WHERE username='$uname'"));
 	$uid = intval($row['user_id']);
@@ -55,7 +55,7 @@ if (is_user($user)) {
 $row2 = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_blocks WHERE bkey='online'"));
 $title = filter($row2['title'], "nohtml");
 
-if (is_user($user)) {
+if (is_user()) {
     $content .= "<br>"._YOUARELOGGED." <b>$uname</b>.<br>";
     if (is_active("Private_Messages")) {
 	$row3 = $db->sql_fetchrow($db->sql_query("SELECT user_id FROM ".$user_prefix."_users WHERE username='$uname'"));

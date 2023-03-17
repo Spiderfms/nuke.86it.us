@@ -59,7 +59,7 @@ function show_month($year, $month, $month_l) {
 	title(""._STORIESARCHIVE."");
 	title("$sitename: $month_l $year");
 	$r_options = "";
-	if(is_user($user)) {
+	if(is_user()) {
 	  getusrinfo($user);
           if (!isset($mode) OR empty($mode)) {
             if(isset($userinfo['umode'])) {
@@ -174,7 +174,7 @@ function show_all($min) {
 	title(""._STORIESARCHIVE."");
 	title("$sitename: "._ALLSTORIESARCH."");
 	$r_options = "";
-	if(is_user($user)) {
+	if(is_user()) {
 	  getusrinfo($user);
 	  if (isset($userinfo['umode'])) { $r_options .= "&amp;mode=".$userinfo['umode']; }
 	  if (isset($userinfo['uorder'])) { $r_options .= "&amp;order=".$userinfo['uorder']; }

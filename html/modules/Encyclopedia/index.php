@@ -99,8 +99,8 @@ function terms($eid, $ltr) {
 	include("header.php");
 	title("$title");
 	OpenTable();
-	if (($active == 1) OR (is_admin($admin))) {
-		if (($active != 1) AND (is_admin($admin))) {
+	if (($active == 1) OR (is_admin())) {
+		if (($active != 1) AND (is_admin())) {
 			echo "<center>"._YOURADMINENCY."</center><br><br>";
 		}
 		echo "<center>Please select one term from the following list:</center><br><br>"
@@ -138,7 +138,7 @@ function content($tid, $ltr, $page=0, $query="") {
 	$ecounter = intval($ency['counter']);
 	$row = $db->sql_fetchrow($db->sql_query("SELECT active FROM ".$prefix."_encyclopedia WHERE eid='$eeid'"));
 	$active = intval($row['active']);
-	if (($active == 1) OR ($active == 0 AND is_admin($admin))) {
+	if (($active == 1) OR ($active == 0 AND is_admin())) {
 		$db->sql_query("UPDATE ".$prefix."_encyclopedia_text SET counter=counter+1 WHERE tid='$tid'");
 		$row2 = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_encyclopedia WHERE eid='$eeid'"));
 		$enc_title = filter($row2['title'], "nohtml");
@@ -179,7 +179,7 @@ function content($tid, $ltr, $page=0, $query="") {
 		}
 		echo "<br><br><br><center>$previous_page $next_page<br><br>"
 		.""._GOBACK."</center><br>";
-		if (is_admin($admin)) {
+		if (is_admin()) {
 			echo "<p align=\"right\">[ <a href=\"".$admin_file.".php?op=encyclopedia_text_edit&amp;tid=$etid\">"._EDIT."</a> ]</p>";
 		}
 		echo "<p align=\"right\"><a href=\"modules.php?name=$module_name&amp;op=list_content&amp;eid=$eeid\">$enc_title</a></p>";
@@ -216,14 +216,14 @@ function list_themes() {
 		} else {
 			$subtitle = "";
 		}
-		if (is_admin($admin)) {
+		if (is_admin()) {
 			echo "<strong><big>&middot;</big></strong> $the_lang <a href=\"modules.php?name=$module_name&amp;op=list_content&amp;eid=$eid\">$title</a><br>$description<br>[ <a href=\"".$admin_file.".php?op=encyclopedia_edit&amp;eid=$eid\">"._EDIT."</a> | <a href=\"".$admin_file.".php?op=encyclopedia_change_status&amp;eid=$eid&amp;active=1\">"._DEACTIVATE."</a> | <a href=\"".$admin_file.".php?op=encyclopedia_delete&amp;eid=$eid\">"._DELETE."</a> ]<br><br>";
 		} else {
 			echo "<strong><big>&middot;</big></strong> $the_lang <a href=\"modules.php?name=$module_name&amp;op=list_content&amp;eid=$eid\">$title</a><br> $description<br><br>";
 		}
 	}
 	echo "</blockquote>";
-	if (is_admin($admin)) {
+	if (is_admin()) {
 		$result2 = $db->sql_query("SELECT eid, title, description, elanguage FROM ".$prefix."_encyclopedia WHERE active='0'");
 		echo "<br><br><center><b>"._YOURADMININACTIVELIST."</b></center><br><br>";
 		echo "<blockquote>";

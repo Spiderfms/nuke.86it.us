@@ -27,7 +27,7 @@ if (($row['radminsuper'] == 1) && ($row['name'] == 'God')) {
 
 	function displayadmins() {
 		global $admin, $prefix, $db, $language, $multilingual, $admin_file, $bgcolor2;
-		if (is_admin($admin)) {
+		if (is_admin()) {
 		include("header.php");
 		GraphicAdmin();
 		OpenTable();
@@ -146,7 +146,7 @@ if (($row['radminsuper'] == 1) && ($row['name'] == 'God')) {
 
 	function modifyadmin($chng_aid) {
 	global $admin, $prefix, $db, $multilingual, $admin_file;
-	if (is_admin($admin)) {
+	if (is_admin()) {
 		include("header.php");
 		GraphicAdmin();
 		OpenTable();
@@ -270,7 +270,7 @@ if (($row['radminsuper'] == 1) && ($row['name'] == 'God')) {
 
 	function updateadmin($chng_aid, $chng_name, $chng_email, $chng_url, $chng_radminsuper, $chng_pwd, $chng_pwd2, $chng_admlanguage, $adm_aid, $auth_modules) {
 		global $admin, $prefix, $db, $admin_file;
-		if (is_admin($admin)) {
+		if (is_admin()) {
 		$chng_aid = trim($chng_aid);
 		if (!($chng_aid && $chng_name && $chng_email)) {
 			Header("Location: ".$admin_file.".php?op=mod_authors");
@@ -414,7 +414,7 @@ if (($row['radminsuper'] == 1) && ($row['name'] == 'God')) {
 
 	function deladmin2($del_aid) {
 		global $admin, $prefix, $db, $admin_file;
-		if (is_admin($admin)) {
+		if (is_admin()) {
 		$del_aid = substr("$del_aid", 0,25);
 		$result = $db->sql_query("SELECT admins FROM ".$prefix."_modules WHERE title='News'");
 		$row2 = $db->sql_fetchrow($db->sql_query("SELECT name FROM ".$prefix."_authors WHERE aid='$del_aid'"));

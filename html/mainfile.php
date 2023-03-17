@@ -21,13 +21,15 @@
  * RemoveAlwaysTrueIfConditionRector
  * RemoveUnreachableStatementRector
  */
+
+define('NUKE_FILE', true);
  
-// End the transaction
+# End the transaction
 if(!defined('END_TRANSACTION')) {
   define('END_TRANSACTION', 2);
 }
 
-# Define File
+# Define System Versions for backward compatibility
 define('NUKE_BASIC', '8.3.1');
 define('NUKE_EVO', '2.0.9e');
 define('NUKE_TITANIUM', '4.0.4');
@@ -51,32 +53,45 @@ define('EVO_EDITION', 'Xtreme');
 define('TITANIUM_EDITION', 'AN602');
 define('PLATINUM_EDITION', 'PNPv3');
 
-define('PHPVERS', phpversion());
-
 define('NUKE_VERSION', NUKE_BASIC . ' ' . BASIC_EDITION);
 define('EVO_VERSION', NUKE_EVO . ' ' . EVO_EDITION);
 define('TITANIUM_VERSION', NUKE_TITANIUM . ' ' . TITANIUM_EDITION);
 define('PLATINUM_VERSION', NUKE_PLATINUM . ' ' . PLATINUM_EDITION);
 
+# addd PHP version controls
+define('PHPVERS', phpversion());
 define('PHP_5', version_compare(PHPVERS, '5.0.0', '>='));
-
-// Get php version
 $phpver = phpversion();
 
-//define once
+# define anything only once
 function define_once($constant, $value) 
 {
     if(!defined($constant)): 
       define($constant, $value);
 	endif;
 }
-// secure the file
+
+# this is so that you can write controls to secure any file
 function include_secure($file_name)
 {
     include_once($file_name);
 }
 
-// override old superglobals if php is higher then 4.1.0
+# add 3rd party microtime
+function get_microtime() 
+{
+    list($usec, $sec) = explode(' ', microtime());
+    return ($usec + $sec);
+}
+
+if (!function_exists("floatval")) {
+    function floatval($inputval) {
+        return (float)$inputval;
+    }
+}
+
+# idea based on Nuke Evolution
+# override old superglobals if php is higher then 4.1.0
 if(!ini_get('register_globals')){ 
 	$import = true;
 	# Need register_globals so try the built in import function
@@ -102,25 +117,29 @@ if(!ini_get('register_globals')){
 	}
 }
 
-// After doing those superglobals we can now use one
-// and check if this file isnt being accessed directly
+# After doing those superglobals we can now use one
+# and check if this file isnt being accessed directly
 if (stristr(htmlentities($_SERVER['PHP_SELF']), "mainfile.php")) {
     header("Location: index.php");
     exit();
 }
 
+# idea based on Nuke Evolution
 $admin = (isset($_COOKIE['admin'])) ? $_COOKIE['admin'] : false;
 $user = (isset($_COOKIE['user'])) ? $_COOKIE['user'] : false;
 
+# idea based on Nuke Evolution
 if((isset($_POST['name']) && !empty($_POST['name'])) && (isset($_GET['name']) && !empty($_GET['name']))): 
   $name = (isset($_GET['name']) && !stristr($_GET['name'],'..') && !stristr($_GET['name'],'://')) ? addslashes(trim($_GET['name'])) : false;
 else: 
   $name = (isset($_REQUEST['name']) && !stristr($_REQUEST['name'],'..') && !stristr($_REQUEST['name'],'://')) ? addslashes(trim($_REQUEST['name'])) : false;
 endif;
 
+# idea based on Nuke Evolution
 $start_mem = function_exists('memory_get_usage') ? memory_get_usage() : 0;
 $start_time = get_microtime();
 
+# add Microsoft compatibilty
 # Stupid handle to create REQUEST_URI for IIS 5 servers
 if(preg_match('/IIS/', $_SERVER['SERVER_SOFTWARE']) && isset($_SERVER['SCRIPT_NAME'])):
     $requesturi = $_SERVER['SCRIPT_NAME'];
@@ -130,6 +149,7 @@ if(preg_match('/IIS/', $_SERVER['SERVER_SOFTWARE']) && isset($_SERVER['SCRIPT_NA
     $_SERVER['REQUEST_URI'] = $requesturi;
 endif;
 
+# add refactoring compatibilty for rectorphp
 # PHP5 with register_long_arrays off?
 if(PHP_5 && (!ini_get('register_long_arrays') || ini_get('register_long_arrays') == '0' || strtolower(ini_get('register_long_arrays')) == 'off')):
     $HTTP_POST_VARS =& $_POST;
@@ -143,6 +163,7 @@ if(PHP_5 && (!ini_get('register_long_arrays') || ini_get('register_long_arrays')
 	endif;
 endif;
 
+# add compatibility for the 3rd party donations module
 if(isset($_COOKIE['DONATION'])):
   setcookie('DONATION', null, time()-3600);
   $type = preg_match('/IIS|Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ? 'Refresh: 0; URL=' : 'Location: ';
@@ -150,7 +171,7 @@ if(isset($_COOKIE['DONATION'])):
   header($type . 'modules.php?name=Donations&op=thankyou');
 endif;
 
-# Absolute Path Mod - 01/01/2012 by Ernest Allen Buffington START
+# Absolute Path Mod by phoenix - re-written 01/01/2012 by Ernest Allen Buffington START
 $rel_path=[];
 $rel_path['file']   = str_replace('\\', "/", realpath(__DIR__));
 $server_ary         = pathinfo(realpath(basename((string) $_SERVER['PHP_SELF'])));
@@ -234,8 +255,9 @@ define('FORUMS_ADMIN_HREF_DIR', $href_path . '/modules/Forums/admin/');
 # OTHER Directories
 define('RSS_DIR', INCLUDE_DIR . 'rss/');
 define('STATS_DIR', THEMES_DIR);
-# Absolute Path Mod - 01/01/2012 by Ernest Allen Buffington END
+# Absolute Path Mod by phoenix - re-written 01/01/2012 by Ernest Allen Buffington END
 
+# add 3rd party backward version comapatibility defines
 # Inspired by phoenix-cms at website-portals.net
 # Absolute Nuke directory
 define('NUKE_BASE_DIR', __DIR__ . '/');
@@ -293,23 +315,12 @@ if(CAN_MOD_INI):
     ini_set('zlib.output_compression', 0);
 endif;
 
+# add external vendor library support so that we can use composer with Nuke
 # Vendor Autoload - only if vendor directory exists with an autoload file! START
 if(file_exists(NUKE_VENDOR_DIR.'autoload.php')):
   require_once(NUKE_VENDOR_DIR.'autoload.php');
 endif;  
 # Vendor Autoload - only if vendor directory exists with an autoload file! END
-
-function get_microtime() 
-{
-    list($usec, $sec) = explode(' ', microtime());
-    return ($usec + $sec);
-}
-
-if (!function_exists("floatval")) {
-    function floatval($inputval) {
-        return (float)$inputval;
-    }
-}
 
 $do_gzip_compress = false;
 
@@ -318,7 +329,7 @@ if (GZIPSUPPORT && !ini_get('zlib.output_compression')
 && preg_match('/gzip/i', $_SERVER['HTTP_ACCEPT_ENCODING'])):
     
 	if (version_compare(PHPVERS, '8.0.0', '>=')): 
-        ob_end_clean(); 
+        ob_end_clean();  // never run this without doing an end clean first (Ernest Allen Buffington)
 		ob_start('ob_gzhandler');
     else:
         $do_gzip_compress = true;
@@ -341,7 +352,7 @@ foreach($_REQUEST as $key=>$value)
     }    
 }
 
-// This block of code makes sure $admin and $user are COOKIES
+# This block of code makes sure $admin and $user are COOKIES
 if((isset($admin) && $admin != $_COOKIE['admin']) OR (isset($user) && $user != $_COOKIE['user'])) {
 	die("Illegal Operation");
 }
@@ -356,7 +367,7 @@ if(!function_exists('stripos')) {
     }
   }
 } else {
-// But when this is PHP5, we use the original function
+  # But when this is PHP5, we use the original function
   function stripos_clone($haystack, $needle, $offset=0) {
     $return = stripos($haystack, $needle, $offset=0);
   if ($return === false) {
@@ -367,41 +378,27 @@ if(!function_exists('stripos')) {
   }
 }
 
-if(isset($admin) && $admin == $_COOKIE['admin'])
-{
-	$admin = base64_decode($admin);
-	$admin = addslashes($admin);
-	$admin = base64_encode($admin);
-}
-
-if(isset($user) && $user == $_COOKIE['user'])
-{
-	$user = base64_decode($user);
-	$user = addslashes($user);
-	$user = base64_encode($user);
-}
-
-// Die message for not allowed HTML tags
-$htmltags = "<center><img src=\"images/logo.gif\"><br><br><b>";
+# Die message for not allowed HTML tags
+$htmltags = "<div align=\"center\"><img src=\"images/logo.gif\"><br><br><b>";
 $htmltags .= "The html tags you attempted to use are not allowed</b><br><br>";
-$htmltags .= "[ <a href=\"javascript:history.go(-1)\"><b>Go Back</b></a> ]</center>";
+$htmltags .= "[ <a href=\"javascript:history.go(-1)\"><b>Go Back</b></a> ]</div>";
 
 if (!defined('ADMIN_FILE')) {
  foreach ($_GET as $sec_key => $secvalue) {
  if((preg_match('#<[^>]*script*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*object*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*iframe*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*applet*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*meta*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*style*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*form*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*img*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*onmouseover *"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*body *"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#\([^>]*"?[^\)]*\)#mi', $secvalue)) ||
-  (preg_match('#"#mi', $secvalue)) ||
-  (preg_match('#forum_admin#mi', $sec_key)) ||
-  (preg_match('#inside_mod#mi', $sec_key)))
+    (preg_match('#<[^>]*object*"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#<[^>]*iframe*"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#<[^>]*applet*"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#<[^>]*meta*"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#<[^>]*style*"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#<[^>]*form*"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#<[^>]*img*"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#<[^>]*onmouseover *"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#<[^>]*body *"?[^>]*#mi', $secvalue)) ||
+    (preg_match('#\([^>]*"?[^\)]*\)#mi', $secvalue)) ||
+    (preg_match('#"#mi', $secvalue)) ||
+    (preg_match('#forum_admin#mi', $sec_key)) ||
+    (preg_match('#inside_mod#mi', $sec_key)))
   {
    die ($htmltags);
   }
@@ -409,21 +406,22 @@ if (!defined('ADMIN_FILE')) {
 
  foreach ($_POST as $secvalue) {
   if ((preg_match('#<[^>]*iframe*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*object*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*applet*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*meta*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*onmouseover*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]script*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]*body*"?[^>]*#mi', $secvalue)) ||
-  (preg_match('#<[^>]style*"?[^>]*#mi', $secvalue))) {
+      (preg_match('#<[^>]*object*"?[^>]*#mi', $secvalue)) ||
+      (preg_match('#<[^>]*applet*"?[^>]*#mi', $secvalue)) ||
+      (preg_match('#<[^>]*meta*"?[^>]*#mi', $secvalue)) ||
+      (preg_match('#<[^>]*onmouseover*"?[^>]*#mi', $secvalue)) ||
+      (preg_match('#<[^>]script*"?[^>]*#mi', $secvalue)) ||
+      (preg_match('#<[^>]*body*"?[^>]*#mi', $secvalue)) ||
+      (preg_match('#<[^>]style*"?[^>]*#mi', $secvalue))) {
    die ($htmltags);
   }
  }
 }
 
-// Include the required files
+# Include the required PHP-Nuke config file
 require_once(INCLUDE_PATH."config.php");
 
+# add 3rd party support by adding file mode and directory mode!
 if(!$directory_mode):
   $directory_mode = 0777;
 else:
@@ -440,14 +438,13 @@ endif;
 include_once(NUKE_INCLUDE_DIR . 'exception.php');
 include_once(NUKE_INCLUDE_DIR . 'abstract/abstract.exception.php');
 
-
 if(!$dbname) {
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print '<html xmlns="http://www.w3.org/1999/xhtml">';
 
 print '<head>';
 print '<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />';
-print '<title>Network Database Access Temporarily Denied</title>';
+print '<title>PHP-Nuke Database Access Temporarily Denied</title>';
 print '<style>';
 print 'h1.myclass {font-size: 11pt; font-style: normal; color: white; text-align: center}';
 print '.txt {font-size: 11pt; font-style: normal; color: red; text-align: center}';
@@ -461,13 +458,13 @@ print '<body>';
 print '<table align="center" border="0" width="35%">';
 print '<tr><td align="center">';
 print '<h1 class="myclass2">';
-print 'Network Database Access Temporarily Denied';
+print 'PHP-Nuke Database Access Temporarily Denied';
 print '</h1>';
 print '</td></tr>';
 print '<tr><td align="center">';
 print '<h1 class="myclass">';
 
-exit("<br /><br /><div class='txt' align='center'><img src='images/logo.gif'><br /><br /><strong>You have not setup your config.php file...<br /><br />Your config.php resides in the root of your website!</strong></div>");
+exit("<br /><br /><div class='txt' align='center'><img src='images/logo.gif'><br /><br /><strong>You have not run the PHP-Nuke install application yet...<br /><br />Your config.php file resides in the root of your website!</strong></div>");
 }
 
 require_once(INCLUDE_PATH."db/db.php");
@@ -477,19 +474,81 @@ require_once(INCLUDE_PATH."db/db.php");
 require_once(INCLUDE_PATH."includes/sql_layer.php");
 $dbi = sql_connect($dbhost, $dbuname, $dbpass, $dbname);
 
+# add PHP-Nuke constants
+include_once(NUKE_INCLUDE_DIR.'constants.php');
+
 # $db->debug = true;
+
+# add 3rd party Muke Evolution compatibility
 # Include Error Logger and identify class
 require_once(NUKE_CLASSES_DIR.'class.identify.php');
 global $agent;
 $identify = new identify();
 $agent = $identify->identify_agent();
 
+# add 3rd party Muke Evolution compatibility
+require_once(NUKE_INCLUDE_DIR.'log.php');
+
+# original PHP-Nuke ipban system
 require_once(INCLUDE_PATH."includes/ipban.php");
 if (file_exists(INCLUDE_PATH."includes/custom_files/custom_mainfile.php")) {
 	include_once(INCLUDE_PATH."includes/custom_files/custom_mainfile.php");
 }
 
+# adopted main nuke functions
 require_once(INCLUDE_PATH."includes/functions_nuke.php");
+
+# add 3rd party Zend zf1 future compatibility
+require_once(NUKE_CLASSES_DIR.'class.cache.php');
+require_once(NUKE_INCLUDE_DIR.'functions_cache.php');
+
+# add 3rd party Nuke Evoltion compatibility
+require_once(NUKE_CLASSES_DIR.'class.debugger.php');
+include_once(NUKE_CLASSES_DIR.'class.zip.php');
+require_once(NUKE_INCLUDE_DIR.'functions_database.php');
+
+# add 3rd party Nuke Titanium compatibility
+require_once(NUKE_INCLUDE_DIR.'function_img.php');                
+require_once(NUKE_INCLUDE_DIR.'functions_titanium.php');          
+require_once(NUKE_INCLUDE_DIR.'functions_titanium_custom.php');
+
+# add 3rd party Nuke Evolution compatibility
+//require_once(NUKE_INCLUDE_DIR.'functions_evo.php');
+//require_once(NUKE_INCLUDE_DIR.'functions_evo_custom.php
+
+# add validation idea based on Nuke Evolution
+include_once(NUKE_INCLUDE_DIR.'validation.php');
+
+# idea based on Nuke Evolution
+# We globalize the $cookie and $userinfo variables,
+# so that they dont have to be called each time
+# And as you can see, getusrinfo() is now deprecated.
+# Because you dont have to call it anymore, just call $userinfo
+if(is_user()):
+  $cookie = cookiedecode();
+  $userinfo = get_user_field('*', $cookie[1], true);
+else:
+  $cookie = [];
+  $userinfo = get_user_field('*', 'Anonymous', true);
+endif;
+
+# If they have been deactivated send them to logout to kill their cookie and sessions
+if (is_array($userinfo) && isset($userinfo['user_active']) 
+&& $userinfo['user_id'] != 1 && $userinfo['user_id'] != 0 
+&& $userinfo['user_active'] == 0 && $_GET['name'] != 'Your_Account'):
+  redirect('modules.php?name=Your_Account&op=logout');
+  die();
+endif;
+
+# idea based on Nuke Evolution
+if(stristr($_SERVER['REQUEST_URI'], '.php/')):
+  redirect(str_replace('.php/', '.php', $_SERVER['REQUEST_URI']));
+endif;
+
+# 3rd party Zend compatibility
+if(isset($_POST['clear_cache'])):
+  $cache->clear();
+endif;
 
 if (!defined('FORUM_ADMIN')) {
 if(empty($admin_file)) {
@@ -499,7 +558,6 @@ if(empty($admin_file)) {
   }
 }
 
-define('NUKE_FILE', true);
 $row = $db->sql_fetchrow($db->sql_query("SELECT * FROM ".$prefix."_config"));
 $sitename = filter($row['sitename'], "nohtml");
 $nukeurl = filter($row['nukeurl'], "nohtml");
@@ -559,7 +617,7 @@ error_reporting(E_ALL^E_NOTICE);
 if ($display_errors == 1) {
   ini_set('display_errors', 1);
 } else {
-  ini_set('display_errors', 1);
+  ini_set('display_errors', 1); // change this back to zero after port is done
 }
 
 if (!defined('FORUM_ADMIN')) {
@@ -615,7 +673,7 @@ function get_lang($module) {
    }
 }
 
-function is_admin($admin) {
+function is_admin() {
     static $adminSave; 
     if (!$admin) { return 0; }
     if (isset($adminSave)) return $adminSave;
@@ -640,7 +698,7 @@ function is_admin($admin) {
     return $adminSave = 0;
 }
 
-function is_user($user) {
+function is_user() {
     if (!$user) { return 0; }
     static $userSave; 
     if (isset($userSave)) return $userSave;
@@ -667,7 +725,7 @@ function is_user($user) {
 
 function is_group($user, $name) {
           global $prefix, $db, $user_prefix, $cookie, $user;
-     if (is_user($user)) {
+     if (is_user()) {
           if(!is_array($user)) {
           $cookie = cookiedecode($user);
           $uid = intval($cookie[0]);
@@ -703,7 +761,7 @@ foreach ($_POST as $postkey => $postvalue) {
 }
 str_replace("%09", "%20", $postString);
 $postString_64 = base64_decode($postString);
-if ((!isset($admin) OR (isset($admin) AND !is_admin($admin))) AND (stristr($postString,'%20union%20')) OR (stristr($postString,'*/union/*')) OR (stristr($postString,' union ')) OR (stristr($postString_64,'%20union%20')) OR (stristr($postString_64,'*/union/*')) OR (stristr($postString_64,' union ')) OR (stristr($postString_64,'+union+')) OR (stristr($postString,'http-equiv')) OR (stristr($postString_64,'http-equiv')) OR (stristr($postString,'alert(')) OR (stristr($postString_64,'alert(')) OR (stristr($postString,'javascript:')) OR (stristr($postString_64,'javascript:')) OR (stristr($postString,'document.cookie')) OR (stristr($postString_64,'document.cookie')) OR (stristr($postString,'onmouseover=')) OR (stristr($postString_64,'onmouseover=')) OR (stristr($postString,'document.location')) OR (stristr($postString_64,'document.location'))) {
+if ((!isset($admin) OR (isset($admin) AND !is_admin())) AND (stristr($postString,'%20union%20')) OR (stristr($postString,'*/union/*')) OR (stristr($postString,' union ')) OR (stristr($postString_64,'%20union%20')) OR (stristr($postString_64,'*/union/*')) OR (stristr($postString_64,' union ')) OR (stristr($postString_64,'+union+')) OR (stristr($postString,'http-equiv')) OR (stristr($postString_64,'http-equiv')) OR (stristr($postString,'alert(')) OR (stristr($postString_64,'alert(')) OR (stristr($postString,'javascript:')) OR (stristr($postString_64,'javascript:')) OR (stristr($postString,'document.cookie')) OR (stristr($postString_64,'document.cookie')) OR (stristr($postString,'onmouseover=')) OR (stristr($postString_64,'onmouseover=')) OR (stristr($postString,'document.location')) OR (stristr($postString_64,'document.location'))) {
 header("Location: index.php");
 die();
 }
@@ -719,7 +777,7 @@ die();
       die('Illegal Operation');
     }
   }
-  if(!isset($admin) OR (isset($admin) AND !is_admin($admin))) {
+  if(!isset($admin) OR (isset($admin) AND !is_admin())) {
     $queryString = $_SERVER['QUERY_STRING'];
 	if (($_SERVER['PHP_SELF'] != "/index.php") OR !isset($url))
 	{
@@ -732,7 +790,7 @@ die();
 
 function update_points($id) {
   global $user_prefix, $prefix, $db, $user;
-  if (is_user($user)) {
+  if (is_user()) {
     if(!is_array($user)) {
       $cookie = cookiedecode($user);
       $username = trim($cookie[1]);
@@ -856,11 +914,11 @@ function blocks($side) {
 			} elseif (empty($row['bkey'])) {
 				if ($view == 0) {
 					render_blocks($side, $blockfile, $title, $content, $bid, $url);
-				} elseif ($view == 1 AND is_user($user) || is_admin($admin)) {
+				} elseif ($view == 1 AND is_user() || is_admin()) {
 					render_blocks($side, $blockfile, $title, $content, $bid, $url);
-				} elseif ($view == 2 AND is_admin($admin)) {
+				} elseif ($view == 2 AND is_admin()) {
 					render_blocks($side, $blockfile, $title, $content, $bid, $url);
-				} elseif ($view == 3 AND !is_user($user) || is_admin($admin)) {
+				} elseif ($view == 3 AND !is_user() || is_admin()) {
 					render_blocks($side, $blockfile, $title, $content, $bid, $url);
 				}
 			}
@@ -903,32 +961,32 @@ function message_box() {
 					OpenTable();
 					echo "<center><font class=\"option\" color=\"$textcolor2\"><b>$title</b></font></center><br>\n"
 					."<font class=\"content\">$content</font>";
-					if (is_admin($admin)) {
+					if (is_admin()) {
 						echo "<br><br><center><font class=\"content\">[ "._MVIEWSUBUSERS." - $remain - <a href=\"".$admin_file.".php?op=editmsg&amp;mid=$mid\">"._EDIT."</a> ]</font></center>";
 					}
 					CloseTable();
 					echo "<br>";
-				} elseif ($view == 4 AND is_admin($admin)) {
+				} elseif ($view == 4 AND is_admin()) {
 					OpenTable();
 					echo "<center><font class=\"option\" color=\"$textcolor2\"><b>$title</b></font></center><br>\n"
 					."<font class=\"content\">$content</font>"
 					."<br><br><center><font class=\"content\">[ "._MVIEWADMIN." - $remain - <a href=\"".$admin_file.".php?op=editmsg&amp;mid=$mid\">"._EDIT."</a> ]</font></center>";
 					CloseTable();
 					echo "<br>";
-				} elseif ($view == 3 AND is_user($user) || is_admin($admin)) {
+				} elseif ($view == 3 AND is_user() || is_admin()) {
 					OpenTable();
 					echo "<center><font class=\"option\" color=\"$textcolor2\"><b>$title</b></font></center><br>\n"
 					."<font class=\"content\">$content</font>";
-					if (is_admin($admin)) {
+					if (is_admin()) {
 						echo "<br><br><center><font class=\"content\">[ "._MVIEWUSERS." - $remain - <a href=\"".$admin_file.".php?op=editmsg&amp;mid=$mid\">"._EDIT."</a> ]</font></center>";
 					}
 					CloseTable();
 					echo "<br>";
-				} elseif ($view == 2 AND !is_user($user) || is_admin($admin)) {
+				} elseif ($view == 2 AND !is_user() || is_admin()) {
 					OpenTable();
 					echo "<center><font class=\"option\" color=\"$textcolor2\"><b>$title</b></font></center><br>\n"
 					."<font class=\"content\">$content</font>";
-					if (is_admin($admin)) {
+					if (is_admin()) {
 						echo "<br><br><center><font class=\"content\">[ "._MVIEWANON." - $remain - <a href=\"".$admin_file.".php?op=editmsg&amp;mid=$mid\">"._EDIT."</a> ]</font></center>";
 					}
 					CloseTable();
@@ -937,7 +995,7 @@ function message_box() {
 					OpenTable();
 					echo "<center><font class=\"option\" color=\"$textcolor2\"><b>$title</b></font></center><br>\n"
 					."<font class=\"content\">$content</font>";
-					if (is_admin($admin)) {
+					if (is_admin()) {
 						echo "<br><br><center><font class=\"content\">[ "._MVIEWALL." - $remain - <a href=\"".$admin_file.".php?op=editmsg&amp;mid=$mid\">"._EDIT."</a> ]</font></center>";
 					}
 					CloseTable();
@@ -957,7 +1015,7 @@ function message_box() {
 function online() {
   global $user, $cookie, $prefix, $db;
   $ip = $_SERVER['REMOTE_ADDR'];
-  if (is_user($user)) {
+  if (is_user()) {
     cookiedecode($user);
     $uname = $cookie[1];
     $guest = 0;
@@ -1368,7 +1426,7 @@ if(!function_exists("themepreview")) {
 
 function adminblock() {
 	global $admin, $prefix, $db, $admin_file;
-	if (is_admin($admin)) {
+	if (is_admin()) {
 	    $sql = "SELECT title, content FROM ".$prefix."_blocks WHERE bkey='admin'";
 		$result = $db->sql_query($sql);
 		while (list($title, $content) = $db->sql_fetchrow($result)) {
@@ -1407,7 +1465,7 @@ function loginbox() {
 	$datekey = date("F j");
 	$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $random_num . $datekey));
 	$code = substr($rcode, 2, 6);
-	if (!is_user($user)) {
+	if (!is_user()) {
 		$title = _LOGIN;
 		$boxstuff = "<form action=\"modules.php?name=Your_Account\" method=\"post\">";
 		$boxstuff .= "<center><font class=\"content\">"._NICKNAME."<br>";
@@ -1431,7 +1489,7 @@ function loginbox() {
 
 function userblock() {
   global $user, $cookie, $db, $user_prefix, $userinfo;
-  if(is_user($user)) {
+  if(is_user()) {
     getusrinfo($user);
     if($userinfo['ublockon']) {
       $sql = "SELECT ublock FROM ".$user_prefix."_users WHERE user_id='$cookie[0]'";
@@ -1612,7 +1670,7 @@ function themecenterbox($title, $content) {
 function public_message() {
 	global $prefix, $user_prefix, $db, $user, $admin, $p_msg, $cookie, $broadcast_msg;
 	if ($broadcast_msg == 1) {
-		if (is_user($user)) {
+		if (is_user()) {
 			cookiedecode($user);
 			$result = $db->sql_query("SELECT broadcast FROM ".$user_prefix."_users WHERE username='$cookie[1]'");
 			$row = $db->sql_fetchrow($result);
@@ -1627,7 +1685,7 @@ function public_message() {
 		} else {
 			$t_off = "";
 		}
-		if (!is_user($user) OR (is_user($user) AND ($pm_show == 1))) {
+		if (!is_user() OR (is_user() AND ($pm_show == 1))) {
 			$c_mid = base64_decode($p_msg ?? '');
 			$c_mid = addslashes($c_mid);
 			$c_mid = intval($c_mid);
@@ -1675,7 +1733,7 @@ function public_message() {
 function get_theme() {
     global $user, $userinfo, $Default_Theme, $name, $op;
     if (isset($ThemeSelSave)) return $ThemeSelSave;
-    if (is_user($user) && ($name != "Your_Account" OR $op != "logout")) {
+    if (is_user() && ($name != "Your_Account" OR $op != "logout")) {
         getusrinfo($user);
         if(empty($userinfo['theme'])) $userinfo['theme']=$Default_Theme;
         if(file_exists("themes/".$userinfo['theme']."/theme.php")) {
@@ -1711,7 +1769,7 @@ function validate_mail($email) {
 
 function paid() {
 	global $db, $user, $cookie, $adminmail, $sitename, $nukeurl, $subscription_url, $user_prefix, $prefix;
-	if (is_user($user)) {
+	if (is_user()) {
 		if (!empty($subscription_url)) {
 			$renew = ""._SUBRENEW." $subscription_url";
 		} else {

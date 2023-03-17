@@ -37,7 +37,7 @@ while ($row = $db->sql_fetchrow($result)) {
     $content .= "$a:&nbsp;<a href=\"$url\" target=\"new\">$url2</a><br>";
     $a++;
 }
-if (is_admin($admin)) {
+if (is_admin()) {
     $total = $db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_referer"));
     $content .= "<br><center>$total "._HTTPREFERERS."<br>[ <a href=\"".$admin_file.".php?op=delreferer\">"._DELETE."</a> ]</center>";
     

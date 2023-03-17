@@ -43,7 +43,7 @@ $content .= "<div style='padding:5px; font-size: 11px; color:#333; margin: 5px 0
 $content .= "</div>";
 
 
-if (is_admin($admin) AND is_user($user)) {
+if (is_admin() AND is_user()) {
     $content = "<center>"._ADMIN."<br>[ <a href=\"".$admin_file.".php?op=logout\">"._LOGOUT."</a> ]</center>";
 }
 

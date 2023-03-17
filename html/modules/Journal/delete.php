@@ -46,7 +46,7 @@ if (!isset($jid) OR !is_numeric($jid)) { die("No journal specified."); }
 $pagetitle = "- "._USERSJOURNAL."";
 include("header.php");
 include("modules/$module_name/functions.php");
-    if (is_user($user) || is_admin($admin)) {
+    if (is_user() || is_admin()) {
 cookiedecode($user);
 $username = $cookie[1];
         $username = filter($username, "nohtml");
@@ -65,7 +65,7 @@ echo ("<div align=center>"._YOUCANTSAVE."</div>");
 CloseTable();
         journalfoot();
     }
-    if (!is_user($user) && !is_admin($admin)) {
+    if (!is_user() && !is_admin()) {
         $pagetitle = "- "._YOUMUSTBEMEMBER."";
         $pagetitle = filter($pagetitle, "nohtml");
         OpenTable();

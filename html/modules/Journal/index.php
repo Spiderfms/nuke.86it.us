@@ -40,7 +40,7 @@ if ( !defined('MODULE_FILE') )
     $pagetitle = "- "._USERSJOURNAL."";
     include("header.php");
     include("modules/$module_name/functions.php");
-    if (is_user($user)) {
+    if (is_user()) {
         cookiedecode($user);
         $username = $cookie[1];
         $username = filter($username, "nohtml");

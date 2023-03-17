@@ -73,7 +73,7 @@ class error_handler {
     }
 
 }
-
+global $debug;
 $debugger = new error_handler($debug);
 
 ?>

@@ -48,7 +48,7 @@ if ( !defined('MODULE_FILE') )
 	if (!isset($jid) OR !is_numeric($jid)) { die("No journal specified."); }
     $pagetitle = "- "._USERSJOURNAL."";
     include("header.php");
-    if (is_user($user)) {
+    if (is_user()) {
         cookiedecode($user);
         $username = $cookie[1];
         $user = filter($user, "nohtml");
@@ -71,7 +71,7 @@ $sql = "SELECT * FROM ".$prefix."_journal WHERE jid = '$jid'";
         $result = $db->sql_query($sql);
         while ($row = $db->sql_fetchrow($result)) {
             $jaid = filter($row['aid'], "nohtml");
-            if (!is_admin($admin)):
+            if (!is_admin()):
             if ($username != $jaid):
                 echo ("<br>");
             OpenTable();
@@ -170,7 +170,7 @@ $sql = "SELECT * FROM ".$prefix."_journal WHERE jid = '$jid'";
         CloseTable();
         journalfoot();
     }
-    if (is_admin($admin)) {
+    if (is_admin()) {
         cookiedecode($user);
         $username = $cookie[1];
         $user = filter($user, "nohtml");

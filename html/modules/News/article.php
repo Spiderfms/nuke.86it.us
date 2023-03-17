@@ -30,7 +30,7 @@ if (stristr($REQUEST_URI,"mainfile")) {
 	Header("Location: index.php");
 }
 
-if ($save AND is_user($user)) {
+if ($save AND is_user()) {
 	cookiedecode($user);
 	getusrinfo($user);
 	if(!isset($mode)) { $mode = $userinfo['umode']; }
@@ -144,7 +144,7 @@ if ($haspoll == 1) {
 		}
 	}
 	//$boxContent .= "</table><br><center><font class=\"content\"><input type=\"submit\" value=\""._VOTE."\"></font><br>";
-	if (is_user($user)) {
+	if (is_user()) {
 		cookiedecode($user);
 	}
 	for($i = 0; $i < 12; $i++) {

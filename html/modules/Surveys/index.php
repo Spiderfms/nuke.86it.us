@@ -118,7 +118,7 @@ function pollMain($pollID) {
 		}
 	}
 	$boxContent .= "</table><br><center><font class=\"content\"><input type=\"submit\" value=\""._VOTE."\"></font><br>";
-	if (is_user($user)) {
+	if (is_user()) {
 		cookiedecode($user);
 		getusrinfo($user);
 	}
@@ -227,7 +227,7 @@ function pollList() {
 			$sum = (int)$sum+$optionCount;
 		}
 		echo "<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=$module_name&amp;pollID=$id\">$pollTitle</a> ";
-		if (is_admin($admin)) {
+		if (is_admin()) {
 			$editing = " - <a href=\"".$admin_file.".php?op=polledit&amp;pollID=$id\">Edit</a>";
 		} else {
 			$editing = "";
@@ -266,7 +266,7 @@ function pollList() {
 			$sum = (int)$sum+$optionCount;
 		}
 		echo "<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=$module_name&amp;pollID=$id\">$pollTitle</a> ";
-		if (is_admin($admin)) {
+		if (is_admin()) {
 			$editing = " - <a href=\"".$admin_file.".php?op=polledit&amp;pollID=$id\">Edit</a>";
 		} else {
 			$editing = "";
@@ -285,7 +285,7 @@ function pollList() {
 
 function pollResults($pollID) {
 	global $resultTableBgColor, $resultBarFile, $Default_Theme, $user, $cookie, $prefix, $admin, $module_name, $db, $admin_file, $userinfo;
-	if (is_user($user)) {
+	if (is_user()) {
 		getusrinfo($user);
 		cookiedecode($user);
 	}
@@ -398,7 +398,7 @@ function pollResults($pollID) {
 	}
 	echo "[ <a href=\"modules.php?name=$module_name&amp;pollID=$booth\">"._VOTING."</a> | "
 	."<a href=\"modules.php?name=$module_name\">"._OTHERPOLLS."</a> ] $article";
-	if (is_admin($admin)) {
+	if (is_admin()) {
 		echo "<br><center>[ <a href=\"".$admin_file.".php?op=create\">"._ADD."</a> | <a href=\"".$admin_file.".php?op=polledit&amp;pollID=$pollID\">"._EDIT."</a> ]</center>";
 	}
 	return(1);

@@ -50,7 +50,7 @@ if ( !defined('MODULE_FILE') )
         CloseTable();
         include("footer.php");
         die();
-    } elseif (is_user($user)) {
+    } elseif (is_user()) {
         cookiedecode($user);
         $username = $cookie[1];
         $htime = date("h");

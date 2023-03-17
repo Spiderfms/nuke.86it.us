@@ -51,7 +51,7 @@ if (!isset($popup) OR ($popup != "1")) {
     $module_name = basename(dirname(__FILE__));
     require("modules/Forums/nukebb.php");
     title("$sitename: $mod_name");
-    if (is_user($user)) {
+    if (is_user()) {
    include("modules/Your_Account/navbar.php");
    OpenTable();
    nav();

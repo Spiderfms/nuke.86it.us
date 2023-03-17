@@ -33,7 +33,7 @@ $pagetitle = "- "._USERSJOURNAL."";
 include("header.php");
 include("modules/$module_name/functions.php");
     include("modules/$module_name/kses.php");
-    if (is_user($user)) {
+    if (is_user()) {
 cookiedecode($user);
 $username = $cookie[1];
     }
@@ -99,16 +99,16 @@ while ($row = $db->sql_fetchrow($result)) {
         print ("<br>");
         OpenTable();
         print ("<table width=\"100%\" align=\"center\"><tr>");
-        if (is_user($user)) {
+        if (is_user()) {
         cookiedecode($user);
         $username = $cookie[1];
         $username = filter($username, "nohtml");
         }
-        if (is_user($user) && $owner == $username):
+        if (is_user() && $owner == $username):
             echo "<td align=\"center\" width=\"15%\"><a href=\"modules.php?name=$module_name&file=modify&jid=$jid\"><img src=\"modules/$module_name/images/edit.gif\" border=0 alt=\""._EDIT."\" title=\""._EDIT."\"><br>"._EDIT."</a></td>";
         echo "<td align=\"center\" width=\"15%\"><a href=\"modules.php?name=$module_name&file=delete&jid=$jid&forwhat=$jid\"><img src=\"modules/$module_name/images/trash.gif\" border=0 alt=\""._DELETE."\" title=\""._DELETE."\"><br>"._DELETE."</a></td>";
         //   endif;
-        elseif (is_admin($admin)):
+        elseif (is_admin()):
         echo "<td align=\"center\" width=\"15%\"><a href=\"modules.php?name=$module_name&file=modify&jid=$jid\"><img src=\"modules/$module_name/images/edit.gif\" border=0 alt=\""._EDIT."\" title=\""._EDIT."\"><br>"._EDIT."</a></td>";
         echo "<td align=\"center\" width=\"15%\"><a href=\"modules.php?name=$module_name&file=delete&jid=$jid&forwhat=$jid\"><img src=\"modules/$module_name/images/trash.gif\" border=0 alt=\""._DELETE."\" title=\""._DELETE."\"><br>"._DELETE."</a></td>";
         endif;
@@ -162,10 +162,10 @@ while ($row = $db->sql_fetchrow($result)) {
         $row['comment'] = filter($row['comment'], "nohtml");
         printf ("<strong>Comment:</strong> %s", $row['comment']);
         //    if ($username == $owner):
-        if (is_user($user) && ($owner == $username)):
+        if (is_user() && ($owner == $username)):
             printf ("<br><div align=center>[ <a href=\"modules.php?name=$module_name&file=commentkill&onwhat=%s&ref=$jid\">"._DELCOMMENT."</a> ]</div>", $row['cid'], $jid);
         endif;
-        if (is_admin($admin)):
+        if (is_admin()):
             printf ("<br><div align=center>[ <a href=\"modules.php?name=$module_name&file=commentkill&onwhat=%s&ref=$jid\">"._DELCOMMENT."</a> ]</div>", $row['cid'], $jid);
         endif;
         closeTable();

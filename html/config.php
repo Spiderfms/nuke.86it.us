@@ -49,9 +49,19 @@ $dbname = "nuke86it_db";
 $prefix = "nuke";
 $user_prefix = "nuke";
 $dbtype = "MySQLi";
-$sitekey = "OYkLUuz8KTFk0g8doZLGoWzqMUa8rgFEBO648pFE";
+$sitekey = "6yaOTDkLF6g2o9X7rx6UOdoXaIqZeS7ylNmaL94K";
 $subscription_url = "";
 $admin_file = "admin";
+
+
+$directory_mode = 0777;
+$file_mode = 0666;
+$debug = true;
+$use_cache = 1;
+$persistency = false;
+
+
+
 
 /**********************************************************************/
 /* You have finished configuring the Database. Now you can change all */
@@ -89,3 +99,4 @@ $tipath = "images/topics/";
 
 $commercial_license = 0;
 
+?>

@@ -51,7 +51,7 @@ $pagetitle = "- "._USERSJOURNAL."";
 include("header.php");
 include("modules/$module_name/functions.php");
     include("modules/$module_name/kses.php");
-    if (is_user($user)) {
+    if (is_user()) {
         cookiedecode($user);
         $username = $cookie[1];
         $user = filter($user, "nohtml");
@@ -84,7 +84,7 @@ include("modules/$module_name/functions.php");
 	$sql = "SELECT * FROM ".$prefix."_journal WHERE jid = '$jid'";
     $result = $db->sql_query($sql);
     while ($row = $db->sql_fetchrow($result)) {
-            	if (!is_admin($admin)):
+            	if (!is_admin()):
 	if ($username != $row['aid']):
     	    echo ("<br>");
 	    openTable();
@@ -251,7 +251,7 @@ include("modules/$module_name/functions.php");
         }
         journalfoot();
     }
-    if (is_admin($admin)) {
+    if (is_admin()) {
         $username = filter($username, "nohtml");
         $sitename = filter($sitename, "nohtml");
         $jbodytext = kses(ADVT_stripslashes($jbodytext), $allowed);

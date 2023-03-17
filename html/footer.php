@@ -57,7 +57,7 @@ function foot() {
 		$cpname = str_replace("_", " ", $name);
 		echo "<div align=\"right\"><a href=\"javascript:openwindow()\">$cpname &copy;</a></div>";
 	}
-	if (basename($_SERVER['PHP_SELF']) != "index.php" AND defined('MODULE_FILE') AND (file_exists("modules/$name/admin/panel.php") && is_admin($admin))) {
+	if (basename($_SERVER['PHP_SELF']) != "index.php" AND defined('MODULE_FILE') AND (file_exists("modules/$name/admin/panel.php") && is_admin())) {
 		echo "<br>";
 		OpenTable();
 		include("modules/$name/admin/panel.php");

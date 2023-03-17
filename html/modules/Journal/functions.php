@@ -86,7 +86,7 @@ if ( !defined('MODULE_FILE') )
         global $module_name;
         $user = filter($user, "nohtml");
         $sitename = filter($sitename, "nohtml");
-        if (is_user($user)) {
+        if (is_user()) {
             $j_user1 = "<center>[ <a href=\"modules.php?name=$module_name\">"._JOURNALDIR."</a> | <a href=\"modules.php?name=$module_name&file=edit\">"._YOURJOURNAL."</a> ]</center>";
             $j_user2 = "";
         } else {
@@ -94,7 +94,7 @@ if ( !defined('MODULE_FILE') )
             $j_user2 = "<br><center><font class=\"tiny\">"._MEMBERSCAN."</font></center>";
         }
         title("$sitename: "._USERSJOURNAL."");
-        if (is_user($user)) {
+        if (is_user()) {
             include("modules/Your_Account/navbar.php");
             OpenTable();
             nav();

@@ -364,6 +364,14 @@ if ($siteUrl) {
 	$config .= "\$subscription_url = \"\";\n";
 	$config .= "\$admin_file = \"admin\";\n";
 	$config .= "\n";
+	$config .= "\n";
+	$config .= "\$directory_mode = 0777;\n";
+	$config .= "\$file_mode = 0666;\n";
+	$config .= "\$debug = true;\n";
+	$config .= "\$use_cache = 1;\n";
+	$config .= "\$persistency = false;\n";
+	$config .= "\n";
+	$config .= "\n";
 	$config .= "/**********************************************************************/\n";
 	$config .= "/* You have finished configuring the Database. Now you can change all */\n";
 	$config .= "/* you want in the Administration Section.   To enter just launch     */\n";

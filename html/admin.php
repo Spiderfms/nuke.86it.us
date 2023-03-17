@@ -490,7 +490,7 @@ if(isset($admin) && !empty($admin)) {
 												unset($op);
 
 												default:
-												if (!is_admin($admin)) {
+												if (!is_admin()) {
 													login();
 												}
 												$casedir = dir("admin/case");

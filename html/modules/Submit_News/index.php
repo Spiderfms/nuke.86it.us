@@ -33,11 +33,11 @@ function defaultDisplay() {
 	//CloseTable();
 	echo "<br>";
 	OpenTable();
-	if (is_user($user)) getusrinfo($user);
+	if (is_user()) getusrinfo($user);
 	echo "<table border=\"0\" widht=\"100%\">";
 	echo "<tr><td><form action=\"modules.php?name=$module_name\" method=\"post\">"
 		."<b>"._YOURNAME.":</b></td><td>";
-	if (is_user($user)) {
+	if (is_user()) {
 		cookiedecode($user);
 		echo "<a href=\"modules.php?name=Your_Account\">$cookie[1]</a> <font class=\"content\">[ <a href=\"modules.php?name=Your_Account&amp;op=logout\">"._LOGOUT."</a> ]</font>";
 	} else {
@@ -144,7 +144,7 @@ function PreviewStory($name, $address, $subject, $story, $storyext, $topic, $ala
 	echo "<table border=\"0\" widht=\"100%\">";
 	echo "<tr><td><form action=\"modules.php?name=$module_name\" method=\"post\">"
 		."<b>"._YOURNAME.":</b></td><td>";
-	if (is_user($user)) {
+	if (is_user()) {
 		cookiedecode($user);
 		echo "<a href=\"modules.php?name=Your_Account\">$cookie[1]</a> <font class=\"content\">[ <a href=\"modules.php?name=Your_Account&amp;op=logout\">"._LOGOUT."</a> ]</font>";
 	} else {
@@ -217,7 +217,7 @@ function PreviewStory($name, $address, $subject, $story, $storyext, $topic, $ala
 
 function submitStory($name, $address, $subject, $story, $storyext, $topic, $alanguage) {
 	global $user, $EditedMessage, $cookie, $anonymous, $notify, $notify_email, $notify_subject, $notify_message, $notify_from, $prefix, $db;
-	if (is_user($user)) {
+	if (is_user()) {
 		cookiedecode($user);
 		$uid = $cookie[0];
 		$name = $cookie[1];

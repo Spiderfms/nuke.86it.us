@@ -91,7 +91,7 @@ $who_online_num = $guest_online_num + $member_online_num;
 $who_online_num = intval($who_online_num);
 $content .= "<form onsubmit=\"this.submit.disabled='true'\" action=\"modules.php?name=Your_Account\" method=\"post\">";
 
-if (is_user($user)) {
+if (is_user()) {
     $uname = $cookie[1];
     $content .= "<br><img src=\"images/blocks/group-4.gif\" height=\"14\" width=\"17\"> "._BWEL.", <b>$uname</b>.<br>\n<hr>\n";
     $sql = "SELECT user_id FROM " .$user_prefix."_users WHERE username='$uname'";

@@ -213,7 +213,7 @@ function themearticle ($aid, $informant, $datetime, $title, $thetext, $topic, $t
     echo "<font class=\"option\" color=\"#363636\"><b>$title</b></font><br>\n"
         ."<font class=\"content\">Posted on $datetime by ";
     formatAidHeader($aid);
-    if (is_admin($admin)) {
+    if (is_admin()) {
 	echo "<br>[ <a href=\"".$admin_file.".php?op=EditStory&amp;sid=$sid\">"._EDIT."</a> | <a href=\"".$admin_file.".php?op=RemoveStory&amp;sid=$sid\">"._DELETE."</a> ]\n";
     }
     echo "<br><br>";

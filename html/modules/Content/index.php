@@ -37,7 +37,7 @@ function showpage($pid, $page=0) {
     $mysignature = filter($mypage['signature']);
     $mydate = $mypage['date'];
     $mycounter = intval($mypage['counter']);
-    if (($myactive == 0) AND (!is_admin($admin))) {
+    if (($myactive == 0) AND (!is_admin())) {
 		echo "Sorry... This page doesn't exist.";
     } else {
 		$db->sql_query("UPDATE ".$prefix."_pages SET counter=counter+1 WHERE pid='$pid'");
@@ -130,14 +130,14 @@ function list_pages() {
 		} else {
 	  	    $subtitle = "";
 		}
-		if (is_admin($admin)) {
+		if (is_admin()) {
 		    echo "<strong><big>&middot;</big></strong> $the_lang <a href=\"modules.php?name=$module_name&amp;pa=showpage&amp;pid=$pid\">$title</a> $subtitle [ <a href=\"".$admin_file.".php?op=content_edit&amp;pid=$pid\">"._EDIT."</a> | <a href=\"".$admin_file.".php?op=content_change_status&amp;pid=$pid&amp;active=1\">"._DEACTIVATE."</a> | <a href=\"".$admin_file.".php?op=content_delete&amp;pid=$pid\">"._DELETE."</a> ]<br>";
 		} else {
 		    echo "<strong><big>&middot;</big></strong> $the_lang <a href=\"modules.php?name=$module_name&amp;pa=showpage&amp;pid=$pid\">$title</a> $subtitle<br>";
 		}
     }
     echo "</blockquote>";
-    if (is_admin($admin)) {
+    if (is_admin()) {
 		$result5 = $db->sql_query("SELECT pid, cid, title, subtitle, clanguage FROM ".$prefix."_pages WHERE active='0' ORDER BY date");
 		echo "<br><br><center><b>"._YOURADMINLIST."</b></center><br><br>";
 		echo "<blockquote>";
@@ -189,14 +189,14 @@ function list_pages_categories($cid) {
 	} else {
     	    $subtitle = "";
 	}
-	if (is_admin($admin)) {
+	if (is_admin()) {
 	    echo "<strong><big>&middot;</big></strong> $the_lang <a href=\"modules.php?name=$module_name&amp;pa=showpage&amp;pid=$pid\">$title</a> $subtitle [ <a href=\"".$admin_file.".php?op=content_edit&amp;pid=$pid\">"._EDIT."</a> | <a href=\"".$admin_file.".php?op=content_change_status&amp;pid=$pid&amp;active=1\">"._DEACTIVATE."</a> | <a href=\"".$admin_file.".php?op=content_delete&amp;pid=$pid\">"._DELETE."</a> ]<br>";
 	} else {
 	    echo "<strong><big>&middot;</big></strong> $the_lang <a href=\"modules.php?name=$module_name&amp;pa=showpage&amp;pid=$pid\">$title</a> $subtitle<br>";
 	}
     }
     echo "</blockquote>";
-    if (is_admin($admin)) {
+    if (is_admin()) {
 	$result2 = $db->sql_query("SELECT pid, title, subtitle, clanguage FROM ".$prefix."_pages WHERE active='0' AND cid='$cid' ORDER BY date");
 	echo "<br><br><center><b>"._YOURADMINLIST."</b></center><br><br>";
 	echo "<blockquote>";

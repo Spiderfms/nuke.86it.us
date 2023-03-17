@@ -29,7 +29,7 @@ if ( !defined('MODULE_FILE') )
     $pagetitle = "- "._USERSJOURNAL."";
     include("header.php");
     include("modules/$module_name/functions.php");
-    if (is_user($user)) {
+    if (is_user()) {
         cookiedecode($user);
         $username = $cookie[1];
         $user = filter($user, "nohtml");
@@ -72,7 +72,7 @@ $sql = "select title from ".$prefix."_journal where jid='$jid'";
         title(""._SENDJFRIEND."");
         OpenTable();
         echo "<table align=center border=0><tr><td>" ."<center><b>$jtitle</b><br>"._YOUSENDJOURNAL."</center><br><br>" ."<form action=\"modules.php?name=$module_name&file=friend\" method=\"post\">" ."<input type=\"hidden\" name=\"send\" value=\"1\">" ."<input type=\"hidden\" name=\"jid\" value=\"$jid\">";
-        if (is_user($user)) {
+        if (is_user()) {
             $sql = "select name, username, user_email from ".$user_prefix."_users where user_id = '".intval($cookie[0])."'";
             $result = $db->sql_query($sql);
             $row = $db->sql_fetchrow($result);

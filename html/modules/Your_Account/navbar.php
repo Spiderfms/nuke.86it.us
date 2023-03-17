@@ -16,7 +16,7 @@ if (!defined('MODULE_FILE')) {
     die("You can't access this file directly...");
 }
 
-if (!is_user($user)) {
+if (!is_user()) {
   exit("Access Denied");
 }
 

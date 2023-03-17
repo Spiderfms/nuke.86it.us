@@ -46,7 +46,7 @@ $pagetitle = "- "._USERSJOURNAL."";
 
 include("header.php");
 include("modules/$module_name/functions.php");
-    if (is_user($user)) {
+    if (is_user()) {
 cookiedecode($user);
 $username = $cookie[1];
 $htime = date("h");
@@ -75,7 +75,7 @@ echo ("<a href=\"modules.php?name=$module_name&file=display&jid=$rid\">"._RETURN
 closeTable();
         journalfoot();
     }
-    if (!is_user($user) && !is_admin($admin)) {
+    if (!is_user() && !is_admin()) {
         $pagetitle = "- "._YOUMUSTBEMEMBER."";
         $pagetitle = filter($pagetitle, "nohtml");
         OpenTable();

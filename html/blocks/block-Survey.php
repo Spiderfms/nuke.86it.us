@@ -48,7 +48,7 @@ if ($pollID == 0 || empty($pollID)) {
 		}
 	}
 	$content .= "</table><br><center><span class=\"content\"><input type=\"submit\" value=\""._VOTE."\"></span><br>";
-	if (is_user($user)) {
+	if (is_user()) {
 		cookiedecode($user);
 	        getusrinfo($user);
 	}

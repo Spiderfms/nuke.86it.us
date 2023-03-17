@@ -261,7 +261,7 @@ switch($op) {
 						} elseif ($comments >1) {
 							echo "($comments "._UCOMMENTS.")";
 						}
-						if (is_admin($admin)) {
+						if (is_admin()) {
 							echo " [ <a href=\"".$admin_file.".php?op=EditStory&amp;sid=$sid\">"._EDIT."</a> | <a href=\"".$admin_file.".php?op=RemoveStory&amp;sid=$sid\">"._DELETE."</a> ]";
 						}
 						echo "</font><br><br><br></td></tr>\n";
@@ -326,13 +326,13 @@ switch($op) {
 						.""._ATTACHART.": $title<br>";
 						if ($reply == 1) {
 							echo "($reply "._SREPLY.")";
-							if (is_admin($admin)) {
+							if (is_admin()) {
 								echo " [ <a href=\"".$admin_file.".php?op=RemoveComment&amp;tid=$tid&amp;sid=$sid\">"._DELETE."</a> ]";
 							}
 							echo "<br><br><br></td></tr>\n";
 						} else {
 							echo "($reply "._SREPLIES.")";
-							if (is_admin($admin)) {
+							if (is_admin()) {
 								echo " [ <a href=\"".$admin_file.".php?op=RemoveComment&amp;tid=$tid&amp;sid=$sid\">"._DELETE."</a> ]";
 							}
 							echo "<br><br><br></td></tr>\n";
@@ -381,7 +381,7 @@ switch($op) {
 						} else {
 							echo "($pages "._PAGES.")";
 						}
-						if (is_admin($admin)) {
+						if (is_admin()) {
 							echo " [ <a href=\"modules.php?name=Reviews&amp;op=mod_review&amp;id=$id\">"._EDIT."</a> | <a href=\"modules.php?name=Reviews.php&amp;op=del_review&amp;id_del=$id\">"._DELETE."</a> ]";
 						}
 						print "<br><br><br></font></td></tr>\n";
@@ -422,7 +422,7 @@ switch($op) {
 							$name = ""._NONAME."";
 						}
 						echo "<tr><td><img src=\"images/folders.gif\" border=\"0\" alt=\"\">&nbsp;<font class=\"option\"><a href=\"$furl\"><b>$uname</b></a></font><font class=\"content\"> ($name)";
-						if (is_admin($admin)) {
+						if (is_admin()) {
 							echo " [ <a href=\"".$admin_file.".php?chng_uid=$uid&amp;op=modifyUser\">"._EDIT."</a> | <a href=\"".$admin_file.".php?op=delUser&amp;chng_uid=$uid\">"._DELETE."</a> ]";
 						}
 						echo "</font></td></tr>\n";

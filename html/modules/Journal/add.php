@@ -44,7 +44,7 @@ if ( !defined('MODULE_FILE') )
 include("header.php");
 include("modules/$module_name/functions.php");
     include("modules/$module_name/kses.php");
-    if (is_user($user)) {
+    if (is_user()) {
 cookiedecode($user);
 $username = $cookie[1];
     }
@@ -64,7 +64,7 @@ $username = $cookie[1];
 # must register before posting.		            #
 #####################################################
 
-    if (!is_user($user)) :
+    if (!is_user()) :
     echo ("<br>");
     openTable();
     echo ("<div align=center>"._YOUMUSTBEMEMBER."<br></div>");
@@ -80,7 +80,7 @@ endif;
 # gifs and jpgs from the 			    #
 # modules/Journal/Images/moods directory.	    #
 #####################################################
-    if (is_user($user)) {
+    if (is_user()) {
 echo "<br>";
 OpenTable();
 echo ("<div align=center class=title>"._ADDJOURNAL."</div><br>");

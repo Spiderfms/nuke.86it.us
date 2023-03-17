@@ -107,7 +107,7 @@ function linkinfomenu($lid) {
 	." | <a href=\"modules.php?name=$module_name&amp;l_op=viewlinkdetails&amp;lid=$lid\">"._ADDITIONALDET."</a>"
 	." | <a href=\"modules.php?name=$module_name&amp;l_op=viewlinkeditorial&amp;lid=$lid\">"._EDITORREVIEW."</a>"
 	." | <a href=\"modules.php?name=$module_name&amp;l_op=modifylinkrequest&amp;lid=$lid\">"._MODIFY."</a>";
-	if (is_user($user)) {
+	if (is_user()) {
 		echo " | <a href=\"modules.php?name=$module_name&amp;l_op=brokenlink&amp;lid=$lid\">"._REPORTBROKEN."</a>";
 	}
 	echo " ]</font>";
@@ -182,7 +182,7 @@ function AddLink() {
 	echo "<br>";
 	OpenTable();
 	echo "<center><font class=\"title\"><b>"._ADDALINK."</b></font></center><br><br>";
-	if (is_user($user) || $links_anonaddlinklock == 1) {  /* 06-24-01 Bug fix : changed $links_anonaddlinklock != 1 to $links_anonaddlinklock == 1 */
+	if (is_user() || $links_anonaddlinklock == 1) {  /* 06-24-01 Bug fix : changed $links_anonaddlinklock != 1 to $links_anonaddlinklock == 1 */
 	echo "<b>"._INSTRUCTIONS.":</b><br>"
 	."<strong><big>&middot;</big></strong> "._SUBMITONCE."<br>"
 	."<strong><big>&middot;</big></strong> "._POSTPENDING."<br>"
@@ -235,7 +235,7 @@ function Add($title, $url, $auth_name, $cat, $description, $email) {
 		CloseTable();
 		include("footer.php");
 	} else {
-		if(is_user($user)) {
+		if(is_user()) {
 			$user2 = base64_decode($user);
 			$user2 = addslashes($user2);
 			$cookie = explode(":", $user2);
@@ -389,7 +389,7 @@ function NewLinksDate($selectdate) {
 		$totalvotes = intval($row2['totalvotes']);
 		$totalcomments = intval($row2['totalcomments']);
 		$linkratingsummary = number_format($linkratingsummary, $mainvotedecimal);
-		if (is_admin($admin)) {
+		if (is_admin()) {
 	    	echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\"><img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\""._EDIT."\"></a>&nbsp;&nbsp;";
 		} else {
 	    	echo "<img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\"\">&nbsp;&nbsp;";
@@ -419,7 +419,7 @@ function NewLinksDate($selectdate) {
 			echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\">"._EDIT."</a> | ";
 		}
 		echo "<a href=\"modules.php?name=$module_name&amp;l_op=ratelink&amp;lid=$lid\">"._RATESITE."</a>";
-		if (is_user($user)) {
+		if (is_user()) {
 			echo " | <a href=\"modules.php?name=$module_name&amp;l_op=brokenlink&amp;lid=$lid\">"._REPORTBROKEN."</a>";
 		}
 		if ($totalvotes != 0) {
@@ -491,7 +491,7 @@ function TopRated($ratenum, $ratetype) {
 		$totalvotes = intval($row['totalvotes']);
 		$totalcomments = intval($row['totalcomments']);
 		$linkratingsummary = number_format($linkratingsummary, $mainvotedecimal);
-		if (is_admin($admin)) {
+		if (is_admin()) {
 	    	echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\"><img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\""._EDIT."\"></a>&nbsp;&nbsp;";
 		} else {
 	    	echo "<img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\"\">&nbsp;&nbsp;";
@@ -517,7 +517,7 @@ function TopRated($ratenum, $ratetype) {
 			echo " "._RATING.": <b> $linkratingsummary </b> ($totalvotes $votestring)";
 		}
 		echo "<br><a href=\"modules.php?name=$module_name&amp;l_op=ratelink&amp;lid=$lid\">"._RATESITE."</a>";
-		if (is_user($user)) {
+		if (is_user()) {
 			echo " | <a href=\"modules.php?name=$module_name&amp;l_op=brokenlink&amp;lid=$lid\">"._REPORTBROKEN."</a>";
 		}
 		if ($totalvotes != 0) {
@@ -596,7 +596,7 @@ function MostPopular($ratenum, $ratetype) {
 		$totalvotes = intval($row3['totalvotes']);
 		$totalcomments = intval($row3['totalcomments']);
 		$linkratingsummary = number_format($linkratingsummary, $mainvotedecimal);
-		if (is_admin($admin)) {
+		if (is_admin()) {
 	    	echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\"><img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\""._EDIT."\"></a>&nbsp;&nbsp;";
 		} else {
 	    	echo "<img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\"\">&nbsp;&nbsp;";
@@ -626,7 +626,7 @@ function MostPopular($ratenum, $ratetype) {
 			echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\">"._EDIT."</a> | ";
 		}
 		echo "<a href=\"modules.php?name=$module_name&amp;l_op=ratelink&amp;lid=$lid\">"._RATESITE."</a>";
-		if (is_user($user)) {
+		if (is_user()) {
 			echo " | <a href=\"modules.php?name=$module_name&amp;l_op=brokenlink&amp;lid=$lid\">"._REPORTBROKEN."</a>";
 		}
 		if ($totalvotes != 0) {
@@ -775,7 +775,7 @@ function viewlink($cid, $min, $orderby, $show) {
 		$totalvotes = intval($row4['totalvotes']);
 		$totalcomments = intval($row4['totalcomments']);
 		$linkratingsummary = number_format($linkratingsummary, $mainvotedecimal);
-		if (is_admin($admin)) {
+		if (is_admin()) {
 	    	echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\"><img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\""._EDIT."\"></a>&nbsp;&nbsp;";
 		} else {
 	    	echo "<img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\"\">&nbsp;&nbsp;";
@@ -806,7 +806,7 @@ function viewlink($cid, $min, $orderby, $show) {
 			echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\">"._EDIT."</a> | ";
 		}
 		echo "<a href=\"modules.php?name=$module_name&amp;l_op=ratelink&amp;lid=$lid\">"._RATESITE."</a>";
-		if (is_user($user)) {
+		if (is_user()) {
 			echo " | <a href=\"modules.php?name=$module_name&amp;l_op=brokenlink&amp;lid=$lid\">"._REPORTBROKEN."</a>";
 		}
 		if ($totalvotes != 0) {
@@ -1060,7 +1060,7 @@ function search($query, $min, $orderby, $show) {
 				$linkratingsummary = number_format($linkratingsummary, $mainvotedecimal);
 				$transfertitle = str_replace (" ", "_", $title);
 				$title = ereg_replace($query1, "<b>$query1</b>", $title);
-				if (is_admin($admin)) {
+				if (is_admin()) {
 			    	echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\"><img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\""._EDIT."\"></a>&nbsp;&nbsp;";
 				} else {
 			    	echo "<img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\"\">&nbsp;&nbsp;";
@@ -1271,7 +1271,7 @@ function viewlinkcomments($lid) {
 		."<tr>"
 		."<td colspan=\"3\">"
 		."<font class=\"content\">";
-		if (is_admin($admin)) {
+		if (is_admin()) {
 			echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\"><img src=\"modules/$module_name/images/editicon.gif\" border=\"0\" alt=\""._EDITTHISLINK."\"></a>";
 		}
 		echo " $ratingcomments</font>"
@@ -1755,7 +1755,7 @@ function outsidelinksetup($lid) {
 
 function brokenlink($lid) {
 	global $prefix, $db, $user, $cookie, $module_name;
-	if (is_user($user)) {
+	if (is_user()) {
 		include("header.php");
 		include("modules/$module_name/l_config.php");
 		$user2 = base64_decode($user);
@@ -1791,7 +1791,7 @@ function brokenlink($lid) {
 
 function brokenlinkS($lid,$cid, $title, $url, $description, $modifysubmitter) {
 	global $prefix, $db, $user, $anonymous, $cookie, $module_name, $user;
-	if (is_user($user)) {
+	if (is_user()) {
 		include("modules/$module_name/l_config.php");
 		$user2 = base64_decode($user);
 		$user2 = addslashes($user2);
@@ -1821,7 +1821,7 @@ function modifylinkrequest($lid) {
 	global $prefix, $db, $user, $module_name, $anonymous;
 	include("header.php");
 	include("modules/$module_name/l_config.php");
-	if(is_user($user)) {
+	if(is_user()) {
 		$user2 = base64_decode($user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
@@ -1882,7 +1882,7 @@ function modifylinkrequest($lid) {
 function modifylinkrequestS($lid, $cat, $title, $url, $description, $modifysubmitter) {
 	global $prefix, $db, $user, $module_name;
 	include("modules/$module_name/l_config.php");
-	if(is_user($user)) {
+	if(is_user()) {
 		$user2 = base64_decode($user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
@@ -1940,7 +1940,7 @@ function addrating($ratinglid, $ratinguser, $rating, $ratinghost_name, $ratingco
 	include("modules/$module_name/l_config.php");
 	$ratinglid = intval($ratinglid);
 	completevoteheader();
-	if(is_user($user)) {
+	if(is_user()) {
 		$user2 = base64_decode($user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
@@ -2102,7 +2102,7 @@ function ratelink($lid, $user) {
 	."<li>"._RATENOTE3.""
 	."<li>"._RATENOTE4.""
 	."<li>"._RATENOTE5."";
-	if(is_user($user)) {
+	if(is_user()) {
 		$user2 = base64_decode($user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
@@ -2140,7 +2140,7 @@ function ratelink($lid, $user) {
 	."<font class=\"content\"><input type=\"submit\" value=\""._RATETHISSITE."\"></font>"
 	."<br><br>";
     $karma = $db->sql_fetchrow($db->sql_query("SELECT karma FROM ".$user_prefix."_users WHERE user_id='$cookie[0]'"));
-    if(is_user($user) AND $karma['karma'] != 3 AND $karma['karma'] != 4) {
+    if(is_user() AND $karma['karma'] != 3 AND $karma['karma'] != 4) {
 		echo "<b>"._SCOMMENTS.":</b><br><textarea wrap=\"virtual\" cols=\"70\" rows=\"15\" name=\"ratingcomments\"></textarea>"
 		."<br><br><br>"
 		."</font></td>";

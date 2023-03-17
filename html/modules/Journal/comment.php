@@ -45,7 +45,7 @@ get_lang($module_name);
 $pagetitle = "- "._USERSJOURNAL."";
 include("header.php");
 include("modules/$module_name/functions.php");
-    if (is_user($user)) {
+    if (is_user()) {
 cookiedecode($user);
 $username = $cookie[1];
 $htime = date("h");
@@ -80,7 +80,7 @@ function dropcomment($username,$onwhat,$mtime,$ndate) {
     CloseTable();
 }
 }
-if (!is_user($user)) :
+if (!is_user()) :
     echo ("<br>");
     openTable();
     echo ("<div align=center>"._YOUMUSTBEMEMBER."<br></div>");

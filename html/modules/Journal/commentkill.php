@@ -49,7 +49,7 @@ $pagetitle = "- "._USERSJOURNAL."";
 
 include("header.php");
 include("modules/$module_name/functions.php");
-         if (is_admin($admin)) {
+         if (is_admin()) {
 cookiedecode($user);
 $username = $cookie[1];
         $username = filter($username, "nohtml");
@@ -70,7 +70,7 @@ $db->sql_query($sql);
         closeTable();
         journalfoot();
     } else {
-        if (is_user($user)) {
+        if (is_user()) {
             cookiedecode($user);
             $username = $cookie[1];
             if ($debug == "true") :
@@ -88,7 +88,7 @@ $db->sql_query($sql);
             journalfoot();
         }
     }
-    if (!is_user($user) && !is_admin($admin)) {
+    if (!is_user() && !is_admin()) {
         $pagetitle = "- "._YOUMUSTBEMEMBER."";
         $pagetitle = filter($pagetitle, "nohtml");
         OpenTable();

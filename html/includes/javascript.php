@@ -30,7 +30,7 @@ if (file_exists("themes/".$ThemeSel."/style/editor.css")) {
 }
 
 if ($nuke_editor == 1) {
-	if (is_admin($admin) AND $name != "Private_Messages" AND $name != "Forums" AND !defined('NO_EDITOR')) {
+	if (is_admin() AND $name != "Private_Messages" AND $name != "Forums" AND !defined('NO_EDITOR')) {
 		echo "<!-- tinyMCE -->
 			<script language=\"javascript\" type=\"text/javascript\" src=\"includes/tiny_mce/tiny_mce.js\"></script>
 			<script language=\"javascript\" type=\"text/javascript\">

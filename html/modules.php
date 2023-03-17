@@ -20,7 +20,7 @@ if (isset($name) && $name == $_REQUEST['name']) {
   $modstring = strtolower($_SERVER['QUERY_STRING']);
   if (stripos_clone($name, "..") OR ((stripos_clone($modstring,"&file=nickpage") || stripos_clone($modstring,"&user=")) AND ($name=="Private_Messages" OR $name=="Forums" OR $name=="Members_List"))) header("Location: index.php");
   global $nukeuser, $db, $prefix, $user;
-  if (is_user($user)) {
+  if (is_user()) {
     $nukeuser = base64_decode($user);
     $nukeuser = addslashes($nukeuser);
   } else {
@@ -30,7 +30,7 @@ if (isset($name) && $name == $_REQUEST['name']) {
   list($mod_active, $view) = $db->sql_fetchrow($result);
   $mod_active = intval($mod_active);
   $view = intval($view);
-  if (($mod_active == 1) OR ($mod_active == 0 AND is_admin($admin))) {
+  if (($mod_active == 1) OR ($mod_active == 0 AND is_admin())) {
     if (!isset($mop) OR $mop != $_REQUEST['mop']) $mop="modload";
     if (!isset($file) OR $file != $_REQUEST['file']) $file="index";
     if (stripos_clone($file,"..") OR stripos_clone($mop,"..")) die("You are so cool...");
@@ -51,7 +51,7 @@ if (isset($name) && $name == $_REQUEST['name']) {
         CloseTable();
         include("footer.php");
       }
-    } elseif ($view == 1 AND (is_user($user) OR is_group($user, $name)) OR is_admin($admin)) {
+    } elseif ($view == 1 AND (is_user() OR is_group($user, $name)) OR is_admin()) {
       $modpath .= "modules/$name/".$file.".php";
       if (file_exists($modpath)) {
         include($modpath);
@@ -62,7 +62,7 @@ if (isset($name) && $name == $_REQUEST['name']) {
         CloseTable();
         include("footer.php");
       }
-    } elseif ($view == 1 AND !is_user($user) AND !is_admin($admin)) {
+    } elseif ($view == 1 AND !is_user() AND !is_admin()) {
       $pagetitle = "- "._ACCESSDENIED;
       include("header.php");
       title($sitename.": "._ACCESSDENIED);
@@ -78,7 +78,7 @@ if (isset($name) && $name == $_REQUEST['name']) {
       echo _GOBACK;
       CloseTable();
       include("footer.php");
-    } elseif ($view == 2 AND is_admin($admin)) {
+    } elseif ($view == 2 AND is_admin()) {
       $modpath .= "modules/$name/".$file.".php";
       if (file_exists($modpath)) {
         include($modpath);
@@ -89,7 +89,7 @@ if (isset($name) && $name == $_REQUEST['name']) {
         CloseTable();
         include("footer.php");
       }
-    } elseif ($view == 2 AND !is_admin($admin)) {
+    } elseif ($view == 2 AND !is_admin()) {
       $pagetitle = "- "._ACCESSDENIED;
       include("header.php");
       title($sitename.": "._ACCESSDENIED);

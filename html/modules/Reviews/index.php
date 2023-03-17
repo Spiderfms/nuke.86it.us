@@ -102,13 +102,13 @@ function write_review() {
 	}
 	echo "<b>"._REVIEW.":</b><br>
     <textarea name=\"text\" rows=\"15\" wrap=\"virtual\" cols=\"60\"></textarea><br>";
-	if (is_admin($admin)) {
+	if (is_admin()) {
 		echo "<font class=\"content\">"._PAGEBREAK."</font><br>";
 	}
 	echo "
     <i>"._CHECKREVIEW."</i><br><br>
     <b>"._YOURNAME.":</b><br>";
-	if (is_user($user)) {
+	if (is_user()) {
 		$result = $db->sql_query("select username, user_email from ".$user_prefix."_users where user_id = '".intval($cookie[0])."'");
 		list($rname, $email) = $db->sql_fetchrow($result);
 		$rname = filter($rname, "nohtml");
@@ -144,7 +144,7 @@ function write_review() {
 	    <input type=\"text\" name=\"url_title\" size=\"40\" maxlength=\"50\"><br>
 	    <i>"._LINKTITLEREQ."</i><br><br>
 	";
-	if(is_admin($admin)) {
+	if(is_admin()) {
 		echo "<b>"._RIMAGEFILE.":</b><br>
 			<input type=\"text\" name=\"cover\" size=\"40\" maxlength=\"100\"><br>
 			<i>"._RIMAGEFILEREQ."</i><br><br>
@@ -259,7 +259,7 @@ function preview_review($date, $title, $text, $reviewer, $email, $score, $cover,
 		$word = ""._RMODIFIED."";
 		else
 		$word = ""._RADDED."";
-		if(is_admin($admin))
+		if(is_admin())
 		echo "<br><br><b>"._NOTE."</b> "._ADMINLOGGED." $word.";
 	}
 	CloseTable();
@@ -293,10 +293,10 @@ function send_review($date, $title, $text, $reviewer, $email, $score, $cover, $u
 	if ($score < 0 OR $score > 10) {
 		$score = 0;
 	}
-	if ((is_admin($admin)) && ($id == 0)) {
+	if ((is_admin()) && ($id == 0)) {
 		$db->sql_query("INSERT INTO ".$prefix."_reviews VALUES (NULL, '$date', '$title', '$text', '$reviewer', '$email', '$score', '$cover', '$url', '$url_title', '1', '$rlanguage')");
 		echo ""._ISAVAILABLE."";
-	} else if ((is_admin($admin)) && ($id != 0)) {
+	} else if ((is_admin()) && ($id != 0)) {
 		$db->sql_query("UPDATE ".$prefix."_reviews SET date='$date', title='$title', text='$text', reviewer='$reviewer', email='$email', score='$score', cover='$cover', url='$url', url_title='$url_title', hits='$hits', rlanguage='$rlanguage' where id = '$id'");
 		echo ""._ISAVAILABLE."";
 	} else {
@@ -430,7 +430,7 @@ function reviews($letter, $field, $order) {
 
 function postcomment($id, $title) {
 	global $user, $cookie, $AllowableHTML, $anonymous, $module_name, $anonpost;
-	if (!is_user($user) && $anonpost == 0) {
+	if (!is_user() && $anonpost == 0) {
 		include("header.php");
 		title("$module_name");
 		OpenTable();
@@ -445,7 +445,7 @@ function postcomment($id, $title) {
 	OpenTable();
 	echo "<center><font class=option><b>"._REVIEWCOMMENT." $title</b><br><br></font></center>"
 	."<form action=modules.php?name=$module_name method=post>";
-	if (!is_user($user) && $anonpost != 0) {
+	if (!is_user() && $anonpost != 0) {
 		echo "<b>"._YOURNICK."</b> $anonymous [ "._RCREATEACCOUNT." ]<br><br>";
 		$uname = $anonymous;
 	} else {
@@ -487,7 +487,7 @@ function postcomment($id, $title) {
 
 function savecomment($xanonpost, $uname, $id, $score, $comments) {
 	global $anonymous, $user, $cookie, $prefix, $db, $module_name, $user_prefix, $anonpost;
-	if (!is_user($user) && $anonpost == 0) {
+	if (!is_user() && $anonpost == 0) {
 		include("header.php");
 		title("$module_name");
 		OpenTable();
@@ -503,7 +503,7 @@ function savecomment($xanonpost, $uname, $id, $score, $comments) {
 	$uname = filter($uname, "nohtml");
 	$id = intval($id);
 	$score = intval($score);
-	if (is_user($user)) {
+	if (is_user()) {
 		$krow = $db->sql_fetchrow($db->sql_query("SELECT karma FROM ".$user_prefix."_users WHERE username='$uname'"));
 		if ($krow['karma'] == 2) {
 			$db->sql_query("insert into ".$prefix."_reviews_comments_moderated values (NULL, '$id', '$uname', now(), '$comments', '$score')");
@@ -545,7 +545,7 @@ function r_comments($id, $title) {
 		}
 		echo ""._MYSCORE." ";
 		display_score($score);
-		if (is_admin($admin)) {
+		if (is_admin()) {
 			echo "<br><b>"._ADMIN."</b> [ <a href=\"modules.php?name=$module_name&rop=del_comment&amp;cid=$cid&amp;id=$id\">"._DELETE."</a> ]</font><hr noshade size=1><br><br>";
 		} else {
 			echo "</font><hr noshade size=1><br><br>";
@@ -598,7 +598,7 @@ function showcontent($id, $page) {
 	echo "<img src=\"images/reviews/$cover\" align=right border=1 vspace=2 alt=\"\">";
 	echo "$contentpages[$arrayelement]
     </BLOCKQUOTE><p>";
-	if (is_admin($admin))
+	if (is_admin())
 	echo "<b>"._ADMIN."</b> [ <a href=\"modules.php?name=$module_name&rop=mod_review&amp;id=$id\">"._EDIT."</a> | <a href=modules.php?name=$module_name&rop=del_review&amp;id_del=$id>"._DELETE."</a> ]<br>";
 	echo "<b>"._ADDED."</b> $fdate<br>";
 	if (!empty($reviewer))
@@ -647,9 +647,9 @@ function mod_review($id) {
 	$id = intval($id);
 	include ('header.php');
 	OpenTable();
-	if (($id == 0) || (!is_admin($admin)))
+	if (($id == 0) || (!is_admin()))
 	echo "This function must be passed argument id, or you are not admin.";
-	else if (($id != 0) && (is_admin($admin)))
+	else if (($id != 0) && (is_admin()))
 	{
 		$result = $db->sql_query("SELECT * from ".$prefix."_reviews where id = '$id'");
 		while ($myrow = $db->sql_fetchrow($result)) {
@@ -741,7 +741,7 @@ function mod_review($id) {
 function del_review($id_del) {
 	global $admin, $prefix, $db, $module_name;
 	$id_del = intval($id_del);
-	if (is_admin($admin)) {
+	if (is_admin()) {
 		$db->sql_query("delete from ".$prefix."_reviews where id = '$id_del'");
 		$db->sql_query("delete from ".$prefix."_reviews_comments where rid='$id_del'");
 		Header("Location: modules.php?name=$module_name");
@@ -753,7 +753,7 @@ function del_review($id_del) {
 function del_comment($cid, $id) {
 	global $admin, $prefix, $db, $module_name;
 	$cid = intval($cid);
-	if (is_admin($admin)) {
+	if (is_admin()) {
 		$db->sql_query("delete from ".$prefix."_reviews_comments where cid='$cid'");
 		Header("Location: modules.php?name=$module_name&rop=showcontent&id=$id");
 	} else {

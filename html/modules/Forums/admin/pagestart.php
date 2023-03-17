@@ -61,8 +61,8 @@ if(!$result3) {
     message_die(GENERAL_ERROR, 'Could not query user account', '', __LINE__, __FILE__, $sql);
 }
 $row3 = $db->sql_fetchrow($result3);
-if ((is_admin($admin)) AND ($admin[1] == $row2['pwd'] && !empty($row2['pwd'])) AND ($row2['radminsuper'] == 1 or $auth_user == 1)) {
-} elseif ((is_user($user)) AND ($cookie[2] == $row3['user_password'] && $row3['user_password'] != "") AND ($row3['user_level'] == 2)) {
+if ((is_admin()) AND ($admin[1] == $row2['pwd'] && !empty($row2['pwd'])) AND ($row2['radminsuper'] == 1 or $auth_user == 1)) {
+} elseif ((is_user()) AND ($cookie[2] == $row3['user_password'] && $row3['user_password'] != "") AND ($row3['user_level'] == 2)) {
     $nukeuser = $user;
 } else {
     unset($user);
