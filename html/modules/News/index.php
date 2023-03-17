@@ -48,7 +48,7 @@ function theindex($new_topic="0") {
 		$topic_title = filter($row_a['topictext'], "nohtml");
 		OpenTable();
 		if ($numrows_a == 0) {
-			echo "<center><font class=\"title\">$sitename</font><br><br>"._NOINFO4TOPIC."<br><br>[ <a href=\"modules.php?name=News\">"._GOTONEWSINDEX."</a> | <a href=\"modules.php?name=Topics\">"._SELECTNEWTOPIC."</a> ]</center>";
+		echo "<center><font class=\"title\">$sitename</font><br><br>"._NOINFO4TOPIC."<br><br>[ <a href=\"modules.php?name=News\">"._GOTONEWSINDEX."</a> | <a href=\"modules.php?name=Topics\">"._SELECTNEWTOPIC."</a> ]</center>";
 		} else {
 			$db->sql_query("UPDATE ".$prefix."_topics SET counter=counter+1");
 			echo "<center><font class=\"title\">$sitename: $topic_title</font><br><br>"
@@ -62,7 +62,7 @@ function theindex($new_topic="0") {
 		CloseTable();
 		echo "<br>";
 	}
-	$result = $db->sql_query("SELECT sid, catid, aid, title, time, hometext, bodytext, comments, counter, topic, informant, notes, acomm, score, ratings FROM ".$prefix."_stories $qdb $querylang ORDER BY sid DESC limit $storynum");
+$result = $db->sql_query("SELECT sid, catid, aid, title, time, hometext, bodytext, comments, counter, topic, informant, notes, acomm, score, ratings FROM ".$prefix."_stories $qdb $querylang ORDER BY sid DESC limit $storynum");
 	while ($row = $db->sql_fetchrow($result)) {
 		$s_sid = intval($row['sid']);
 		$catid = intval($row['catid']);

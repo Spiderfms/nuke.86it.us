@@ -55,7 +55,7 @@ if ($pollID == 0 || empty($pollID)) {
 	$sum = 0;
 	for($i = 0; $i < 12; $i++) {
 		$row4 = $db->sql_fetchrow($db->sql_query("SELECT optionCount FROM ".$prefix."_poll_data WHERE (pollID='$pollID') AND (voteID='$i')"));
-		$optionCount = intval($row4['optionCount']);
+		$optionCount = intval($row4['optionCount'] ?? 0);
 		$sum = (int)$sum+$optionCount;
 	}
 

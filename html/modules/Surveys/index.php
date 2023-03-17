@@ -298,7 +298,7 @@ function pollResults($pollID) {
 	for($i = 0; $i < 12; $i++) {
 		$result2 = $db->sql_query("SELECT optionCount FROM ".$prefix."_poll_data WHERE pollID='$pollID' AND voteID='$i'");
 		$row2 = $db->sql_fetchrow($result2);
-		$optionCount = $row2['optionCount'];
+		$optionCount = $row2['optionCount'] ?? 0;
 		$sum = (int)$sum+$optionCount;
 	}
 	echo "<table border=\"0\">";
