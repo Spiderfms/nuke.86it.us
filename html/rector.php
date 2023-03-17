@@ -3,7 +3,25 @@
 use Rector\Config\RectorConfig;
 use Rector\Set\ValueObject\SetList;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
+
+use Rector\Php55\Rector\FuncCall\PregReplaceEModifierRector;
+
+use Rector\Php56\Rector\FunctionLike\AddDefaultValueForUndefinedVariableRector;
+
 use Rector\Php70\Rector\FuncCall\EregToPregMatchRector;
+use Rector\Php70\Rector\List_\EmptyListRector;
+use Rector\Php70\Rector\FunctionLike\ExceptionHandlerTypehintRector;
+use Rector\Php70\Rector\If_\IfToSpaceshipRector;
+use Rector\Php70\Rector\Assign\ListSplitStringRector;
+use Rector\Php70\Rector\ClassMethod\Php4ConstructorRector;
+use Rector\Php70\Rector\FuncCall\RandomFunctionRector;
+use Rector\Php70\Rector\FuncCall\RenameMktimeWithoutArgsToTimeRector;
+use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
+use Rector\Php70\Rector\Ternary\TernaryToSpaceshipRector;
+
+use Rector\Php71\Rector\FuncCall\CountOnNullRector;
+
+use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 //use Rector\MysqlToMysqli\Rector\Assign\MysqlAssignToMysqliRector;
 //use Rector\MysqlToMysqli\Rector\FuncCall\MysqlFuncCallToMysqliRector;
 //use Rector\MysqlToMysqli\Rector\FuncCall\MysqlPConnectToMysqliConnectRector;
@@ -16,8 +34,40 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     // B. or single rule
-    //$rectorConfig->rule(TypedPropertyFromAssignsRector::class);
+    $rectorConfig->rule(TypedPropertyFromAssignsRector::class);
+
+	// 55
+	$rectorConfig->rule(PregReplaceEModifierRector::class);
+
+	// 56
+	$rectorConfig->rule(AddDefaultValueForUndefinedVariableRector::class);
+	
+	// 71
+	$rectorConfig->rule(CountOnNullRector::class);
+	
+	$rectorConfig->rule(Utf8DecodeEncodeToMbConvertEncodingRector::class);
+
+    // 70
+	$rectorConfig->rule(EmptyListRector::class);
     $rectorConfig->rule(EregToPregMatchRector::class);
+	$rectorConfig->rule(ExceptionHandlerTypehintRector::class);
+	$rectorConfig->rule(IfToSpaceshipRector::class);
+	$rectorConfig->rule(ListSplitStringRector::class);
+	$rectorConfig->rule(Php4ConstructorRector::class);
+	$rectorConfig->rule(RandomFunctionRector::class);
+	$rectorConfig->rule(RenameMktimeWithoutArgsToTimeRector::class);
+	$rectorConfig->rule(TernaryToNullCoalescingRector::class);
+	$rectorConfig->rule(TernaryToSpaceshipRector::class);
+	$rectorConfig->rule(::class);
+	$rectorConfig->rule(::class);
+	$rectorConfig->rule(::class);
+	$rectorConfig->rule(::class);
+	$rectorConfig->rule(::class);
+	$rectorConfig->rule(::class);
+	$rectorConfig->rule(::class);
+	
+	// 82
+	
 	//$rectorConfig->rule(MysqlAssignToMysqliRector::class);
 	//$rectorConfig->rule(MysqlFuncCallToMysqliRector::class);
 	//$rectorConfig->rule(MysqlPConnectToMysqliConnectRector::class);
