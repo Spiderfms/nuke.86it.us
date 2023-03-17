@@ -36,9 +36,6 @@ function head() {
 	echo '<meta name="google-site-verification" content="3y3xJYDHSYUitn7cbfFfI6C2BiK_q66dtRfykpzHW5w" />';
 
 	?>
-
-    
-    
     <!-- banner org_green -->
     
     		<!-- Attach our CSS -->
@@ -97,4 +94,4 @@ if(defined('HOME_FILE')) {
 	blocks("Center");
 }
 
-?>
+

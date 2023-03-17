@@ -18,6 +18,10 @@ if (stristr(htmlentities($_SERVER['PHP_SELF']), "ipban.php")) {
 }
 
 global $prefix, $db;
+
+$ip_class_banned = [];
+$ip_class = [];
+
 $ip = $_SERVER['REMOTE_ADDR'];
 $numrow = $db->sql_numrows($db->sql_query("SELECT id FROM ".$prefix."_banned_ip WHERE ip_address='$ip'"));
 if ($numrow != 0) {
@@ -27,13 +31,20 @@ if ($numrow != 0) {
 $ip_class = explode(".", $ip);
 $ip = "$ip_class[0].$ip_class[1].$ip_class[2].*";
 list($ip_address) = $db->sql_fetchrow($db->sql_query("SELECT ip_address FROM ".$prefix."_banned_ip WHERE ip_address='$ip'"));
+
+if(isset($ip_address)){
 $ip_class_banned = explode(".", $ip_address);
-if ($ip_class_banned[3] == "*") {
-	if ($ip_class[0] == $ip_class_banned[0] && $ip_class[1] == $ip_class_banned[1] && $ip_class[2] == $ip_class_banned[2]) {
-		echo "<br><br><center><img src='images/admin/ipban.gif'><br><br><b>You have been banned by the administrator</b></center>";
-		die();
-	}
 }
+
+if(isset($ip_class_banned[3])){
+  if ($ip_class_banned[3] == "*") {
+	  if ($ip_class[0] == $ip_class_banned[0] && $ip_class[1] == $ip_class_banned[1] && $ip_class[2] == $ip_class_banned[2]) {
+		  echo "<br><br><center><img src='images/admin/ipban.gif'><br><br><b>You have been banned by the administrator</b></center>";
+		  die();
+	  }
+  }
+}
+
 $ip = $_SERVER['REMOTE_ADDR'];
 $past = time()-2;
 $sql = "DELETE FROM ".$prefix."_antiflood WHERE time < '$past'";
@@ -47,4 +58,3 @@ if ($numrow >= 5) {
 }
 unset($ip);
 
-?>

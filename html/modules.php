@@ -131,4 +131,3 @@ if (isset($name) && $name == $_REQUEST['name']) {
   exit;
 }
 
-?>

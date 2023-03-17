@@ -225,4 +225,3 @@ function translate($phrase) {
 define("_HTMLNOTALLOWED2","HTML code isn't allowed here.");
 define("_ERRORINVEMAIL","ERROR: Invalid Email");
 
-?>

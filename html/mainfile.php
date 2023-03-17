@@ -1853,5 +1853,3 @@ switch($gfx) {
 	break;
    }
 }
-
-?>

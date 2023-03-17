@@ -18,19 +18,20 @@ return static function (RectorConfig $rectorConfig): void {
 
     // B. or single rule
     //$rectorConfig->rule(TypedPropertyFromAssignsRector::class);
-    $rectorConfig->rule(EregToPregMatchRector::class);
-	$rectorConfig->rule(MysqlAssignToMysqliRector::class);
-	$rectorConfig->rule(MysqlFuncCallToMysqliRector::class);
-	$rectorConfig->rule(MysqlPConnectToMysqliConnectRector::class);
-	$rectorConfig->rule(MysqlQueryMysqlErrorWithLinkRector::class);
+    //$rectorConfig->rule(EregToPregMatchRector::class);
+	//$rectorConfig->rule(MysqlAssignToMysqliRector::class);
+	//$rectorConfig->rule(MysqlFuncCallToMysqliRector::class);
+	//$rectorConfig->rule(MysqlPConnectToMysqliConnectRector::class);
+	//$rectorConfig->rule(MysqlQueryMysqlErrorWithLinkRector::class);
 		
     $rectorConfig->paths([
         //__DIR__ . '/admin',
         //__DIR__ . '/blocks',
-        __DIR__ . '/install/includes/database.php',
+        //__DIR__ . '/install/includes/database.php',
 		//__DIR__ . '/install/install2.php',
 		//__DIR__ . '/install',
         //__DIR__ . '/includes',
+		__DIR__ . '/includes/ipban.php',
         //__DIR__ . '/install',
         //__DIR__ . '/language',
         //__DIR__ . '/modules',

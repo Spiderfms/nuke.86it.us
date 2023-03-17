@@ -84,4 +84,3 @@ if (defined('MODULE_FILE') AND file_exists("modules/".$name."/copyright.php")) {
     echo "</SCRIPT>\n\n";
 }
 
-?>

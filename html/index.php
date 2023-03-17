@@ -91,4 +91,4 @@ if (stripos_clone($name,"..") || (isset($file) && stripos_clone($file,"..")) || 
 	}
 }
 
-?>
+

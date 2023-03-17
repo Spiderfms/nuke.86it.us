@@ -108,4 +108,3 @@ $db->sql_query("UPDATE ".$prefix."_stats_month SET hits=hits+1 WHERE (year='$now
 $db->sql_query("UPDATE ".$prefix."_stats_date SET hits=hits+1 WHERE (year='$nowYear') AND (month='$nowMonth') AND (date='$nowDate')");
 $db->sql_query("UPDATE ".$prefix."_stats_hour SET hits=hits+1 WHERE (year='$nowYear') AND (month='$nowMonth') AND (date='$nowDate') AND (hour='$nowHour')");
 
-?>

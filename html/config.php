@@ -89,4 +89,3 @@ $tipath = "images/topics/";
 
 $commercial_license = 0;
 
-?>

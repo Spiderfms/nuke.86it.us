@@ -48,4 +48,3 @@ if ($commercial_license != 1) {
 
 echo $metastring;
 
-?>
