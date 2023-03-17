@@ -1,3 +1,12 @@
+CREATE TABLE IF NOT EXISTS `#prefix#_security_agents` (
+  `agent_name` varchar(20) NOT NULL DEFAULT '',
+  `agent_fullname` varchar(30) DEFAULT '',
+  `agent_hostname` varchar(30) DEFAULT '',
+  `agent_url` varchar(80) DEFAULT '',
+  `agent_ban` int(1) NOT NULL DEFAULT 0,
+  `agent_desc` text DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 CREATE TABLE IF NOT EXISTS `#prefix#_antiflood` (
   `ip_addr` varchar(48) NOT NULL,
   `time` varchar(14) NOT NULL

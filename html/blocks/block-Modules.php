@@ -58,7 +58,7 @@ if (file_exists("themes/$ThemeSel/module.php")) {
 	$m_title = filter($row3['title'], "nohtml");
 	$custom_title = filter($row3['custom_title'], "nohtml");
 	$view = intval($row3['view']);
-	$m_title2 = ereg_replace("_", " ", $m_title);
+	$m_title2 = preg_replace("/_/", " ", $m_title);
 	if ($custom_title != "") {
 	    $m_title2 = $custom_title;
 	}

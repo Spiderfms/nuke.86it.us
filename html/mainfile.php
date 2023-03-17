@@ -109,6 +109,47 @@ if (stristr(htmlentities($_SERVER['PHP_SELF']), "mainfile.php")) {
     exit();
 }
 
+$admin = (isset($_COOKIE['admin'])) ? $_COOKIE['admin'] : false;
+$user = (isset($_COOKIE['user'])) ? $_COOKIE['user'] : false;
+
+if((isset($_POST['name']) && !empty($_POST['name'])) && (isset($_GET['name']) && !empty($_GET['name']))): 
+  $name = (isset($_GET['name']) && !stristr($_GET['name'],'..') && !stristr($_GET['name'],'://')) ? addslashes(trim($_GET['name'])) : false;
+else: 
+  $name = (isset($_REQUEST['name']) && !stristr($_REQUEST['name'],'..') && !stristr($_REQUEST['name'],'://')) ? addslashes(trim($_REQUEST['name'])) : false;
+endif;
+
+$start_mem = function_exists('memory_get_usage') ? memory_get_usage() : 0;
+$start_time = get_microtime();
+
+# Stupid handle to create REQUEST_URI for IIS 5 servers
+if(preg_match('/IIS/', $_SERVER['SERVER_SOFTWARE']) && isset($_SERVER['SCRIPT_NAME'])):
+    $requesturi = $_SERVER['SCRIPT_NAME'];
+    if (isset($_SERVER['QUERY_STRING'])):
+      $requesturi .= '?'.$_SERVER['QUERY_STRING'];
+	endif;
+    $_SERVER['REQUEST_URI'] = $requesturi;
+endif;
+
+# PHP5 with register_long_arrays off?
+if(PHP_5 && (!ini_get('register_long_arrays') || ini_get('register_long_arrays') == '0' || strtolower(ini_get('register_long_arrays')) == 'off')):
+    $HTTP_POST_VARS =& $_POST;
+    $HTTP_GET_VARS =& $_GET;
+    $HTTP_SERVER_VARS =& $_SERVER;
+    $HTTP_COOKIE_VARS =& $_COOKIE;
+    $HTTP_ENV_VARS =& $_ENV;
+    $HTTP_POST_FILES =& $_FILES;
+    if(isset($_SESSION)): 
+	  $HTTP_SESSION_VARS =& $_SESSION;
+	endif;
+endif;
+
+if(isset($_COOKIE['DONATION'])):
+  setcookie('DONATION', null, time()-3600);
+  $type = preg_match('/IIS|Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ? 'Refresh: 0; URL=' : 'Location: ';
+  $url = str_replace('&amp;', "&", $url);
+  header($type . 'modules.php?name=Donations&op=thankyou');
+endif;
+
 # Absolute Path Mod - 01/01/2012 by Ernest Allen Buffington START
 $rel_path=[];
 $rel_path['file']   = str_replace('\\', "/", realpath(__DIR__));
@@ -227,6 +268,36 @@ define('INCLUDE_PATH', NUKE_BASE_DIR);
 define('GZIPSUPPORT', extension_loaded('zlib'));
 define('GDSUPPORT', extension_loaded('gd'));
 define('CAN_MOD_INI', !stristr(ini_get('disable_functions'), 'ini_set'));
+
+# If a class hasn't been loaded yet find the required file on the server and load
+# it in using the special autoloader detection built into PHP5+
+if(!function_exists('classAutoloader')): 
+
+    function classAutoloader($class) 
+    {
+        # Set the class file path
+        if(preg_match('/Exception/', (string) $class)): 
+          $file = NUKE_CLASS_EXCEPTION_DIR . strtolower((string) $class) . '.php';
+        else:
+          $file = NUKE_CLASSES_DIR . 'class.' . strtolower((string) $class) . '.php';
+		endif;
+
+		if(!class_exists($class, false) && file_exists($file)):
+          require_once($file);
+		endif;
+    }
+    spl_autoload_register('classAutoloader');
+endif;
+
+if(CAN_MOD_INI):
+    ini_set('zlib.output_compression', 0);
+endif;
+
+# Vendor Autoload - only if vendor directory exists with an autoload file! START
+if(file_exists(NUKE_VENDOR_DIR.'autoload.php')):
+  require_once(NUKE_VENDOR_DIR.'autoload.php');
+endif;  
+# Vendor Autoload - only if vendor directory exists with an autoload file! END
 
 function get_microtime() 
 {
@@ -353,6 +424,23 @@ if (!defined('ADMIN_FILE')) {
 // Include the required files
 require_once(INCLUDE_PATH."config.php");
 
+if(!$directory_mode):
+  $directory_mode = 0777;
+else:
+  $directory_mode = 0755;
+endif;
+
+if(!$file_mode):
+  $file_mode = 0666;
+else:
+  $file_mode = 0644;
+endif;
+
+# Core exceptions handler
+include_once(NUKE_INCLUDE_DIR . 'exception.php');
+include_once(NUKE_INCLUDE_DIR . 'abstract/abstract.exception.php');
+
+
 if(!$dbname) {
 print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 print '<html xmlns="http://www.w3.org/1999/xhtml">';
@@ -388,6 +476,13 @@ require_once(INCLUDE_PATH."db/db.php");
 /* PLEASE START USING THE NEW SQL ABSTRACTION LAYER. SEE MODULES DOC FOR DETAILS */
 require_once(INCLUDE_PATH."includes/sql_layer.php");
 $dbi = sql_connect($dbhost, $dbuname, $dbpass, $dbname);
+
+# $db->debug = true;
+# Include Error Logger and identify class
+require_once(NUKE_CLASSES_DIR.'class.identify.php');
+global $agent;
+$identify = new identify();
+$agent = $identify->identify_agent();
 
 require_once(INCLUDE_PATH."includes/ipban.php");
 if (file_exists(INCLUDE_PATH."includes/custom_files/custom_mainfile.php")) {

@@ -770,6 +770,22 @@ if (!$DBcreated){
         echo "</p>\n";
         unset($installscript);
   }
+  
+  # Nuke Security Agents
+  if ($can_proceed) {
+        $fp = fopen("sql/nuke_security_agents.sql","r"); 
+        $installscript = "";
+        while (!feof($fp)) $installscript .= fgets($fp,1000);
+        fclose($fp);
+        unset($fp);
+        $installscript = str_replace("#prefix#",$db_prefix,$installscript);
+         if (!empty($installscript) && !$db->sql_query($installscript)) {
+                $can_proceed = false;
+                nuke_sqlerror(substr($installscript,0,100)."...");
+        } 
+        echo "</p>\n";
+        unset($installscript);
+  }  
 	$DBcreated = 1;
 }
 

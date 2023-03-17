@@ -45,11 +45,14 @@ include("themes/org_green/tables.php");
 
 function themeheader() {
     global $user, $banners, $sitename, $slogan, $cookie, $prefix, $anonymous, $swapblock,$name, $db;
-    cookiedecode($user);
-    $username = $cookie[1];
-    if (empty($username)) {
-        $username = $anonymous;
-    }
+    
+	//cookiedecode($user);
+    
+	//$username = $cookie[1];
+    
+	//if (empty($username)) {
+    //    $username = $anonymous;
+    //}
 	?>
     
     <!-- contenido arriba body -->
