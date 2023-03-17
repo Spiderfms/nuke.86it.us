@@ -82,6 +82,31 @@ function get_user_field($field_name, $user, $is_name = false)
       return $actual_user[$user][$field_name] ?? '';
 }
 
+function getusrinfo($user) {
+    global $user_prefix, $db, $userinfo, $cookie;
+	
+	$user = $_COOKIE['user'] ?? false;
+
+    if (!$user OR empty($user)) {
+      return NULL;
+    }
+
+    if (isset($userrow) AND is_array($userrow)) {
+        if ($userrow['username'] == $user[1] && $userrow['user_password'] == $user[2]) {
+            return $userrow;
+        }
+    }
+    $sql = "SELECT * FROM ".$user_prefix."_users WHERE username='$user[1]' AND user_password='$user[2]'";
+    $result = $db->sql_query($sql);
+    if ($db->sql_numrows($result) == 1) {
+        static $userrow;
+        $userrow = $db->sql_fetchrow($result);
+        return $userinfo = $userrow;
+    }
+    $db->sql_freeresult($result);
+    unset($userinfo);
+}
+
 /**
  * Gets a admin field from the DB
  *

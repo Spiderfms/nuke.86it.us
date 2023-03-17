@@ -346,15 +346,10 @@ endif;
 $sanitize_rules = array("newlang"=>"/[a-z][a-z]/i","redirect"=>"/[a-z0-9]*/i");
 foreach($_REQUEST as $key=>$value)
 {
-    if(!isset($sanitize_rules[$key]) || preg_match($sanitize_rules[$key], $values))
+    if(!isset($sanitize_rules[$key]) || preg_match($sanitize_rules[$key], $value))
     {
         $GLOBALS[$key] = $value;
     }    
-}
-
-# This block of code makes sure $admin and $user are COOKIES
-if((isset($admin) && $admin != $_COOKIE['admin']) OR (isset($user) && $user != $_COOKIE['user'])) {
-	die("Illegal Operation");
 }
 
 if(!function_exists('stripos')) {
@@ -673,54 +668,73 @@ function get_lang($module) {
    }
 }
 
-function is_admin() {
-    static $adminSave; 
-    if (!$admin) { return 0; }
-    if (isset($adminSave)) return $adminSave;
-    if (!is_array($admin)) {
-        $admin = base64_decode($admin);
-        $admin = addslashes($admin);
-        $admin = explode(':', $admin);
-    }
-    $aid = $admin[0];
-    $pwd = $admin[1];
-    $aid = substr(addslashes($aid), 0, 25);
-    if (!empty($aid) && !empty($pwd)) {
-        global $prefix, $db;
-        $sql = "SELECT pwd FROM ".$prefix."_authors WHERE aid='$aid'";
-        $result = $db->sql_query($sql);
-        $pass = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        if ($pass[0] == $pwd && !empty($pass[0])) {
-        	return $adminSave = 1;
-        }
-    }
-    return $adminSave = 0;
+function is_admin($trash=0) 
+{
+    static $adminstatus;
+
+	if(isset($adminstatus)): 
+	  return $adminstatus;
+	endif;
+
+	$admincookie = $_COOKIE['admin'] ?? false;
+
+	if(!$admincookie): 
+	  return $adminstatus = 0; 
+	endif;
+
+	$admincookie = (is_array($admincookie)) ? $admincookie : explode(':', base64_decode((string) $admincookie));
+    $aid = $admincookie[0];
+    $pwd = $admincookie[1];
+    $aid = substr(addslashes((string) $aid), 0, 25);
+
+    if(!empty($aid) && !empty($pwd)):
+
+        if (!function_exists('get_admin_field')):
+            global $db, $prefix;
+            $pass = $db->sql_ufetchrow("SELECT `pwd` FROM `" . $prefix . "_authors` WHERE `aid` = '" .  str_replace("\'", "''", $aid) . "'", SQL_ASSOC);
+            $pass = $pass['pwd'] ?? '';
+        else:
+            $pass = get_admin_field('pwd', $aid);
+        endif;
+
+        if($pass == $pwd && !empty($pass)): 
+          return $adminstatus = 1;
+		endif;
+
+	endif;
+
+	return $adminstatus = 0;
 }
 
-function is_user() {
-    if (!$user) { return 0; }
-    static $userSave; 
-    if (isset($userSave)) return $userSave;
-    if (!is_array($user)) {
-        $user = base64_decode($user);
-        $user = addslashes($user);
-        $user = explode(":", $user);
-    }
-    $uid = $user[0];
-    $pwd = $user[2];
-    $uid = intval($uid);
-    if (!empty($uid) AND !empty($pwd)) {
-        global $db, $user_prefix;
-        $sql = "SELECT user_password FROM ".$user_prefix."_users WHERE user_id='$uid'";
-        $result = $db->sql_query($sql);
-        list($row) = $db->sql_fetchrow($result);
-        $db->sql_freeresult($result);
-        if ($row == $pwd && !empty($row)) { 
-        	return $userSave = 1;
-        }
-    }
-    return $userSave = 0;
+function is_user($trash=0) 
+{
+    static $userstatus;
+
+	if(isset($userstatus)): 
+	  return $userstatus;
+	endif;
+
+	$usercookie = $_COOKIE['user'] ?? false;
+
+	if(!$usercookie): 
+	  return $userstatus = 0; 
+	endif;
+
+	$usercookie = (is_array($usercookie)) ? $usercookie : explode(':', base64_decode((string) $usercookie));
+    $uid = $usercookie[0];
+    $pwd = $usercookie[2];
+    $uid = (int) $uid;
+
+    if(!empty($uid) && !empty($pwd)):
+      $user_password = get_user_field('user_password', $uid);
+
+	  if($user_password == $pwd && !empty($user_password)):
+        return $userstatus = 1;
+	  endif;
+
+	endif;
+
+	return $userstatus = 0;
 }
 
 function is_group($user, $name) {
@@ -1137,46 +1151,25 @@ function ultramode() {
 	$db->sql_freeresult($result);
 }
 
-function cookiedecode($user) {
-    global $cookie, $db, $user_prefix;
-    static $pass;
-    if(!is_array($user)) {
-        $user = base64_decode($user ?? '');
-        $user = addslashes($user);
-        $cookie = explode(":", $user);
-    } else {
-        $cookie = $user;
-    }
-    if (!isset($pass) AND isset($cookie[1])) {
-       $sql = "SELECT user_password FROM ".$user_prefix."_users WHERE username='$cookie[1]'";
-       $result = $db->sql_query($sql);
-       list($pass) = $db->sql_fetchrow($result);
-       $db->sql_freeresult($result);
-    }
-    if (isset($cookie[2]) AND ($cookie[2] == $pass) AND (!empty($pass))) { return $cookie; }
-}
+function cookiedecode($trash=0) 
+{
+    global $cookie;
 
-function getusrinfo($user) {
-    global $user_prefix, $db, $userinfo, $cookie;
-    if (!$user OR empty($user)) {
-      return NULL;
-    }
-    cookiedecode($user);
-    $user = $cookie;
-    if (isset($userrow) AND is_array($userrow)) {
-        if ($userrow['username'] == $user[1] && $userrow['user_password'] == $user[2]) {
-            return $userrow;
-        }
-    }
-    $sql = "SELECT * FROM ".$user_prefix."_users WHERE username='$user[1]' AND user_password='$user[2]'";
-    $result = $db->sql_query($sql);
-    if ($db->sql_numrows($result) == 1) {
-        static $userrow;
-        $userrow = $db->sql_fetchrow($result);
-        return $userinfo = $userrow;
-    }
-    $db->sql_freeresult($result);
-    unset($userinfo);
+	static $rcookie;
+
+    if(isset($rcookie)): 
+	  return $rcookie; 
+	endif;
+
+    $usercookie = $_COOKIE['user'];
+    $rcookie = (is_array($usercookie)) ? $usercookie : explode(':', base64_decode((string) $usercookie));
+    $pass = get_user_field('user_password', $rcookie[1], true);
+
+    if($rcookie[2] == $pass && !empty($pass)):
+      return $cookie = $rcookie;
+	endif;
+
+    return false;
 }
 
 function FixQuotes ($what = "") {
@@ -1378,27 +1371,36 @@ function formatTimestamp($time) {
     return $datetime;
 }
 
-function get_author($aid) {
-	global $prefix, $db;
-    static $users;
-    if (isset($users[$aid]) AND is_array($users[$aid])) {
+function get_author($aid) 
+{
+    global $user_prefix, $db;
+    
+	static $users;
+    
+	if(!isset($users[$aid]))
+	$users[$aid] = null;
+    
+	if(is_array($users[$aid])): 
         $row = $users[$aid];
-    } else {
-        $sql = "SELECT url, email FROM ".$prefix."_authors WHERE aid='$aid'";
-        $result = $db->sql_query($sql);
-        $row = $db->sql_fetchrow($result);
+	else: 
+        $row = get_admin_field('*', $aid);
         $users[$aid] = $row;
-        $db->sql_freeresult($result);
-    }
-	$aidurl = filter($row['url'], "nohtml");
-	$aidmail = filter($row['email'], "nohtml");
-    if (isset($aidurl) && $aidurl != "http://") {
-        $aid = "<a href=\"".$aidurl."\">$aid</a>";
-    } elseif (isset($aidmail)) {
-        $aid = "<a href=\"mailto:".$aidmail."\">$aid</a>";
-    } else {
-        $aid = $aid;
-    }
+    endif;
+	
+    $result = $db->sql_query('SELECT `user_id` from `'.$user_prefix.'_users` WHERE `username`="'.$aid.'"');
+    $userid = $db->sql_fetchrow($result);
+    $db->sql_freeresult($result);
+    
+	# Mod: Advanced Username Color v1.0.5 START
+    //if(isset($userid[0])): 
+    //  $aid = "<a href=\"modules.php?name=Profile&amp;mode=viewprofile&amp;u=".$userid[0]."\">".UsernameColor($aid)."</a>";
+	//elseif(isset($row['url']) && $row['url'] != 'http://'): 
+    //  $aid = "<a href=\"".$row['url']."\">".UsernameColor($aid)."</a>";
+	//else: 
+    //  $aid = UsernameColor($aid);
+	//endif;
+	# Mod: Advanced Username Color v1.0.5 END
+
     return $aid;
 }
 

@@ -178,6 +178,9 @@ function index() {
 	    $dum = 0;
 	}
     }
+	if(!isset($dum))
+	$dum = 0;
+	
     if ($dum == 1) {
 	echo "</tr></table>";
     } elseif ($dum == 0) {

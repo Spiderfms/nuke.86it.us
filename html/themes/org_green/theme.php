@@ -44,15 +44,18 @@ include("themes/org_green/tables.php");
 /************************************************************/
 
 function themeheader() {
-    global $user, $banners, $sitename, $slogan, $cookie, $prefix, $anonymous, $swapblock,$name, $db;
+    global $userinfo, $banners, $sitename, $slogan, $cookie, $prefix, $anonymous, $swapblock,$name, $db;
     
-	//cookiedecode($user);
+	$theuser = '';
+	$sel = '';
+	if (!isset($topic))
+	$topic = '';
+    # Check if a Registered User is Logged-In
+    $username = is_user() ? $userinfo['username'] : $anonymous;
     
-	//$username = $cookie[1];
-    
-	//if (empty($username)) {
-    //    $username = $anonymous;
-    //}
+	if (empty($username)) {
+        $username = $anonymous;
+    }
 	?>
     
     <!-- contenido arriba body -->
@@ -67,7 +70,7 @@ function themeheader() {
     $toplist = $db->sql_query("select topicid, topictext from ".$prefix."_topics order by topictext");
     while(list($topicid, $topics) = $db->sql_fetchrow($toplist)) {
 	$topicid = intval($topicid);
-    if ($topicid==$topic) { $sel = "selected "; }
+    if (isset($topicid) && $topicid == $topic) { $sel = "selected "; }
 	$topics_list .= "<option $sel value=\"$topicid\">$topics</option>\n";
 	$sel = "";
     }

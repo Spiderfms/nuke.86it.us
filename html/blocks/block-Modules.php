@@ -50,8 +50,15 @@ if (file_exists("themes/$ThemeSel/module.php")) {
     }
 
     /* Now we make the Modules block with the correspondent links */
+    if(!isset($content)) {
+      $content = '';
+    }
 
-    $content .= "<li><a href=\"index.php\">"._HOME."</a></li>";
+    if(!isset($def_module)) {
+      $def_module = '';
+    }
+    
+	$content .= "<li><a href=\"index.php\">"._HOME."</a></li>";
     //$content .= "<strong><big>&middot;</big></strong>&nbsp;<a href=\"/pixel\">PIXEL ADS</a><br>\n";
     $result3 = $db->sql_query("SELECT title, custom_title, view FROM " . $prefix . "_modules WHERE active='1' AND title!='$def_module' AND inmenu='1' ORDER BY custom_title ASC");
     while ($row3 = $db->sql_fetchrow($result3)) {
@@ -133,4 +140,4 @@ if (file_exists("themes/$ThemeSel/module.php")) {
 	}
     }
 
-?>
+
