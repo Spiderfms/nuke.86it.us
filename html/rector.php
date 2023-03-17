@@ -18,8 +18,10 @@ use Rector\Php70\Rector\FuncCall\RandomFunctionRector;
 use Rector\Php70\Rector\FuncCall\RenameMktimeWithoutArgsToTimeRector;
 use Rector\Php70\Rector\Ternary\TernaryToNullCoalescingRector;
 use Rector\Php70\Rector\Ternary\TernaryToSpaceshipRector;
+use Rector\Php70\Rector\Variable\WrapVariableVariableNameInCurlyBracesRector;
 
 use Rector\Php71\Rector\FuncCall\CountOnNullRector;
+use Rector\Php71\Rector\BinaryOp\BinaryOpBetweenNumberAndStringRector;
 
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 //use Rector\MysqlToMysqli\Rector\Assign\MysqlAssignToMysqliRector;
@@ -41,11 +43,6 @@ return static function (RectorConfig $rectorConfig): void {
 
 	// 56
 	$rectorConfig->rule(AddDefaultValueForUndefinedVariableRector::class);
-	
-	// 71
-	$rectorConfig->rule(CountOnNullRector::class);
-	
-	$rectorConfig->rule(Utf8DecodeEncodeToMbConvertEncodingRector::class);
 
     // 70
 	$rectorConfig->rule(EmptyListRector::class);
@@ -58,7 +55,10 @@ return static function (RectorConfig $rectorConfig): void {
 	$rectorConfig->rule(RenameMktimeWithoutArgsToTimeRector::class);
 	$rectorConfig->rule(TernaryToNullCoalescingRector::class);
 	$rectorConfig->rule(TernaryToSpaceshipRector::class);
-	$rectorConfig->rule(::class);
+	$rectorConfig->rule(WrapVariableVariableNameInCurlyBracesRector::class);
+	
+	// 71
+	$rectorConfig->rule(CountOnNullRector::class);
 	$rectorConfig->rule(::class);
 	$rectorConfig->rule(::class);
 	$rectorConfig->rule(::class);
@@ -67,6 +67,7 @@ return static function (RectorConfig $rectorConfig): void {
 	$rectorConfig->rule(::class);
 	
 	// 82
+	$rectorConfig->rule(Utf8DecodeEncodeToMbConvertEncodingRector::class);
 	
 	//$rectorConfig->rule(MysqlAssignToMysqliRector::class);
 	//$rectorConfig->rule(MysqlFuncCallToMysqliRector::class);
