@@ -19,9 +19,13 @@ if ( !defined('BLOCK_FILE') ) {
 
 global $admin, $user, $sitekey, $gfx_chk, $admin_file;
 
+if(!isset($code))
+$code = '';
+
 mt_srand ((double)microtime()*1000000);
 $maxran = 1000000;
 $random_num = mt_rand(0, $maxran);
+$content = '';
 $content .= "<div id='login'>";
 $content .= "<form onsubmit=\"this.submit.disabled='true'\" action=\"modules.php?name=Your_Account\" method=\"post\">";
 $content .= ""._NICKNAME."<br>";

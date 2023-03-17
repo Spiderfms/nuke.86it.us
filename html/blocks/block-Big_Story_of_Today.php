@@ -37,8 +37,8 @@ if ($month < 10) {
 $year = $today['year'];
 $tdate = "$year-$month-$day";
 $row = $db->sql_fetchrow($db->sql_query("SELECT sid, title FROM ".$prefix."_stories WHERE (time LIKE '%$tdate%') $querylang ORDER BY counter DESC LIMIT 0,1"));
-$fsid = intval($row['sid']);
-$ftitle = filter($row['title'], "nohtml");
+$fsid = intval($row['sid'] ?? 0);
+$ftitle = filter($row['title'] ?? '', "nohtml");
 $content = "<span class=\"content\">";
 if ((!$fsid) AND (!$ftitle)) {
     $content .= ""._NOBIGSTORY."</font>";

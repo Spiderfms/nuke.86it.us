@@ -113,6 +113,11 @@ while ($row = $db->sql_fetchrow($result)) {
 	$dummy = 1;
     }
 }
+if(!isset($dummy))
+$dummy = 0;
+
+if(!isset($see))
+$see = 0;
 
 if ($dummy == 1 AND is_active("Stories_Archive")) {
     $boxstuff .= "</table><br><a href=\"modules.php?name=Stories_Archive\"><b>"._OLDERARTICLES."</b></a>\n";
