@@ -1154,22 +1154,25 @@ function ultramode() {
 function cookiedecode($trash=0) 
 {
     global $cookie;
-
 	static $rcookie;
 
     if(isset($rcookie)): 
 	  return $rcookie; 
 	endif;
 
-    $usercookie = $_COOKIE['user'];
+    $usercookie = $_COOKIE['user'] ?? '';
     $rcookie = (is_array($usercookie)) ? $usercookie : explode(':', base64_decode((string) $usercookie));
-    $pass = get_user_field('user_password', $rcookie[1], true);
+    
+	if(!empty($rcookie[1])):
+	  $pass = get_user_field('user_password', $rcookie[1], true);
 
-    if($rcookie[2] == $pass && !empty($pass)):
+      if($rcookie[2] == $pass && !empty($pass)):
       return $cookie = $rcookie;
-	endif;
-
-    return false;
+	  endif;
+  
+    endif;
+  
+  return false;
 }
 
 function FixQuotes ($what = "") {
