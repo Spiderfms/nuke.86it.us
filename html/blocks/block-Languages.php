@@ -19,6 +19,9 @@ if ( !defined('BLOCK_FILE') ) {
 
 global $useflags, $currentlang;
 
+if(!isset($languageslist))
+$languageslist = '';
+
 if ($useflags == 1) {
     $content = "<div align=\"center\"><span class=\"content\">"._SELECTGUILANG."<br><br>";
     $langdir = dir("language");

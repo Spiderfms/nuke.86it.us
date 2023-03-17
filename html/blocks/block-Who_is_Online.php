@@ -53,7 +53,7 @@ if (is_user()) {
 }
 
 $row2 = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_blocks WHERE bkey='online'"));
-$title = filter($row2['title'], "nohtml");
+$title = filter($row2['title'] ?? '', "nohtml");
 
 if (is_user()) {
     $content .= "<br>"._YOUARELOGGED." <b>$uname</b>.<br>";

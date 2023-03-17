@@ -1167,7 +1167,7 @@ function cookiedecode($trash=0)
 	  $pass = get_user_field('user_password', $rcookie[1], true);
 
       if($rcookie[2] == $pass && !empty($pass)):
-      return $cookie = $rcookie;
+        return $cookie = $rcookie;
 	  endif;
   
     endif;
