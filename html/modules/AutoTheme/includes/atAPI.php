@@ -505,7 +505,6 @@ function atCommandReplace($tmpcontent, $commands=[])
 function atTemplateRead($file)
 {
     $HTML = file_get_contents($file);
-
     return $HTML;
 }
 
@@ -567,7 +566,6 @@ function atTemplateDisplay($tmpcontent)
 {
     $runningconfig = atGetRunningConfig();
     extract($runningconfig);
-
     eval(ENDPHP.$tmpcontent);
 }
 

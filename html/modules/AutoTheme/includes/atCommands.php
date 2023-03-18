@@ -22,14 +22,9 @@
 //
 // ----------------------------------------------------------------------
 
-$command['anonymous'] = array (
-);
-
-$command['loggedin'] = array (
-);
-
-$command['admin'] = array (
-);
+$command['anonymous'] = [];
+$command['loggedin'] = [];
+$command['admin'] = [];
 
 $command['all'] = array (
 	'theme-path' => 'echo $themepath;',
@@ -67,5 +62,3 @@ if (isset($autoblock)) {
             $command['all'][strtolower($ablock.'-blocks')] = 'atBlockDisplay("'.$key.'");';
     }
 }
-
-?>
