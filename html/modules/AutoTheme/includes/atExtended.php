@@ -24,16 +24,20 @@
 
 function atExtendedInit()
 {
-	return array();
+	return [];
 }
 
 function atThemeExit()
 {
-	$runningconfig = atGetRunningConfig();
+	$template = [];
+    $themepath = null;
+    $atdir = null;
+    $platform = null;
+    $runningconfig = atGetRunningConfig();
     extract($runningconfig);
 
     $display = ob_get_contents();
-    list($junk, $display) = atTemplateSplit($display, "#AUTOTHEME_START#");
+    [$junk, $display] = atTemplateSplit($display, "#AUTOTHEME_START#");
     
     $display = atThemeAddHeader().$display;
     $display = str_replace('$', '\$', $display);
@@ -46,18 +50,18 @@ function atThemeExit()
 	if (!$template) {
         $template = "HTML401_Transitional.html";
     }
-    if (@file_exists($themepath.$template)) {
+    if (file_exists($themepath.$template)) {
 		$file = $themepath.$template;
 	}
-	elseif (@file_exists($atdir."templates/$platform/$template")) {
+	elseif (file_exists($atdir."templates/$platform/$template")) {
 		$file = $atdir."templates/$platform/$template";
 	}
 	else {
 		$file = $atdir."templates/HTML.html";
 	}
 	$HTML = atTemplateRead($file);
-	$HTML = eregi_replace('\<\/head\>', '', $HTML);
-	$HTML = preg_replace('/(\<\!--[ ]*\[|{)display(}|\][ ]*--\>)/', $display, $HTML);
+	$HTML = preg_replace('#<\/head>#mi', '', (string) $HTML);
+	$HTML = preg_replace('/(\<\!--[ ]*\[|{)display(}|\][ ]*--\>)/', $display, (string) $HTML);
 	$output = atCommandReplace($HTML);
 
 	ob_end_clean();
@@ -68,6 +72,9 @@ function atThemeExit()
 	
 function atThemeAddHeader()
 {
+    $style = [];
+    $themepath = null;
+    $xhtml = null;	
     $runningconfig = atGetRunningConfig();
     extract($runningconfig);
  
@@ -95,7 +102,7 @@ function atThemeAddHeader()
     }
     if ($style['head']) {
 	    $head .= "\n<!-- Head from config -->\n";
-	    $head .= trim($style['head'])."\n";
+	    $head .= trim((string) $style['head'])."\n";
     }    
     return $head;
 }
@@ -106,5 +113,3 @@ function atThemeAddFooter()
 
 	echo $footer;
 }
-
-?>
