@@ -22,6 +22,10 @@
 //
 // ----------------------------------------------------------------------
 
+/* Applied rules:
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ */
+ 
 function themeheader()
 {
     atThemeHeader();
@@ -36,7 +40,7 @@ function themeindex($aid, $informant, $datetime, $title, $counter, $topic, $home
 {
     $sid = $GLOBALS['sid'];
     $vars = compact("sid", "aid", "informant", "datetime", "title", "counter", "topic", "hometext", "notes", "morelink", "topicname", "topicimage", "topictext");
-    list($preformat, $info, $links) = themeformatnews($vars);
+    [$preformat, $info, $links] = themeformatnews($vars);
 
     atRunningMultiSetVars($vars);
     
@@ -47,7 +51,7 @@ function themearticle($aid, $informant, $datetime, $title, $bodytext, $topic, $t
 {
     $sid = $GLOBALS['sid'];
     $vars = compact("sid", "aid", "informant", "datetime", "title", "bodytext", "topic", "topicname", "topicimage", "topictext");
-    list($preformat, $info, $links) = themeformatnews($vars);
+    [$preformat, $info, $links] = themeformatnews($vars);
 
     atRunningMultiSetVars($vars);
 
@@ -138,5 +142,3 @@ function themeformatnews($vars)
     return array($preformat, $info, $links);
 
 }
-
-?>

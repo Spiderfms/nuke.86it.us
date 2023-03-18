@@ -161,10 +161,16 @@ return static function (RectorConfig $rectorConfig): void {
         //__DIR__ . '/install',
         //__DIR__ . '/language',
         //__DIR__ . '/modules',
-		  __DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
+		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
+		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atCommands.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atExtended.php',
+
+		__DIR__ . '/modules/AutoTheme/includes/atAPI.php',
+		//__DIR__ . '/modules/AutoTheme/includes/atCommands.php',
+		//__DIR__ . '/modules/AutoTheme/includes/atExtended.php',
+
 		//__DIR__ . '/modules/News/index.php',
 		//__DIR__ . '/modules/Surveys/index.php',
 		//__DIR__ . '/modules/Your_Account/index.php',

@@ -174,7 +174,22 @@ function atAdminInit()
 
 function atLoadRunningConfig()
 {
-	$template = [];
+    $blockdisplay = [];
+    $blocktemplate = [];
+    $blockcontrol = [];
+    $modops = null;
+    $color1 = null;
+    $color2 = null;
+    $color3 = null;
+    $color4 = null;
+    $color5 = null;
+    $color6 = null;
+    $color7 = null;
+    $color8 = null;
+    $color9 = null;
+    $color10 = null;
+    $striphead = null;
+    $template = [];
     $atdir = null;
     $incdir = null;
     $extradir = null;
