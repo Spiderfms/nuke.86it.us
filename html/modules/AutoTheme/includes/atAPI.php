@@ -22,6 +22,12 @@
 //
 // ----------------------------------------------------------------------
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ */
+ 
 define('AUTOTHEME_DEBUG_ENABLED', FALSE);
 
 define('AUTOTHEME_API_LOADED', TRUE);
@@ -46,7 +52,9 @@ function atAPIInit($force=FALSE)
     unset($GLOBALS['AT_THEME']);
     unset($GLOBALS['AT_RUNNING']);
 
-    define ('_ATDIR', dirname(dirname(__FILE__))."/");
+    //define ('_ATDIR', dirname(dirname(__FILE__))."/");
+    define ('_ATDIR', dirname(__FILE__, 2)."/");
+
     $atdir = _ATDIR;
     $incdir = $atdir."includes/";
     $extradir = $atdir."extras/";
@@ -81,7 +89,11 @@ function atAPIInit($force=FALSE)
 
 function atThemeInit($thename, $force=FALSE)
 {
-	atErrorCheck();
+
+	$multipath = null;
+    $platformdir = null;
+    $incdir = null;
+    atErrorCheck();
 
     if (defined('AUTOTHEME_THEME_INITIALIZED') && !$force) {
         return atGetRunningConfig();
@@ -138,6 +150,9 @@ function atThemeInit($thename, $force=FALSE)
 
 function atAdminInit()
 {
+    $platformdir = null;
+    $atdir = null;
+
     if (defined('AUTOTHEME_ADMIN_INITIALIZED')) {
         return atGetGlobalConfig();
     }
@@ -159,8 +174,26 @@ function atAdminInit()
 
 function atLoadRunningConfig()
 {
-	$globalconfig = atGetGlobalConfig();
-    extract($globalconfig);
+	$template = [];
+    $atdir = null;
+    $incdir = null;
+    $extradir = null;
+    $compiledir = null;
+    $platform = null;
+    $platformdir = null;
+    $thename = null;
+    $themepath = null;
+    $imagepath = null;
+    $imagelangpath = null;
+    $imagepath = null;
+    $multipath = null;
+    $modname = null;
+    $modtemplate = null;
+    $style = null;
+    $logoimg = null;
+    $globalconfig = atGetGlobalConfig();	
+    
+	extract($globalconfig);
 
     atRunningMultiSetVars($globalconfig);
 
@@ -197,9 +230,13 @@ function atLoadRunningConfig()
         $matchlen = 0;
         if ($_SERVER['QUERY_STRING']) {
             foreach ($template[$modtemplate] as $ops => $vals) {
-                if ((strlen($ops) > $matchlen) && eregi($ops, $_SERVER['QUERY_STRING'])) {
+                //if ((strlen($ops) > $matchlen) && eregi($ops, $_SERVER['QUERY_STRING'])) {
+                if ((strlen((string) $ops) > $matchlen) && preg_match('#' . preg_quote((string) $ops, '#') . '#mi', (string) $_SERVER['QUERY_STRING'])) {
+
                     $modops = $ops;
-                    $matchlen = strlen($modops);
+                    //$matchlen = strlen($modops);
+                    $matchlen = strlen((string) $modops);
+
                 }
             }
         }
@@ -232,7 +269,8 @@ function atLoadRunningConfig()
     }
     atRunningSetVar("modops", $modops);
 
-    if (eregi("xhtml", $template['dtd'])) {
+    if (preg_match('#xhtml#mi', (string) $template['dtd'])) {
+
 		$xhtml = 1;
 	}
 	else {
@@ -255,7 +293,7 @@ function atLoadRunningConfig()
     atRunningSetVar("tblcolor4", $color10);
     atRunningSetVar("striphead", $striphead);
 
-    $runningconfig = compact(
+	$runningconfig = compact(
         "template",
         "blockdisplay",
         "style",
@@ -275,6 +313,8 @@ function atLoadRunningConfig()
 
 function atGetLangVars()
 {
+    $result = [];
+
     $const = get_defined_constants();
 
     foreach ($const as $k => $v) {
@@ -330,7 +370,10 @@ function atTemplateGetType($template)
 
 function atGetCommands()
 {
+    $command = [];
+
     $globalconfig = atGetGlobalConfig();
+
     extract($globalconfig);
 
     if (atIsLoggedIn()) {
@@ -349,6 +392,15 @@ function atGetCommands()
 
 function atLoadCommands()
 {
+    $incdir = null;
+    $platformdir = null;
+    $extradir = null;
+    $result = [];
+    $command = [];
+    $platformcmd = [];
+    $autocmd = [];
+    $themecmd = [];
+
     $globalconfig = atGetGlobalConfig();
     extract($globalconfig);
 
@@ -405,8 +457,10 @@ function atCommandMultiAdd($commands, $prefix="")
 
 function atCommandReturn($commands, $prefix="")
 {
+    $cmd = [];
+
     if (!$prefix) {
-        $prefix = strtolower(atGetModName());
+        $prefix = strtolower((string) atGetModName());
     }
     atRunningSetVar($prefix, $commands);
 
@@ -422,8 +476,10 @@ function atCommandBuild($commands, $prefix="")
     atCommandMultiAdd($cmd, $prefix);
 }
 
-function atCommandReplace($tmpcontent, $commands=array())
+function atCommandReplace($tmpcontent, $commands=[])
 {
+    $command = null;
+
     $runningconfig = atGetRunningConfig();
     extract($runningconfig);
 
@@ -434,83 +490,77 @@ function atCommandReplace($tmpcontent, $commands=array())
     $commands = array_merge((array)$command, (array)$commands);
 
     foreach ($commands as $cmd => $action) {
-        $search = array(
-            "<!-- [$cmd] -->",
-            "<!--[$cmd]-->",
-            "<!-- {".$cmd."} -->",
-            "<!--{".$cmd."}-->",
-            "{".$cmd."}",
-        );
-
+        $search = ["<!-- [$cmd] -->", "<!--[$cmd]-->", "<!-- {".$cmd."} -->", "<!--{".$cmd."}-->", "{".$cmd."}"];
         $replace = STARTPHP." $action ".ENDPHP;
-        $tmpcontent = str_replace($search, $replace, $tmpcontent);
+        $tmpcontent = str_replace($search, $replace, (string) $tmpcontent);
     }
     foreach ($runningconfig as $cmd => $action) {
-        $search = array(
-            "<!-- [$cmd] -->",
-            "<!--[$cmd]-->",
-            "<!-- {".$cmd."} -->",
-            "<!--{".$cmd."}-->",
-            "{".$cmd."}",
-        );
+        $search = ["<!-- [$cmd] -->", "<!--[$cmd]-->", "<!-- {".$cmd."} -->", "<!--{".$cmd."}-->", "{".$cmd."}"];
         $replace = STARTPHP." echo \$$cmd; ".ENDPHP;
-
-        $tmpcontent = str_replace($search, $replace, $tmpcontent);
+        $tmpcontent = str_replace($search, $replace, (string) $tmpcontent);
     }
     return $tmpcontent;
 }
 
 function atTemplateRead($file)
 {
-    $HTML = @file_get_contents($file);
+    $HTML = file_get_contents($file);
 
     return $HTML;
 }
 
 function atTemplatePrep($filename, $striphead=1, $complete=0)
 {
-    if (defined('AUTOTHEME_DEBUG_ENABLED') && AUTOTHEME_DEBUG_ENABLED) {
-        if (is_dir($filename)) {
+    if (defined('AUTOTHEME_DEBUG_ENABLED') && AUTOTHEME_DEBUG_ENABLED) 
+	{
+        if (is_dir($filename)) 
+		{
             return _AT_TEMPLATENOTDEFINED;
         }
-        elseif (!is_file($filename)) {
+        elseif (!is_file($filename)) 
+		{
             return _AT_TEMPLATENOTFOUND.": $filename<br />";
         }
     }
     $HTML = atTemplateRead($filename);
 
-    if (!$complete) {
-    	$parts = spliti('\<\/head\>', $HTML);
-
-    	if (isset($parts[1])) {
+    if (!$complete) 
+	{
+    	$parts = preg_split('#<\/head>#mi', (string) $HTML);
+    
+		if (isset($parts[1])) 
+		{
 	        $HTML = $parts[1];
 	        $head = $parts[0];
 	    }
-	    else {
+	    else 
+		{
 	        $HTML = $parts[0];
 	        $head = "";
 	    }
-    	if (!$striphead && $head) {
-    		$head = spliti('\<head\>', $head);
-    		$head = trim($head[1]);
+    	if (!$striphead && $head) 
+		{
+    		$head = preg_split('#<head>#mi', (string) $head);
+    		$head = trim((string) $head[1]);
     		$HTML = "\n<!-- Head from template -->\n$head\n\n</head>\n$HTML\n";
     	}
-    	elseif($head) {
+    	elseif($head) 
+		{
     	    $HTML = "</head>\n$HTML\n";
     	}
-	    $HTML = spliti('\<\/body\>', $HTML);
+	    $HTML = preg_split('#<\/body>#mi', (string) $HTML);
+
 	    $HTML = $HTML[0];
     }
-    $HTML = trim($HTML);
+    $HTML = trim((string) $HTML);
 
     return $HTML;
 }
 
 function atTemplateSplit($content, $spliton)
 {
-    $parts = preg_split("/(\<\!--[ ]*\[|{)$spliton(}|\][ ]*--\>)/", $content);
-
-    return array($parts[0], $parts[1]);
+    $parts = preg_split("/(\<\!--[ ]*\[|{)$spliton(}|\][ ]*--\>)/", (string) $content);
+    return [$parts[0], $parts[1]];
 }
 
 function atTemplateDisplay($tmpcontent)
@@ -525,11 +575,11 @@ function atModLangLoad($type)
 {
     $lang = atGetLang();
 
-    if (@file_exists(_ATDIR."/lang/$lang/$type.php")) {
-        @include(_ATDIR."lang/$lang/$type.php");
+    if (file_exists(_ATDIR."/lang/$lang/$type.php")) {
+        include(_ATDIR."lang/$lang/$type.php");
     }
     else {
-        @include(_ATDIR."lang/eng/$type.php");
+        include(_ATDIR."lang/eng/$type.php");
     }
 }
 
@@ -537,42 +587,44 @@ function atThemeLangLoad($themepath)
 {
     $lang = atGetLang();
 
-    if (@file_exists("$themepath/lang/$lang/global.php")) {
-        @include("$themepath/lang/$lang/global.php");
+    if (file_exists("$themepath/lang/$lang/global.php")) {
+        include("$themepath/lang/$lang/global.php");
     }
     else {
-        @include("$themepath/lang/eng/global.php");
+        include("$themepath/lang/eng/global.php");
     }
 }
 
 function atExportVar($var)
 {
+    $result = [];
+
     if (is_array($var)) {
         foreach ($var as $k => $v) {
             $result[atExportVar($k)] = atExportVar($v);
         }
         return $result;
     }
-	if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc())
-        $var = stripslashes($var);
+	if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){
+        $var = stripslashes((string) $var);
     }
     return $var;
 }
 
 function atDisplayVar($var)
 {
-    return htmlentities($var);
+    return htmlentities((string) $var);
 }
 
 function atLoadAutoConfig($path)
 {
-    @include($path."/autotheme.cfg");
+    include($path."/autotheme.cfg");
 
     $autoconfig = compact("cmsoption", "cache", "cache_expire", "autotheme", "autoblock", "autolang", "autocmd", "autoextra");
 
     foreach ($autoextra as $k => $v) {
-        if (isset($$k)) {
-            $autoconfig[$k] = $$k;
+        if (isset(${$k})) {
+          $autoconfig[$k] = ${$k};        
         }
     }
     atAutoMultiSetVars($autoconfig);
@@ -614,17 +666,17 @@ function atAutoGetVar($var)
 
 function atLoadThemeConfig($path, $atdir="modules/AutoTheme")
 {
-    @include($atdir."/autotheme.cfg");
-    @include("modules/Blocks/autoblock.cfg");
-    @include($path."/autoblock.cfg");
-	@include($path."/theme.cfg");
+    include($atdir."/autotheme.cfg");
+    include("modules/Blocks/autoblock.cfg");
+    include($path."/autoblock.cfg");
+	include($path."/theme.cfg");
 
     $themeconfig = compact("template", "blockdisplay", "style", "blocktemplate", "autoblock", "themecmd", "themeversion", "oscbox", "blockcontrol");
 
     foreach ($autoextra as $k => $v) {
-        if (isset($$k)) {
-            $themeconfig[$k] = $$k;
-        }
+        if (isset(${$k})) {
+          $themeconfig[$k] = ${$k};        
+		}
     }
     atThemeMultiSetVars($themeconfig);
 
@@ -677,7 +729,7 @@ function atRunningGetVar($var)
 
 function atGetGlobalConfig()
 {
-    $autoconfig = $themeconfig = array();
+    $autoconfig = $themeconfig = [];
 
     if (isset($GLOBALS['AT_AUTO'])) {
         $autoconfig = $GLOBALS['AT_AUTO'];
@@ -711,17 +763,17 @@ function atGetPlatform()
         $platform = "CPG-Nuke";
     }
     if (defined('PROJECT_VERSION')) {
-	    if (eregi('osCommerce', PROJECT_VERSION)) {
+	    if (preg_match('#osCommerce#mi', (string) PROJECT_VERSION)) {
 	    	$platform = "osCommerce";
 	    }
-	    if (eregi('CRE', PROJECT_VERSION)) {
+	    if (preg_match('#CRE#mi', (string) PROJECT_VERSION)) {
 	    	$platform = "CRE";
 	    }
     }
     if (function_exists("pnConfigGetVar")) {
         $platform = pnConfigGetVar('Version_ID');
     }
-    $platform = strtolower($platform);
+    $platform = strtolower((string) $platform);
 
     return $platform;
 }
@@ -1022,7 +1074,7 @@ function atErrorCheck()
 
 function atBufferControl($action='check')
 {
-/*
+
 	$display = ob_get_contents();
 
 	switch ($action) {
@@ -1033,17 +1085,20 @@ function atBufferControl($action='check')
 
 		case 'check':
 		default:
-			if (strpos($display, "#AUTOTHEME_BUFFER#") === FALSE) {
+			if (!str_contains($display, "#AUTOTHEME_BUFFER#")) {
 				ob_end_flush();
 			}
 		break;
 	}
-*/
+
 }
 
 function atThemeHeader()
 {
-	atErrorCheck();
+	$template = [];
+    $themepath = null;
+    $striphead = null;
+    atErrorCheck();
 
 	atThemeOpen();
 	atBodyOpen();
@@ -1054,7 +1109,7 @@ function atThemeHeader()
     $file = $template['main'];
 
     $template = atTemplateCompile($themepath.$file, $striphead);
-    list($output, $footer) = atTemplateSplit($template, "modules");
+    [$output, $footer] = atTemplateSplit($template, "modules");
 
     atTemplateDisplay($output);
 
@@ -1063,7 +1118,9 @@ function atThemeHeader()
 
 function atThemeFooter()
 {
-	atErrorCheck();
+	$template = [];
+    $themepath = null;
+    atErrorCheck();
 
 	atModClose();
 
@@ -1073,7 +1130,7 @@ function atThemeFooter()
     $file = $template['main'];
 
     $template = atTemplateCompile($themepath.$file, 1);
-    list($header, $output) = atTemplateSplit($template, "modules");
+    [$header, $output] = atTemplateSplit($template, "modules");
 
     atTemplateDisplay($output);
 
@@ -1084,6 +1141,10 @@ function atThemeFooter()
 
 function atNewsSummary($text, $url, $html)
 {
+    $news = [];
+    $template = [];
+    $themepath = null;	
+
     foreach ($text as $name => $val) {
         $news["text:$name"] = $val;
     }
@@ -1121,6 +1182,10 @@ function atNewsSummary($text, $url, $html)
 
 function atNewsArticle($text, $url, $html)
 {
+    $news = [];
+    $template = [];
+    $themepath = null;	
+
     foreach ($text as $name => $val) {
         $news["text:$name"] = $val;
     }
@@ -1144,6 +1209,12 @@ function atNewsArticle($text, $url, $html)
 
 function atThemeBlock($block)
 {
+    $template = [];
+    $autoblock = [];
+    $blocktemplate = [];
+    $themepath = null;
+    $file = null;	
+
     atCommandBuild($block, "block");
 	atBlockOpen();
 
@@ -1151,7 +1222,8 @@ function atThemeBlock($block)
     extract($runningconfig);
 
     $location = $block['position'];
-    $blocktitle = trim(strip_tags($block['title'], ""));
+    $blocktitle = trim(strip_tags((string) $block['title'], ""));
+	
     $blockname = $block['name'];
 
     if ($block['modname'] == "Admin_Messages" && $block['bkey'] == "messages") {
@@ -1192,6 +1264,9 @@ function atThemeBlock($block)
 
 function atBlockDisplay($location="", $title="")
 {
+    $blockdisplay = [];
+    $autoblock = [];
+	
     $runningconfig = atGetRunningConfig();
     extract($runningconfig);
 
@@ -1240,18 +1315,21 @@ function atBlockDisplay($location="", $title="")
 
 function atLoadExtraCommands($dir)
 {
+    $cmdresult = [];
+	
     $atdir = atAutoGetVar("atdir");
     $platform = atGetPlatform();
     $lang = atGetLang();
 
-    if ($handle = @opendir($dir)) {
-        while (false !== ($file = @readdir($handle))) {
-            if (eregi(".cmd.php", $file)) {
-                $extracmd = array();
+    if ($handle = opendir($dir)) {
+        while (false !== ($file = readdir($handle))) {
+
+            if (preg_match('#.cmd.php#mi', $file)) {
+                $extracmd = [];
 
                 $parts = explode(".", $file);
                 $name = $parts[0];
-                @include_secure($atdir."lang/$lang/$name.php");
+                include_secure($atdir."lang/$lang/$name.php");
                 include_secure($dir.$file);
 
                 foreach ($extracmd as $type => $cmds) {
@@ -1263,15 +1341,16 @@ function atLoadExtraCommands($dir)
         }
         closedir($handle);
     }
-    if ($handle = @opendir($dir.$platform)) {
-        while (false !== ($file = @readdir($handle))) {
-            if (eregi(".cmd.php", $file)) {
-                $extracmd = array();
+    if ($handle = opendir($dir.$platform)) {
+        while (false !== ($file = readdir($handle))) {
+
+            if (preg_match('#.cmd.php#mi', $file)) {
+                $extracmd = [];
 
                 $parts = explode(".", $file);
                 $name = $parts[0];
-                @include_secure($atdir."lang/$lang/$name.php");
-                @include_secure($dir.$platform."/$file");
+                include_secure($atdir."lang/$lang/$name.php");
+                include_secure($dir.$platform."/$file");
 
                 foreach ($extracmd as $type => $cmds) {
                     foreach ($cmds as $cmd => $action) {
@@ -1287,31 +1366,33 @@ function atLoadExtraCommands($dir)
 
 function atExtraScan($dir)
 {
+    $loaded = [];
+	
     $extra = atRunningGetVar("extra");
     $atdir = atAutoGetVar("atdir");
     $platform = atGetPlatform();
     $lang = atGetLang();
 
-    if ($handle = @opendir($dir.$platform)) {
-        while (false !== ($file = @readdir($handle))) {
-            if (eregi(".ext.php", $file)) {
+    if ($handle = opendir($dir.$platform)) {
+        while (false !== ($file = readdir($handle))) {
+            if (preg_match('#.ext.php#mi', $file)) {
                 $parts = explode(".", $file);
                 $name = $parts[0];
                 $loaded[$name] = 1;
-                @include_secure($atdir."lang/$lang/$name.php");
-                @include_secure($dir.$platform."/$file");
+                include_secure($atdir."lang/$lang/$name.php");
+                include_secure($dir.$platform."/$file");
             }
         }
         closedir($handle);
     }
-    if ($handle = @opendir($dir)) {
-        while (false !== ($file = @readdir($handle))) {
-            if (eregi(".ext.php", $file)) {
+    if ($handle = opendir($dir)) {
+        while (false !== ($file = readdir($handle))) {
+            if (preg_match('#.ext.php#mi', $file)) {
                 $parts = explode(".", $file);
                 $name = $parts[0];
                 if (!$loaded[$name]) {
-                    @include_secure($atdir."lang/$lang/$name.php");
-                    @include_secure($dir.$file);
+                    include_secure($atdir."lang/$lang/$name.php");
+                    include_secure($dir.$file);
                 }
             }
         }
@@ -1327,7 +1408,7 @@ function atExtraLoadAll()
     $globalconfig = atGetGlobalConfig();
     extract($globalconfig);
 
-    $result = array();
+    $result = [];
     $lang = atGetLang();
 
     foreach ($autoextra as $name => $val) {
@@ -1341,6 +1422,9 @@ function atExtraLoadAll()
 
 function atExtraLoad($name)
 {
+    $atdir = null;
+    $extradir = null;
+	
     $globalconfig = atGetGlobalConfig();
     extract($globalconfig);
 
@@ -1348,17 +1432,17 @@ function atExtraLoad($name)
     $platform = atGetPlatform();
     $lang = atGetLang();
 
-    if (@file_exists($atdir."lang/$lang/$name.php")) {
-        @include_secure($atdir."lang/$lang/$name.php");
+    if (file_exists($atdir."lang/$lang/$name.php")) {
+        include_secure($atdir."lang/$lang/$name.php");
     }
     else {
-        @include_secure($atdir."lang/eng/$name.php");
+        include_secure($atdir."lang/eng/$name.php");
     }
-    if (@file_exists($extradir.$platform."/$name.ext.php")) {
-        @include_secure($extradir.$platform."/$name.ext.php");
+    if (file_exists($extradir.$platform."/$name.ext.php")) {
+        include_secure($extradir.$platform."/$name.ext.php");
     }
     else {
-        @include_secure($extradir."$name.ext.php");
+        include_secure($extradir."$name.ext.php");
     }
     atRunningSetVar("extra", $extra);
 
@@ -1368,16 +1452,22 @@ function atExtraLoad($name)
 /* compile functions */
 function atCompileRead($filename, $modifier="")
 {
+    $incdir = null;
+    $platformdir = null;
+    $atdir = null;
+    $themepath = null;
+    $compiledir = null;
+	
     $globalconfig = atGetGlobalConfig();
     extract($globalconfig);
 
     $oldmask = umask(0);
 
-    $filetime =  @filemtime($incdir."atCommands.php")
-				+@filemtime($platformdir."atCommands.php")
-               	+@filemtime($atdir."autotheme.cfg")
-               	+@filemtime($themepath."theme.cfg")
-               	+@filemtime($filename);
+    $filetime =  filemtime($incdir."atCommands.php")
+				+filemtime($platformdir."atCommands.php")
+               	+filemtime($atdir."autotheme.cfg")
+               	+filemtime($themepath."theme.cfg")
+               	+filemtime($filename);
 
     $filepre = atGetCompileFilename($filename, $modifier);
     $filename = $filepre."_".$filetime;
@@ -1392,25 +1482,30 @@ function atCompileRead($filename, $modifier="")
 
 function atCompileWrite($filename, $content, $modifier="")
 {
+    $incdir = null;
+    $platformdir = null;
+    $atdir = null;
+    $themepath = null;
+    $compiledir = null;
+	
     $globalconfig = atGetGlobalConfig();
     extract($globalconfig);
 
     $oldmask = umask(0);
 
-    $filetime =  @filemtime($incdir."atCommands.php")
-				+@filemtime($platformdir."atCommands.php")
-               	+@filemtime($atdir."autotheme.cfg")
-               	+@filemtime($themepath."theme.cfg")
-               	+@filemtime($filename);
+    $filetime =  filemtime($incdir."atCommands.php")
+				+filemtime($platformdir."atCommands.php")
+               	+filemtime($atdir."autotheme.cfg")
+               	+filemtime($themepath."theme.cfg")
+               	+filemtime($filename);
 
     $filepre = atGetCompileFilename($filename, $modifier);
     $filename = $filepre."_".$filetime;
 
-    if ($handle = @opendir($compiledir)) {
-       while (false !== ($file = @readdir($handle))) {
-            if (false !== strpos($file, $filepre)) {
-                @unlink($compiledir.$file);
-
+    if ($handle = opendir($compiledir)) {
+       while (false !== ($file = readdir($handle))) {
+            if (str_contains($file, (string) $filepre)) {
+                unlink($compiledir.$file);
                 if (function_exists('atcacheclear')) {
     				atCacheClear();
     			}
@@ -1419,8 +1514,8 @@ function atCompileWrite($filename, $content, $modifier="")
         }
         closedir($handle);
     }
-    if ($handle = @fopen($compiledir.$filename, "w")) {
-        fwrite($handle, $content);
+    if ($handle = fopen($compiledir.$filename, "w")) {
+        fwrite($handle, (string) $content);
 	    fclose($handle);
     }
 }
@@ -1429,9 +1524,9 @@ function atCompileClear()
 {
 	$compiledir = atAutoGetVar('compiledir');
 
-    if ($handle = @opendir($compiledir)) {
-            while (false !== ($file = @readdir($handle))) {
-                @unlink($compiledir.$file);
+    if ($handle = opendir($compiledir)) {
+            while (false !== ($file = readdir($handle))) {
+                unlink($compiledir.$file);
             }
             closedir($handle);
     }
@@ -1464,7 +1559,9 @@ function atGetCompileFilename($filename, $modifier="")
 
 function atTemplateCompile($file, $striphead=1)
 {
-    $globalconfig = atGetGlobalConfig();
+    $command = null;
+    
+	$globalconfig = atGetGlobalConfig();
     extract($globalconfig);
 
     if (!$output = atCompileRead($file)) {
@@ -1485,7 +1582,7 @@ function at_block_sort($a, $b)
 		return ($a["weight"] > $b["weight"]) ? TRUE : FALSE;
 	}
 	else {
-	    return strcmp($a["position"], $b["position"]);
+	    return strcmp((string) $a["position"], (string) $b["position"]);
 	}
 }
 
@@ -1507,9 +1604,9 @@ function at_array_display($var)
 if (!function_exists("file_get_contents")) {
     function file_get_contents($filename)
     {
-        if (@is_file($filename)) {
+        if (is_file($filename)) {
             $result = "";
-            $handle = @fopen($filename, "r");
+            $handle = fopen($filename, "r");
             if (!$handle) {
                 return false;
             }
@@ -1576,12 +1673,14 @@ function at_list_themes($dir="themes")
 
 function at_listcore_themes($dir="themes")
 {
-    if ($handle = @opendir($dir)) {
-        while (false !== ($subdir = @readdir($handle))) {
-            if (@is_dir("$dir/$subdir") &&
+    $themelist = [];
+	
+    if ($handle = opendir($dir)) {
+        while (false !== ($subdir = readdir($handle))) {
+            if (is_dir("$dir/$subdir") &&
                 $subdir !== '.' &&
                 $subdir !== '..' &&
-                @file_exists("$dir/$subdir/theme.cfg"))
+                file_exists("$dir/$subdir/theme.cfg"))
             {
                 $themelist[] = $subdir;
             }
@@ -1593,11 +1692,12 @@ function at_listcore_themes($dir="themes")
 
 function at_listmultisite_themes($dir="parameters")
 {
-    $themelist = array();
+    $multilist = [];
+    $themelist = [];
 
-    if ($handle = @opendir($dir)) {
-        while (false !== ($subdir = @readdir($handle))) {
-            if (@is_dir("$dir/$subdir/themes") &&
+    if ($handle = opendir($dir)) {
+        while (false !== ($subdir = readdir($handle))) {
+            if (is_dir("$dir/$subdir/themes") &&
                 $subdir !== '.' &&
                 $subdir !== '..')
             {
@@ -1617,7 +1717,7 @@ function at_listmultisite_themes($dir="parameters")
 function at_getmultisite_base()
 {
     if (defined('WHERE_IS_PERSO')) {
-        $pathparts = explode("/", WHERE_IS_PERSO);
+        $pathparts = explode("/", (string) WHERE_IS_PERSO);
         array_pop($pathparts);
         array_pop($pathparts);
         $multibase = implode("/", $pathparts);
@@ -1631,7 +1731,7 @@ function at_getmultisite_base()
 
 function at_getmultisite_name($path)
 {
-    $pathparts = explode("/", $path);
+    $pathparts = explode("/", (string) $path);
 
     if ($pathparts) {
         $multisite = $pathparts[count($pathparts)- 3];
@@ -1644,18 +1744,19 @@ function at_getmultisite_name($path)
 
 function at_gettheme_name($path)
 {
-    $pathparts = explode("/", $path);
+    $pathparts = explode("/", (string) $path);
     $themename = array_pop($pathparts);
-
     return $themename;
 }
 
 function at_gettheme_path($themedir)
 {
-    if (@file_exists(AT_DIRPREFIX."themes/$themedir")) {
+    $thepath = null;
+	
+    if (file_exists(AT_DIRPREFIX."themes/$themedir")) {
         $thepath = AT_DIRPREFIX."themes/$themedir/";
     }
-    elseif (@file_exists(AT_DIRPREFIX."$themedir")) {
+    elseif (file_exists(AT_DIRPREFIX."$themedir")) {
         $thepath = AT_DIRPREFIX."$themedir/";
     }
     return $thepath;
@@ -1663,14 +1764,14 @@ function at_gettheme_path($themedir)
 
 function at_listfiles($dir, $ext)
 {
-    $filelist = $newlist = array();
+    $filelist = $newlist = [];
 
-    if ($handle = @opendir($dir)) {
-        while (false !== ($item = @readdir($handle))) {
-            if (@!is_dir($dir . $item) && eregi(".$ext", $item)) {
+    if ($handle = opendir($dir)) {
+        while (false !== ($item = readdir($handle))) {
+            if (!is_dir($dir . $item) && preg_match(".$ext", $item)) {
                 $filelist[] = $item;
             }
-            elseif (@is_dir("$dir/$item") && $item !== '.' && $item !== '..') {
+            elseif (is_dir("$dir/$item") && $item !== '.' && $item !== '..') {
                 $sublist = at_listfiles("$dir/$item", $ext);
                 if (is_array($sublist)) {
                     foreach ($sublist as $file) {
@@ -1710,7 +1811,7 @@ function at_file_select($themedir, $name, $val, $filelist, $create=1, $link=1)
     return $output;
 }
 
-function at_display_error($message)
+function at_display_error($message): never
 {
     atAdminHeader();
     echo $message;
@@ -1720,7 +1821,8 @@ function at_display_error($message)
 
 function at_inputfield($opt)
 {
-	$input .= "<input";
+	$input = null;
+    $input .= "<input";
 
 	unset($opt['label']);
 
@@ -1734,6 +1836,8 @@ function at_inputfield($opt)
 
 function atGetBlockConfig($blockcontrol=null)
 {
+    $blocklist = [];
+
     if (!$blockcontrol) {
     	$blockcontrol = atRunningGetVar('blockcontrol');
     }
@@ -1763,21 +1867,22 @@ function atGetBlockConfig($blockcontrol=null)
 
 function atImageSearch($path, $module=null)
 {
-	$runningconfig = atGetRunningConfig();
+	$paths = [];
+    $imagepath = null;
+    $imagelangpath = null;
+    $atpath = null;
+    $runningconfig = atGetRunningConfig();
+	
 	extract($runningconfig);
+	$path = explode(".", (string) $path);
 
-	$path = explode(".", $path);
-
-	$types = array("jpg", "gif", "png");
+	$types = ["jpg", "gif", "png"];
 
 	if (isset($module)) {
 		$paths[] = $imagepath."modules/$module/".$path[0];
 	}
-	$paths = array(
-		$imagelangpath.$path[0],
-		$imagepath.$path[0],
-		$atpath."images/".$path[0]
-	);
+	$paths = [$imagelangpath.$path[0], $imagepath.$path[0], $atpath."images/".$path[0]];
+
 
 	foreach ($types as $type) {
 		foreach ($paths as $file) {
@@ -1793,8 +1898,7 @@ function atImageSearch($path, $module=null)
 /* BETA (don't use) function to get output from pnHTML and build command from it */
 function atModCommand($command, &$output)
 {
-    $$command = $output->GetOutput();
-
+    ${$command} = $output->GetOutput();
     atCommandBuild(compact("$command"));
 }
 
@@ -1802,9 +1906,9 @@ function atModCommand($command, &$output)
 function atCommandBuild2($name, $commands, $prefix="")
 {
     if (!$prefix) {
-        $prefix = strtolower(atGetModName());
+        $prefix = strtolower((string) atGetModName());
     }
-    $$name = $commands;
+    ${$name} = $commands;
     $commands = compact("$name");
 
     atRunningSetVar($prefix, $commands);
@@ -1821,6 +1925,8 @@ function atCommandBuild2($name, $commands, $prefix="")
 /* BETA (don't use) function to return module template output */
 function atModOutput($file)
 {
+    $themepath = null;
+	
     $globalconfig = atGetGlobalConfig();
     extract($globalconfig);
 
@@ -1873,5 +1979,3 @@ function atCommandLoopAdd($function, $array)
         atTemplateDisplay($output);
     }');
 }
-
-?>

@@ -150,7 +150,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
         //__DIR__ . '/admin',
         //__DIR__ . '/blocks',
-		  __DIR__ . '/blocks/blocks-Modules.php',
+		//__DIR__ . '/blocks/blocks-Modules.php',
         //__DIR__ . '/install/includes/database.php',
 		//__DIR__ . '/install/install2.php',
 		//__DIR__ . '/install',
@@ -161,6 +161,7 @@ return static function (RectorConfig $rectorConfig): void {
         //__DIR__ . '/install',
         //__DIR__ . '/language',
         //__DIR__ . '/modules',
+		  __DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
 		//__DIR__ . '/modules/News/index.php',
 		//__DIR__ . '/modules/Surveys/index.php',
 		//__DIR__ . '/modules/Your_Account/index.php',
