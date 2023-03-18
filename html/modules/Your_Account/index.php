@@ -745,12 +745,14 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				$sql5 = "SELECT sitename, headlinesurl FROM ".$prefix."_headlines WHERE hid='$hid'";
 				$result5 = $db->sql_query($sql5);
 				$row5 = $db->sql_fetchrow($result5);
-				$nsitename = filter($row5['sitename'], "nohtml");
-				$url = filter($row5['headlinesurl'], "nohtml");
+				$nsitename = filter($row5['sitename'] ?? '', "nohtml");
+				$url = filter($row5['headlinesurl'] ?? '', "nohtml");
 				$title = filter($nsitename, "nohtml");
 				$siteurl = preg_replace('#http:\/\/#mi', "", (string) $url);
 				$siteurl = explode("/", (string) $siteurl);
-			} else {
+			} 
+			else 
+			{
 				if (!preg_match('#http:\/\/#m', (string) $url)) {
 					$url = "http://$url";
 				}
@@ -758,13 +760,19 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				$siteurl = explode("/", (string) $siteurl);
 				$title = "http://$siteurl[0]";
 			}
-	
-			$rdf = parse_url((string) $url);
+            //if(!isset($url))
+			//$url = 'http://'.$_SERVER['SERVER_NAME'].'/backend.php';			
+			
+			var_dump($url);
+			
+		    $rdf = parse_url((string) $url);
+
 			$fp = fsockopen($rdf['host'], 80, $errno, $errstr, 15);
 	
-			if (!$fp) {
+			 if (!$fp) {
 				$content = "<center><font class=\"content\">"._RSSPROBLEM."</font></center>";
-			}
+			 }
+			
 	
 			if ($fp) {
 				fputs($fp, "GET " . $rdf['path'] . "?" . $rdf['query'] . " HTTP/1.0\r\n");
@@ -1611,7 +1619,9 @@ function edituser() {
 		
 		echo "<tr><td bgcolor='$bgcolor3' colspan='2' align='center'>"
 		."<BR><b><h5>Avatar control panel</h5></b>"
+		
 		."<tr><td bgcolor='$bgcolor2'>Displays a small graphic image below your details in forum posts and on your profile. Only one image can be displayed at a time, its width can be no greater than ".$board_config['avatar_max_width']." pixels, the height no greater than ".$board_config['avatar_max_height']." pixels, and the file size no more than ".CoolSize($board_config['avatar_filesize']).".</td>";
+		
 		echo "<td bgcolor='$bgcolor3' align=center>Current Avatar<BR><BR><IMG alt=\"\" src=\"$userinfo[user_avatar]\"></td></tr><BR>";
 		
 		if ($board_config['allow_avatar_local']) {
@@ -1627,12 +1637,16 @@ function edituser() {
 		if ($board_config['allow_avatar_upload']) {
 			echo "<tr><td bgcolor='$bgcolor2'><b>Upload Avatar from your machine:</b></td>"
 			."<td bgcolor='$bgcolor3'><a href=\"modules.php?name=Forums&file=profile&mode=editprofile\"><b>Upload Through Forum Profile</b></a></td></tr>"
+			
 			."<tr><td bgcolor='$bgcolor2'><b>Upload Avatar from a URL:</b><br><SPAN class=gensmall>Enter the URL of the location containing the Avatar image and click on the submit button below, the Avatar image will be copied to this site.</SPAN></td>"
+			
 			."<td bgcolor='$bgcolor3'><a href=\"modules.php?name=Forums&file=profile&mode=editprofile\"><b>Upload Through Forum Profile</b></a></td></tr>";
 		} else {
 			echo "<tr><td bgcolor='$bgcolor2'><b>Upload Avatar from your machine:</b></td>"
 			."<td bgcolor='$bgcolor3'><b>Currently Disabled</b></td></tr>"
+			
 			."<tr><td bgcolor='$bgcolor2'><b>Upload Avatar from a URL:</b><br><SPAN class=gensmall>Enter the URL of the location containing the Avatar image and click on the submit button below, the Avatar image will be copied to this site.</SPAN></td>"
+			
 			."<td bgcolor='$bgcolor3'><b>Currently Disabled</b></td></tr>";
 		}
 		
