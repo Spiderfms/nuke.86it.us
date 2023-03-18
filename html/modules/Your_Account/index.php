@@ -195,10 +195,11 @@ function confirmNewUser($username, $user_email, $user_password, $user_password2,
 }
 
 function finishNewUser($username, $user_email, $user_password, $random_num, $gfx_check) {
- $sitekey = null;
- $gfx_chk = null;
+   
+   $sitekey = null;
+   $gfx_chk = null;
  
- global $stop, $EditedMessage, $adminmail, $sitename, $Default_Theme, $user_prefix, $db, $storyhome, $module_name, $nukeurl;
+    global $stop, $EditedMessage, $adminmail, $sitename, $Default_Theme, $user_prefix, $db, $storyhome, $module_name, $nukeurl;
 
 	include("header.php");
 	include("config.php");
@@ -507,7 +508,9 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 			echo ""._YOUHAVEPOINTS." <b>$n_points</b><br>";
 		
 			if (paid()) {
+				
 				$row = $db->sql_fetchrow($db->sql_query("SELECT * FROM ".$prefix."_subscriptions WHERE userid='".intval($cookie[0])."'"));
+				
 				if (!empty($subscription_url)) {
 					$content = "<br><center>"._YOUARE." <a href='$subscription_url'>"._SUBSCRIBER."</a> "._OF." $sitename<br>";
 				} else {
@@ -520,6 +523,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				if ($yearDiff < 1) {
 					$diff = $row['subscription_expire']-time();
 				}
+				
 				$daysDiff = floor($diff/60/60/24);
 				$diff -= $daysDiff*60*60*24;
 				$hrsDiff = floor($diff/60/60);
