@@ -124,6 +124,7 @@ function at_autourls_rewrite($display)
 
 function at_admin_autourls($autourls)
 {
+    $extension = null;
     extract($autourls);
 
     if (!$extension) {
@@ -133,5 +134,3 @@ function at_admin_autourls($autourls)
 	
 	return $output;
 }
-
-?>

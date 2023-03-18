@@ -169,7 +169,8 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/modules/AutoTheme/includes/atAPI.php',
 		//__DIR__ . '/modules/AutoTheme/includes/atCommands.php',
 		//__DIR__ . '/modules/AutoTheme/includes/atExtended.php',
-		  __DIR__ . '/modules/AutoTheme/extras',
+		//__DIR__ . '/modules/AutoTheme/extras',
+		  __DIR__ . '/modules/AutoTheme/extras/php-nuke',
 
 		//__DIR__ . '/modules/News/index.php',
 		//__DIR__ . '/modules/Surveys/index.php',
