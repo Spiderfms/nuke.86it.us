@@ -27,6 +27,10 @@
  * NullToStrictStringFuncCallArgRector
  */
 
+/* Applied Fixes:
+ * 
+ */
+
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -78,7 +82,7 @@ function confirmNewUser($username, $user_email, $user_password, $user_password2,
 	$user_password2 = htmlspecialchars(stripslashes((string) $user_password2));
 	if (!$stop) {
 		$datekey = date("F j");
-		$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $_POST['random_num'] . $datekey));
+		$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $_POST['random_num'] ?? '' . $datekey));
 		$code = substr($rcode, 2, 6);
 		if (extension_loaded("gd") AND $code != $gfx_check AND ($gfx_chk == 3 OR $gfx_chk == 4 OR $gfx_chk == 6 OR $gfx_chk == 7)) {
 			title(""._NEWUSERERROR."");
@@ -197,7 +201,17 @@ function activate($username, $check_num) {
 		$row = $db->sql_fetchrow($result);
 		$user_password = htmlspecialchars(stripslashes((string) $row['user_password']));
 		if ($check_num == $row['check_num']) {
-			$db->sql_query("INSERT INTO ".$user_prefix."_users (user_id, username, user_email, user_password, user_avatar, user_avatar_type, user_regdate, user_lang) VALUES (NULL, '".$row['username']."', '".$row['user_email']."', '$user_password', 'gallery/blank.gif', '3', '".$row['user_regdate']."', '$language')");
+			$db->sql_query("INSERT INTO ".$user_prefix."_users (user_id, 
+			                                                   username, 
+															 user_email, 
+														  user_password, 
+														    user_avatar, 
+													   user_avatar_type, 
+													       user_regdate, 
+														      user_lang) 
+															  
+			VALUES (NULL, '".$row['username']."', '".$row['user_email']."', '$user_password', 'gallery/blank.gif', '3', '".$row['user_regdate']."', '$language')");
+			
 			$result2 = $db->sql_query("SELECT user_id FROM ".$user_prefix."_users WHERE username='".$row['username']."'");
 			$row2 = $db->sql_fetchrow($result2);
 			$guserid = intval($row2['user_id']);

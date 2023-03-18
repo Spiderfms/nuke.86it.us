@@ -504,7 +504,8 @@ class InputFilter {
     function quoteSmart($source, &$connection) {
         
 		# strip slashes
-        if (get_magic_quotes_gpc()) $source = stripslashes($source);
+		if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc())
+        $source = stripslashes($source);
         
 		# quote both numeric and text
         $source = $this->escapeString($source, $connection);

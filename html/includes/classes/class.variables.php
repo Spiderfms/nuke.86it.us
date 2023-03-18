@@ -1009,17 +1009,14 @@ endif;
         return deepStrip($data);
     }
     /**
-     * Undoes magic quotes if on
+     * Undoes magic quotes if on (since these dipsshit function no longer exist just return the data!
      * @Since Titanium v4.0.3
      * @access private
      * @param mixed $data the data to strip
      * @return mixed stripped variable
      */
     function _undoMagic(&$data) {
-        if (empty($data)) return $data;
-        static $magic_quotes;
-        // if (!isset($magic_quotes)) $magic_quotes = get_magic_quotes_gpc();
-        return ($magic_quotes) ? $this->_stripSlashesArray($data) : $data;
+        return $data;
     }
     /**
      * Changed/Updated for PHP 8.1

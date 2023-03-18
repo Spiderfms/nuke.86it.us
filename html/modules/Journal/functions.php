@@ -73,8 +73,9 @@ if ( !defined('MODULE_FILE') )
         'em' => array(),
         'br' => array());
     // End KSES Options
+	
     function ADVT_stripslashes($text ) {
-        if (get_magic_quotes_gpc() == 1 ) {
+        if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc() == 1) {
             return(filter($text, "nohtml"));
         }
         return($text );
