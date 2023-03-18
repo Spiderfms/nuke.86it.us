@@ -28,7 +28,7 @@
  */
 
 /* Applied Fixes:
- * 
+ * Field 'bio' doesn't have a default value - Added default Value to database!
  */
 
 if (!defined('MODULE_FILE')) {
