@@ -21,6 +21,7 @@
  * RandomFunctionRector
  * ListEachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
  * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * SensitiveConstantNameRector (https://wiki.php.net/rfc/case_insensitive_constant_deprecation)
  * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
  * AddLiteralSeparatorToNumberRector (https://wiki.php.net/rfc/numeric_literal_separator)
  * NullToStrictStringFuncCallArgRector
