@@ -21,7 +21,6 @@
  * RandomFunctionRector
  * ListEachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
  * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
- * SensitiveConstantNameRector (https://wiki.php.net/rfc/case_insensitive_constant_deprecation)
  * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
  * AddLiteralSeparatorToNumberRector (https://wiki.php.net/rfc/numeric_literal_separator)
  * NullToStrictStringFuncCallArgRector
@@ -492,8 +491,8 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				$sql5 = "SELECT sitename, headlinesurl FROM ".$prefix."_headlines WHERE hid='$hid'";
 				$result5 = $db->sql_query($sql5);
 				$row5 = $db->sql_fetchrow($result5);
-				$nsitename = filter($row5[\SITENAME], "nohtml");
-				$url = filter($row5[\HEADLINESURL], "nohtml");
+				$nsitename = filter($row5['sitename'], "nohtml");
+				$url = filter($row5['headlinesurl'], "nohtml");
 				$title = filter($nsitename, "nohtml");
 				$siteurl = preg_replace('#http:\/\/#mi', "", (string) $url);
 				$siteurl = explode("/", (string) $siteurl);
@@ -724,7 +723,7 @@ function new_user() {
 		$sql = "SELECT custom_title FROM ".$prefix."_modules WHERE active='1' AND view='1' AND inmenu='1'";
 		$result = $db->sql_query($sql);
 		while ($row = $db->sql_fetchrow($result)) {
-			$custom_title = filter($row[\CUSTOM_TITLE], "nohtml");
+			$custom_title = filter($row['custom_title'], "nohtml");
 			if (!empty($custom_title)) {
 				echo "<li>"._ACCESSTO." $custom_title\n";
 			}
