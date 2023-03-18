@@ -30,24 +30,29 @@ define('NO_EDITOR', true);
 
 include("header.php");
 
-if (!isset($opi) OR ($opi != "ds")) {
-  $intcookie = intval($cookie[0]);
-  if (!empty($cookie[1])) {
-    $sql = "SELECT name, username, user_email FROM ".$user_prefix."_users WHERE user_id='".$intcookie."'";
-    $result = $db->sql_query($sql);
-    $row = $db->sql_fetchrow($result);
-    $db->sql_freeresult($result);
-    if (!empty($row['name'])) {
-		$sender_name = filter($row['name'], "nohtml");
-	} else {
-		$sender_name = filter($row['username'], "nohtml");
-	}
-	$sender_email = filter($row['user_email'], "nohtml");
-  } else {
-    $sender_email = "";
-    $sender_name = "";
-  }
-}
+global $cookie;
+
+   if(!isset($cookie[0]))
+   $cookie[0] = 'Anonymous';
+
+   if (!isset($opi) OR ($opi != "ds") && isset($cookie[0]) && isset($cookie[1])) {
+     $intcookie = intval($cookie[0]);
+     if (!empty($cookie[1])) {
+       $sql = "SELECT name, username, user_email FROM ".$user_prefix."_users WHERE user_id='".$intcookie."'";
+       $result = $db->sql_query($sql);
+       $row = $db->sql_fetchrow($result);
+       $db->sql_freeresult($result);
+       if (!empty($row['name'])) {
+		   $sender_name = filter($row['name'], "nohtml");
+	   } else {
+		   $sender_name = filter($row['username'], "nohtml");
+	   }
+	   $sender_email = filter($row['user_email'], "nohtml");
+     } else {
+       $sender_email = "";
+       $sender_name = "";
+     }
+   }
 
 if (!isset($message)) { $message = ""; }
 if (!isset($opi)) { $opi = ""; }
@@ -68,6 +73,9 @@ $form_block = "
 ";
 
 OpenTable();
+if(!isset($_POST['opi']))
+$_POST['opi'] = 'TheFrancisFrameWorkRocks'; 
+
 if ($_POST['opi'] != "ds") {
     echo $form_block;
 } else {
