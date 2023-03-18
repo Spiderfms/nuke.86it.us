@@ -447,10 +447,10 @@ function DisplayTopic ($pollID, $pid=0, $tid=0, $mode="thread", $order=0, $thold
 	} else {
 		global $title, $bgcolor1, $bgcolor2, $bgcolor3;
 		include("mainfile.php");
-		include("header.php");
+	    include_once("header.php");
 	}
 	if ($pid!=0) {
-		include("header.php");
+	    include_once("header.php");
 	}
 	$count_times = 0;
                   cookiedecode($user);
@@ -605,8 +605,13 @@ function DisplayTopic ($pollID, $pid=0, $tid=0, $mode="thread", $order=0, $thold
 		CloseTable();
 	}
 	modthree($pollID, $mode, $order, $thold);
-	if($pid==0) return array($pollID, $pid, $subject);
-	else include_once("footer.php");
+	
+	if($pid==0) {
+	  if(!isset($subject)) { $subject = ''; }
+	  return array($pollID, $pid, $subject);
+	} else { 
+	  include_once("footer.php");
+	}
 }
 
 function singlecomment($tid, $pollID, $mode, $order, $thold) {

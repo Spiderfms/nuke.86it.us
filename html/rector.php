@@ -43,6 +43,20 @@ use Rector\Php73\Rector\FuncCall\RegexDashEscapeRector;
 use Rector\Php73\Rector\FuncCall\SetCookieRector;
 use Rector\Php73\Rector\FuncCall\StringifyStrNeedlesRector;
 
+use Rector\Php74\Rector\FuncCall\ArrayKeyExistsOnPropertyRector;
+use Rector\Php74\Rector\FuncCall\ArraySpreadInsteadOfArrayMergeRector;
+use Rector\Php74\Rector\MethodCall\ChangeReflectionTypeToStringToGetNameRector;
+use Rector\Php74\Rector\Closure\ClosureToArrowFunctionRector;
+use Rector\Php74\Rector\ArrayDimFetch\CurlyToSquareBracketArrayStringRector;
+use Rector\Php74\Rector\StaticCall\ExportToReflectionFunctionRector;
+use Rector\Php74\Rector\FuncCall\FilterVarToAddSlashesRector;
+use Rector\Php74\Rector\FuncCall\MbStrrposEncodingArgumentPositionRector;
+use Rector\Php74\Rector\FuncCall\MoneyFormatToNumberFormatRector;
+use Rector\Php74\Rector\Assign\NullCoalescingOperatorRector;
+use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
+use Rector\Php74\Rector\Double\RealToFloatTypeCastRector;
+use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
+
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 
 //use Rector\MysqlToMysqli\Rector\Assign\MysqlAssignToMysqliRector;
@@ -105,10 +119,21 @@ return static function (RectorConfig $rectorConfig): void {
 	$rectorConfig->rule(StringifyStrNeedlesRector::class);
 	
 	// 74
-	//$rectorConfig->rule(::class);
-	//$rectorConfig->rule(::class);
-	//$rectorConfig->rule(::class);
-	//$rectorConfig->rule(::class);
+	$rectorConfig->rule(ArrayKeyExistsOnPropertyRector::class);
+	$rectorConfig->rule(ArraySpreadInsteadOfArrayMergeRector::class);
+	$rectorConfig->rule(ChangeReflectionTypeToStringToGetNameRector::class);
+	$rectorConfig->rule(ClosureToArrowFunctionRector::class);
+	$rectorConfig->rule(CurlyToSquareBracketArrayStringRector::class);
+	$rectorConfig->rule(ExportToReflectionFunctionRector::class);
+	$rectorConfig->rule(FilterVarToAddSlashesRector::class);
+	$rectorConfig->rule(MbStrrposEncodingArgumentPositionRector::class);
+	$rectorConfig->rule(MoneyFormatToNumberFormatRector::class);
+	$rectorConfig->rule(NullCoalescingOperatorRector::class);
+	$rectorConfig->rule(ParenthesizeNestedTernaryRector::class);
+	$rectorConfig->rule(RealToFloatTypeCastRector::class);
+	$rectorConfig->rule(RestoreDefaultNullToNullableTypePropertyRector::class);
+	
+	// 80
 	//$rectorConfig->rule(::class);
 	//$rectorConfig->rule(::class);
 	//$rectorConfig->rule(::class);
@@ -136,7 +161,8 @@ return static function (RectorConfig $rectorConfig): void {
         //__DIR__ . '/language',
         //__DIR__ . '/modules',
 		//__DIR__ . '/modules/News/index.php',
-		  __DIR__ . '/modules/Surveys/index.php',
+		//__DIR__ . '/modules/Surveys/index.php',
+		__DIR__ . '/modules/Your_Account/index.php',
         //__DIR__ . '/themes',
 		//__DIR__ . '/admin.php',
 		//__DIR__ . '/backend.php',

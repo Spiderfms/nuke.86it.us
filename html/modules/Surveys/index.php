@@ -21,14 +21,15 @@ $module_name = basename(dirname(__FILE__));
 get_lang($module_name);
 
 $pagetitle = "- "._SURVEYS."";
+
 if (isset($pollID)) {
 	$pollID = intval($pollID);
 }
 
+include ('header.php');
+
 if(!isset($pollID)) {
-	include ('header.php');
 	pollList();
-	include ('footer.php');
 } elseif ($pollID <= 0) {
 	Header("Location: modules.php?name=$module_name");
 	die();
@@ -36,7 +37,6 @@ if(!isset($pollID)) {
     if (isset($tid)) {
 		Header("Location: modules.php?name=$module_name"); // SecurityReason Fix 2005 - sp3x -> Now should be OK.
 	}
-	include ("header.php");
 	OpenTable();
 	echo "<center><font class=\"title\"><b>"._CURRENTPOLLRESULTS."</b></font></center>";
 	CloseTable();
@@ -48,14 +48,18 @@ if(!isset($pollID)) {
 	OpenTable();
 	echo "<b>"._LAST5POLLS." $sitename</b><br><br>";
 	$r_options = "";
+
 	if (isset($userinfo['umode'])) { $r_options .= "&amp;mode=".$userinfo['umode']; }
 	if (isset($userinfo['uorder'])) { $r_options .= "&amp;order=".$userinfo['uorder']; }
 	if (isset($userinfo['thold'])) { $r_options .= "&amp;thold=".$userinfo['thold']; }
+
 	$result = $db->sql_query("SELECT pollID, pollTitle, voters FROM ".$prefix."_poll_desc where artid='0' order by timeStamp DESC limit 1,5");
+
 	while ($row = $db->sql_fetchrow($result)) {
 		$plid = intval($row['pollID']);
 		$pltitle = filter($row['pollTitle'], "nohtml");
 		$plvoters = intval($row['voters']);
+
 		if ($pollID == $plid) {
 			echo "<img src='images/arrow.gif' border='0'>&nbsp;$pltitle ($plvoters "._LVOTES.")<br><br>";
 		} else {
@@ -64,16 +68,16 @@ if(!isset($pollID)) {
 	}
 	echo "<div align=\"right\"><a href='modules.php?name=$module_name'><b>"._MOREPOLLS."</b></a></div>";
 	CloseTable();
+
 	cookiedecode($user);
+
 	if (($pollcomm) AND ((!isset($mode)) OR ($mode != "nocomments")) AND !isset($tid)) {
 		echo "<br>";
 		include("modules/Surveys/comments.php");
 	}
-	include ("footer.php");
 } elseif(isset($voteID) AND ($voteID > 0)) {
 	pollCollector($pollID, $voteID);
 } elseif($pollID != pollLatest()) {
-	include ('header.php');
 	OpenTable();
 	echo "<center><font class=\"option\"><b>"._SURVEY."</b></font></center>";
 	CloseTable();
@@ -81,31 +85,31 @@ if(!isset($pollID)) {
 	echo "<table border=\"0\" align=\"center\"><tr><td>";
 	pollMain($pollID);
 	echo "</td></tr></table>";
-	include ('footer.php');
 } else {
-	include ('header.php');
 	OpenTable();
 	echo "<center><font class=\"option\"><b>"._CURRENTSURVEY."</b></font></center>";
 	CloseTable();
 	echo "<br><br><table border=\"0\" align=\"center\"><tr><td>";
 	pollNewest();
 	echo "</td></tr></table>";
-	include ('footer.php');
 }
+include ('footer.php');
 
 /*********************************************************/
 /* Functions                                             */
 /*********************************************************/
 
 function pollMain($pollID) {
-	global $boxTitle, $boxContent, $pollcomm, $user, $cookie, $prefix, $module_name, $db, $userinfo;
+	global $boxTitle, $boxContent, $userinfo, $pollcomm, $user, $cookie, $prefix, $module_name, $db, $userinfo;
 	$pollID = intval($pollID);
 	if(!isset($pollID))
 	$pollID = 1;
 	$boxContent .= "<form action=\"modules.php?name=$module_name\" method=\"post\">";
 	$boxContent .= "<input type=\"hidden\" name=\"pollID\" value=\"".$pollID."\">";
 	$result_a = $db->sql_query("SELECT pollTitle, voters FROM ".$prefix."_poll_desc WHERE pollID='$pollID'");
-	list($pollTitle, $voters) = $db->sql_fetchrow($result_a);
+	//list($pollTitle, $voters) = $db->sql_fetchrow($result_a);
+	[$pollTitle, $voters] = $db->sql_fetchrow($result_a);
+
 	$boxTitle = _SURVEY;
 	$boxContent .= "<font class=\"content\"><b>$pollTitle</b></font><br><br>\n";
 	$boxContent .= "<table border=\"0\" width=\"100%\">";
@@ -126,13 +130,19 @@ function pollMain($pollID) {
 	for($i = 0; $i < 12; $i++) {
 		$result2 = $db->sql_query("SELECT optionCount FROM ".$prefix."_poll_data WHERE pollID='$pollID' AND voteID='$i'");
 		$row2 = $db->sql_fetchrow($result2);
-		$optionCount = $row2['optionCount'];
+		$optionCount = $row2['optionCount'] ?? 0;
 		$sum = (int)$sum+$optionCount;
 	}
+	if(!isset($userinfo['umode'])){ $userinfo['umode'] = 0; }
+	if(!isset($userinfo['uoder'])){ $userinfo['uoder'] = 0; }
+	if(!isset($userinfo['thold'])){ $userinfo['thold'] = 0; }
+	
 	$boxContent .= "<br><font class=\"content\"><a href=\"modules.php?name=$module_name&amp;op=results&amp;pollID=$pollID&amp;mode=".$userinfo['umode']."&amp;order=".$userinfo['uoder']."&amp;thold=".$userinfo['thold']."\"><b>"._RESULTS."</b></a><br><a href=\"modules.php?name=$module_name\"><b>"._POLLS."</b></a><br>";
 
 	if ($pollcomm) {
-		list($numcom) = $db->sql_fetchrow($db->sql_query("select count(*) from ".$prefix."_pollcomments where pollID='$pollID'"));
+		//list($numcom) = $db->sql_fetchrow($db->sql_query("select count(*) from ".$prefix."_pollcomments where pollID='$pollID'"));
+		[$numcom] = $db->sql_fetchrow($db->sql_query("select count(*) from ".$prefix."_pollcomments where pollID='$pollID'"));
+
 		$boxContent .= "<br>"._VOTES.": <b>$sum</b> <br> "._PCOMMENTS." <b>$numcom</b>\n\n";
 	} else {
 		$boxContent .= "<br>"._VOTES." <b>$sum</b>\n\n";
@@ -193,7 +203,16 @@ function pollCollector($pollID, $voteID) {
 }
 
 function pollList() {
-	global $user, $cookie, $prefix, $multilingual, $currentlang, $admin, $module_name, $db, $admin_file, $userinfo;
+ 
+ $resultArray = [];
+ $resultArray2 = [];
+ 
+ global $user, $cookie, $prefix, $multilingual, $currentlang, $admin, $module_name, $db, $admin_file, $userinfo;
+
+	if(!isset($userinfo['umode'])){ $userinfo['umode'] = 0; }
+	if(!isset($userinfo['uoder'])){ $userinfo['uoder'] = 0; }
+	if(!isset($userinfo['thold'])){ $userinfo['thold'] = 0; }
+
 	$r_options = "";
 	if (isset($userinfo['umode'])) { $r_options .= "&amp;mode=".$userinfo['umode']; }
 	if (isset($userinfo['uorder'])) { $r_options .= "&amp;order=".$userinfo['uorder']; }
@@ -210,8 +229,9 @@ function pollList() {
 	echo "<center><font class=\"title\"><b>"._PASTSURVEYS."</b></font></center>";
 	CloseTable();
 	echo "<table border=\"0\" cellpadding=\"8\"><tr><td>";
+
 	while($row = $db->sql_fetchrow($result)) {
-		$resultArray[$counter] = array($row['pollID'], $row['pollTitle'], $row['timeStamp'], $row['voters']);
+		$resultArray[$counter] = [$row['pollID'], $row['pollTitle'], $row['timeStamp'], $row['voters']];
 		$counter++;
 	}
 	for ($count = 0; $count < count($resultArray); $count++) {
@@ -223,7 +243,7 @@ function pollList() {
 		for($i = 0; $i < 12; $i++) {
 			$result2 = $db->sql_query("SELECT optionCount FROM ".$prefix."_poll_data WHERE pollID='$id' AND voteID='$i'");
 			$row2 = $db->sql_fetchrow($result2);
-			$optionCount = $row2['optionCount'];
+			$optionCount = $row2['optionCount'] ?? 0;
 			$sum = (int)$sum+$optionCount;
 		}
 		echo "<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=$module_name&amp;pollID=$id\">$pollTitle</a> ";
@@ -245,7 +265,7 @@ function pollList() {
 	$counter = 0;
 	$result3 = $db->sql_query("SELECT pollID, pollTitle, timeStamp, voters FROM ".$prefix."_poll_desc $querylang ORDER BY timeStamp DESC");
 	while($row3 = $db->sql_fetchrow($result3)) {
-		$resultArray2[$counter] = array($row3['pollID'], $row3['pollTitle'], $row3['timeStamp'], $row3['voters']);
+		$resultArray2[$counter] = [$row3['pollID'], $row3['pollTitle'], $row3['timeStamp'], $row3['voters']];
 		$counter++;
 	}
 	if ($counter > 0) {
@@ -272,7 +292,9 @@ function pollList() {
 			$editing = "";
 		}
 		$res = $db->sql_query("select sid, title from ".$prefix."_stories where pollID='$id'");
-		list($sid, $title) = $db->sql_fetchrow($res);
+		//list($sid, $title) = $db->sql_fetchrow($res);
+		[$sid, $title] = $db->sql_fetchrow($res);
+
 		$sid = intval($sid);
 		$title = filter($title, "nohtml");
 		echo "(<a href=\"modules.php?name=$module_name&amp;op=results&amp;pollID=$id$r_options\">"._RESULTS."</a> - $sum "._LVOTES."$editing)<br>\n"
