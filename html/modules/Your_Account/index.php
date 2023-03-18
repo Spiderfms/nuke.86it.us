@@ -29,6 +29,7 @@
 
 /* Applied Fixes:
  * Field 'bio' doesn't have a default value - Added default Value to database!
+ * Field 'ublock' doesn't have a default value - Added default Value to database!
  */
 
 if (!defined('MODULE_FILE')) {
@@ -39,7 +40,11 @@ require_once("mainfile.php");
 $module_name = basename(__DIR__);
 get_lang($module_name);
 $userpage = 1;
-if(isset($_GET['redirect'])) $redirect = substr((string) $_SERVER['QUERY_STRING'], strpos((string) $_SERVER['QUERY_STRING'], "redirect=") + strlen("redirect="), strlen((string) $_SERVER['QUERY_STRING']));
+
+if(isset($_GET['redirect'])) {
+  $redirect = substr((string) $_SERVER['QUERY_STRING'], strpos((string) $_SERVER['QUERY_STRING'], "redirect=") + strlen("redirect="), strlen((string) $_SERVER['QUERY_STRING']));
+}
+
 if (isset($username) && (preg_match('#[^a-zA-Z0-9_\-]#m',(string) $username))) {
     die("Illegal username...");
 }
@@ -49,67 +54,118 @@ if(is_user()) {
 }
 
 function userCheck($username, $user_email) {
+	
 	$username = filter($username, "nohtml", 1);
 	$user_email = filter($user_email, "nohtml", 1);
+	
 	global $stop, $user_prefix, $db;
-	if ((!$user_email) || (empty($user_email)) || (!preg_match('#^[_\\\\\.0-9a-z\-]+@([0-9a-z][0-9a-z\-]+\.)+[a-z]{2,6}$#mi',(string) $user_email))) $stop = "<center>"._ERRORINVEMAIL."</center><br>";
-	if (strrpos((string) $user_email,' ') > 0) $stop = "<center>"._ERROREMAILSPACES."</center>";
-	if ((!$username) || (empty($username)) || (preg_match('#[^a-zA-Z0-9_\-]#m',(string) $username))) $stop = "<center>"._ERRORINVNICK."</center><br>";
-	if (strlen((string) $username) > 25) $stop = "<center>"._NICK2LONG."</center>";
-	if (preg_match('#^((root)|(adm)|(linux)|(webmaster)|(admin)|(god)|(administrator)|(administrador)|(nobody)|(anonymous)|(anonimo)|(anónimo)|(operator)|(JackFromWales4u2))$#mi',(string) $username)) $stop = "<center>"._NAMERESERVED."</center>";
-	if (strrpos((string) $username,' ') > 0) $stop = "<center>"._NICKNOSPACES."</center>";
-	if ($db->sql_numrows($db->sql_query("SELECT username FROM ".$user_prefix."_users WHERE username='$username'")) > 0) $stop = "<center>"._NICKTAKEN."</center><br>";
-	if ($db->sql_numrows($db->sql_query("SELECT username FROM ".$user_prefix."_users_temp WHERE username='$username'")) > 0) $stop = "<center>"._NICKTAKEN."</center><br>";
-	if ($db->sql_numrows($db->sql_query("SELECT user_email FROM ".$user_prefix."_users WHERE user_email='$user_email'")) > 0) $stop = "<center>"._EMAILREGISTERED."</center><br>";
-	if ($db->sql_numrows($db->sql_query("SELECT user_email FROM ".$user_prefix."_users_temp WHERE user_email='$user_email'")) > 0) $stop = "<center>"._EMAILREGISTERED."</center><br>";
+	
+	if ((!$user_email) || (empty($user_email)) || (!preg_match('#^[_\\\\\.0-9a-z\-]+@([0-9a-z][0-9a-z\-]+\.)+[a-z]{2,6}$#mi',(string) $user_email))) {
+	  $stop = "<center>"._ERRORINVEMAIL."</center><br>";
+	}
+	
+	if (strrpos((string) $user_email,' ') > 0) {
+	  $stop = "<center>"._ERROREMAILSPACES."</center>";
+	}
+	
+	if ((!$username) || (empty($username)) || (preg_match('#[^a-zA-Z0-9_\-]#m',(string) $username))) {
+	  $stop = "<center>"._ERRORINVNICK."</center><br>";
+	}
+	
+	if (strlen((string) $username) > 25) {
+	$stop = "<center>"._NICK2LONG."</center>";
+	}
+	
+	if (preg_match('#^((root)|(adm)|(linux)|(webmaster)|(admin)|(god)|(administrator)|(administrador)|(nobody)|(anonymous)|(anonimo)|(anónimo)|(operator)|(JackFromWales4u2))$#mi',(string) $username)) {
+	  $stop = "<center>"._NAMERESERVED."</center>";
+	}
+	
+	if (strrpos((string) $username,' ') > 0) {
+	  $stop = "<center>"._NICKNOSPACES."</center>";
+	}
+	
+	if ($db->sql_numrows($db->sql_query("SELECT username FROM ".$user_prefix."_users WHERE username='$username'")) > 0) {
+	  $stop = "<center>"._NICKTAKEN."</center><br>";
+	}
+	
+	if ($db->sql_numrows($db->sql_query("SELECT username FROM ".$user_prefix."_users_temp WHERE username='$username'")) > 0) {
+	  $stop = "<center>"._NICKTAKEN."</center><br>";
+	}
+	
+	if ($db->sql_numrows($db->sql_query("SELECT user_email FROM ".$user_prefix."_users WHERE user_email='$user_email'")) > 0) {
+	  $stop = "<center>"._EMAILREGISTERED."</center><br>";
+	}
+	
+	if ($db->sql_numrows($db->sql_query("SELECT user_email FROM ".$user_prefix."_users_temp WHERE user_email='$user_email'")) > 0) {
+	  $stop = "<center>"._EMAILREGISTERED."</center><br>";
+	}
+	
 	return $stop;
 }
 
 function confirmNewUser($username, $user_email, $user_password, $user_password2, $random_num, $gfx_check) {
-	$sitekey = null;
+ 
+ $sitekey = null;
  $gfx_chk = null;
+ 
  global $stop, $EditedMessage, $sitename, $module_name, $minpass;
+
 	include("header.php");
 	include("config.php");
+
 	$username = substr(htmlspecialchars(str_replace("\'", "'", trim((string) $username))), 0, 25);
 	$username = rtrim($username, "\\");	
 	$username = str_replace("'", "\'", $username);
 	$user_email = filter($user_email, "nohtml");
 	$user_viewemail = "0";
+
 	userCheck($username, $user_email);
+
 	$user_email = validate_mail($user_email);
 	$user_password = htmlspecialchars(stripslashes((string) $user_password));
 	$user_password2 = htmlspecialchars(stripslashes((string) $user_password2));
+
 	if (!$stop) {
+		
 		$datekey = date("F j");
 		$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $_POST['random_num'] ?? '' . $datekey));
 		$code = substr($rcode, 2, 6);
+
 		if (extension_loaded("gd") AND $code != $gfx_check AND ($gfx_chk == 3 OR $gfx_chk == 4 OR $gfx_chk == 6 OR $gfx_chk == 7)) {
+			
 			title(""._NEWUSERERROR."");
 			OpenTable();
 			echo "<center><b>"._SECCODEINCOR."</b><br><br>"
 			.""._GOBACK."</center>";
 			CloseTable();
+			
 			include("footer.php");
 			die();
 		}
+
 		if (empty($user_password) AND empty($user_password2)) {
 			$user_password = makepass();
 		} elseif ($user_password != $user_password2) {
+			
 			title(""._NEWUSERERROR."");
 			OpenTable();
 			echo "<center><b>"._PASSDIFFERENT."</b><br><br>"._GOBACK."</center>";
 			CloseTable();
+			
 			include("footer.php");
 			die();
+			
 		} elseif ($user_password == $user_password2 AND strlen($user_password) < $minpass) {
+			
 			title(""._NEWUSERERROR."");
 			OpenTable();
 			echo "<center>"._YOUPASSMUSTBE." <b>$minpass</b> "._CHARLONG."<br><br>"._GOBACK."</center>";
 			CloseTable();
+			
 			include("footer.php");
 			die();
 		}
+		
 		title("$sitename: "._USERREGLOGIN."");
 		OpenTable();
 		echo "<center><b>"._USERFINALSTEP."</b><br><br>$username, "._USERCHECKDATA."</center><br><br>"
@@ -126,33 +182,43 @@ function confirmNewUser($username, $user_email, $user_password, $user_password2,
 		."<input type=\"hidden\" name=\"op\" value=\"finish\"><br><br>"
 		."<input type=\"submit\" value=\""._FINISH."\"> &nbsp;&nbsp;"._GOBACK."</form></center>";
 		CloseTable();
+		
 	} else {
+		
 		OpenTable();
 		echo "<center><font class=\"title\"><b>Registration Error!</b></font><br><br>";
 		echo "<font class=\"content\">$stop<br>"._GOBACK."</font></center>";
 		CloseTable();
 	}
+	
 	include("footer.php");
 }
 
 function finishNewUser($username, $user_email, $user_password, $random_num, $gfx_check) {
-	$sitekey = null;
+ $sitekey = null;
  $gfx_chk = null;
+ 
  global $stop, $EditedMessage, $adminmail, $sitename, $Default_Theme, $user_prefix, $db, $storyhome, $module_name, $nukeurl;
+
 	include("header.php");
 	include("config.php");
+
 	userCheck($username, $user_email);
+
 	$user_email = validate_mail($user_email);
 	$user_regdate = date("M d, Y");
 	$user_password = htmlspecialchars(stripslashes((string) $user_password));
+
 	if (!isset($stop)) {
 		$datekey = date("F j");
 		$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $random_num . $datekey));
 		$code = substr($rcode, 2, 6);
+
 		if (extension_loaded("gd") AND $code != $gfx_check AND ($gfx_chk == 3 OR $gfx_chk == 4 OR $gfx_chk == 6 OR $gfx_chk == 7)) {
 			Header("Location: modules.php?name=$module_name");
 			die();
 		}
+
 		mt_srand ((double)microtime()*1_000_000);
 		$maxran = 1_000_000;
 		$check_num = random_int(0, $maxran);
@@ -165,14 +231,36 @@ function finishNewUser($username, $user_email, $user_password, $random_num, $gfx
 		$username = rtrim($username, "\\");	
 		$username = str_replace("'", "\'", $username);
 		$user_email = filter($user_email, "nohtml", 1);
-		$result = $db->sql_query("INSERT INTO ".$user_prefix."_users_temp (user_id, username, user_email, user_password, user_regdate, check_num, time) VALUES (NULL, '$username', '$user_email', '$new_password', '$user_regdate', '$check_num', '$time')");
+
+		$result = $db->sql_query("INSERT INTO ".$user_prefix."_users_temp (user_id, 
+		                                                                  username, 
+																		user_email, 
+																	 user_password, 
+																	  user_regdate, 
+																	     check_num, 
+																		      time) 
+		
+		VALUES (NULL, 
+		 '$username', 
+	   '$user_email', 
+	 '$new_password', 
+	 '$user_regdate', 
+	    '$check_num', 
+		     '$time')");
+		
 		if(!$result) {
 			echo ""._ERROR."<br>";
 		} else {
-			$message = ""._WELCOMETO." $sitename!\n\n"._YOUUSEDEMAIL." ($user_email) "._TOREGISTER." $sitename.\n\n "._TOFINISHUSER."\n\n $finishlink\n\n "._FOLLOWINGMEM."\n\n"._UNICKNAME." $username\n"._UPASSWORD." $user_password";
+			$message = ""._WELCOMETO." $sitename!\n\n"._YOUUSEDEMAIL." ($user_email) "
+			                                          ._TOREGISTER." $sitename.\n\n "
+													  ._TOFINISHUSER."\n\n $finishlink\n\n "
+													  ._FOLLOWINGMEM."\n\n"
+													  ._UNICKNAME." $username\n"
+													  ._UPASSWORD." $user_password";
 			$subject = ""._ACTIVATIONSUB."";
 			$from = "$adminmail";
 			mail((string) $user_email, $subject, $message, "From: $from\nX-Mailer: PHP/" . phpversion());
+			
 			title("$sitename: "._USERREGLOGIN."");
 			OpenTable();
 			echo "<center><b>"._ACCOUNTCREATED."</b><br><br>";
@@ -185,21 +273,27 @@ function finishNewUser($username, $user_email, $user_password, $random_num, $gfx
 	} else {
 		echo "$stop";
 	}
+	
 	include("footer.php");
 }
 
 function activate($username, $check_num) {
+	
 	global $db, $user_prefix, $module_name, $language, $prefix;
+	
 	$username = substr(htmlspecialchars(str_replace("\'", "'", trim((string) $username))), 0, 25);
 	$username = rtrim($username, "\\");	
 	$username = str_replace("'", "\'", $username);
 	$past = time()-86400;
+	
 	$db->sql_query("DELETE FROM ".$user_prefix."_users_temp WHERE time < $past");
 	$sql = "SELECT * FROM ".$user_prefix."_users_temp WHERE username='$username' AND check_num='$check_num'";
 	$result = $db->sql_query($sql);
+	
 	if ($db->sql_numrows($result) == 1) {
 		$row = $db->sql_fetchrow($result);
 		$user_password = htmlspecialchars(stripslashes((string) $row['user_password']));
+		
 		if ($check_num == $row['check_num']) {
 			$db->sql_query("INSERT INTO ".$user_prefix."_users (user_id, 
 			                                                   username, 
@@ -219,28 +313,38 @@ function activate($username, $check_num) {
                         $group_id = $db->sql_nextid();
                         $db->sql_query("INSERT INTO ".$prefix."_bbuser_group (user_id, group_id, user_pending) VALUES ('$guserid', '$group_id', '0')");
 			$db->sql_query("DELETE FROM ".$user_prefix."_users_temp WHERE username='$username' AND check_num='$check_num'");
+		
 			include("header.php");
+		
 			title(""._ACTIVATIONYES."");
 			OpenTable();
 			echo "<center><b>".$row['username'].":</b> "._ACTMSG."</center>";
 			CloseTable();
+		
 			include("footer.php");
 			die();
+			
 		} else {
+		
 			include("header.php");
+		
 			title(""._ACTIVATIONERROR."");
 			OpenTable();
 			echo "<center>"._ACTERROR1."</center>";
 			CloseTable();
+		
 			include("footer.php");
 			die();
 		}
 	} else {
+		
 		include("header.php");
+		
 		title(""._ACTIVATIONERROR."");
 		OpenTable();
 		echo "<center>"._ACTERROR2."</center>";
 		CloseTable();
+		
 		include("footer.php");
 		die();
 	}
@@ -248,53 +352,72 @@ function activate($username, $check_num) {
 }
 
 function userinfo($username, $bypass=0, $hid=0, $url=0) {
- $board_config = [];
- $rest = null;
- $content = null;
- $karma = null;
- $karma_help = null;
- $change_karma = null;
- $cont = null;
- global $articlecomm, $user, $cookie, $sitename, $prefix, $user_prefix, $db, $admin, $broadcast_msg, $my_headlines, $module_name, $subscription_url, $admin_file;
+
+    $board_config = [];
+    $rest = null;
+    $content = null;
+    $karma = null;
+    $karma_help = null;
+    $change_karma = null;
+    $cont = null;
+
+    global $articlecomm, $user, $cookie, $sitename, $prefix, $user_prefix, $db, $admin, $broadcast_msg, $my_headlines, $module_name, $subscription_url, $admin_file;
+
 	$username = substr(htmlspecialchars(str_replace("\'", "'", trim((string) $username))), 0, 25);
 	$username = rtrim($username, "\\");	
 	$username = str_replace("'", "\'", $username);
 	$sql = "SELECT * FROM ".$prefix."_bbconfig";
 	$result = $db->sql_query($sql);
+	
 	while ( $row = $db->sql_fetchrow($result) )
 	{
 		$board_config[$row['config_name']] = $row['config_value'];
 	}
+	
 	$sql2 = "SELECT * FROM ".$user_prefix."_users WHERE username='$username'";
 	$result2 = $db->sql_query($sql2);
 	$num = $db->sql_numrows($result2);
+	
 	if ($num != 1) {
 		Header("Location: modules.php?name=$module_name");
 		die();
 	}
+	
 	$userinfo = $db->sql_fetchrow($result2);
-	if(!$bypass) cookiedecode($user);
+	
+	if(!$bypass) {
+	  cookiedecode($user);
+	}
+	
 	include("header.php");
+	
 	OpenTable();
 	echo "<center>";
-	if ($username != '') // SecurityReason.com Fix 2005 [sp3x] 
-	if((isset($cookie[1])) AND (strtolower($username) == strtolower((string) $cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
-		echo "<font class=\"option\">".htmlentities($username).", "._WELCOMETO." $sitename!</font><br><br>";
-		echo "<font class=\"content\">"._THISISYOURPAGE."</font></center><br><br>";
-		nav(1);
-		echo "<br><br>";
-	} else {
-		echo "<font class=\"title\">"._PERSONALINFO.": ".htmlentities($username)."</font></center><br><br>";
-	}
-		else Header("Location: modules.php?name=$module_name");
+	
+	if ($username != '') { // SecurityReason.com Fix 2005 [sp3x] 
+	   
+	   if((isset($cookie[1])) AND (strtolower($username) == strtolower((string) $cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+		   echo "<font class=\"option\">".htmlentities($username).", "._WELCOMETO." $sitename!</font><br><br>";
+		   echo "<font class=\"content\">"._THISISYOURPAGE."</font></center><br><br>";
+		   nav(1);
+		   echo "<br><br>";
+	   } else {
+		   echo "<font class=\"title\">"._PERSONALINFO.": ".htmlentities($username)."</font></center><br><br>";
+	   }
+	   
+	} else { Header("Location: modules.php?name=$module_name"); }
+    
 	if ($userinfo['user_website']) {
-	if (!preg_match('#^http[s]?:\/\/#i', (string) $userinfo['user_website'])) {
+	
+	  if (!preg_match('#^http[s]?:\/\/#i', (string) $userinfo['user_website'])) {
 	    $userinfo['user_website'] = "http://" . $userinfo['user_website'];
-	}
-	if (!preg_match('#^http[s]?\\:\\/\\/[a-z0-9\-]+\.([a-z0-9\-]+\.)?[a-z]+#i', (string) $userinfo['user_website'])) {
+	  }
+	
+	  if (!preg_match('#^http[s]?\\:\\/\\/[a-z0-9\-]+\.([a-z0-9\-]+\.)?[a-z]+#i', (string) $userinfo['user_website'])) {
 	    $userinfo['user_website'] = '';
-	}
+	  }
     }
+	
 	if ($userinfo['user_avatar_type'] == 1) { 
 		$userinfo['user_avatar'] = $board_config['avatar_path']."/".$userinfo['user_avatar']; 
 	} elseif ($userinfo['user_avatar_type'] == 2) {
@@ -302,41 +425,87 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 	} else {
 		$userinfo['user_avatar'] = $board_config['avatar_gallery_path']."/".$userinfo['user_avatar'];
 	}
-	if(($num == 1) && ($userinfo['user_website'] || $userinfo['femail'] || $userinfo['bio'] || $userinfo['user_avatar'] || $userinfo['user_icq'] || $userinfo['user_aim'] || $userinfo['user_yim'] || $userinfo['user_msnm'] || $userinfo['user_location'] || $userinfo['user_occ'] || $userinfo['user_interests'] || $userinfo['user_sig'])) {
+	
+	if(($num == 1) && ($userinfo['user_website'] || 
+	                         $userinfo['femail'] || 
+							    $userinfo['bio'] || 
+						$userinfo['user_avatar'] || 
+						   $userinfo['user_icq'] || 
+						   $userinfo['user_aim'] || 
+						   $userinfo['user_yim'] || 
+						  $userinfo['user_msnm'] || 
+					  $userinfo['user_location'] || 
+					       $userinfo['user_occ'] || 
+					 $userinfo['user_interests'] || 
+					       $userinfo['user_sig'])) {
+							   
 		echo "<center><font class=\"content\">";
 		echo "<img src=\"".$userinfo['user_avatar']."\"><br><br>\n";
-		if ($userinfo['user_website'] != "http://" AND !empty($userinfo['user_website'])) { echo ""._MYHOMEPAGE." <a href=\"".$userinfo['user_website']."\" target=\"new\">".$userinfo['user_website']."</a><br>\n"; }
-		if ($userinfo['femail']) { echo ""._MYEMAIL." <a href=\"mailto:".$userinfo['femail']."\">".$userinfo['femail']."</a><br>\n"; }
-		if ($userinfo['user_icq'] && preg_match('/^[0-9]+$/', (string) $userinfo['user_icq'])) echo ""._ICQ.": ".$userinfo['user_icq']."<br>\n";
-		if ($userinfo['user_aim']) echo ""._AIM.": ".$userinfo['user_aim']."<br>\n";
-		if ($userinfo['user_yim']) echo ""._YIM.": ".$userinfo['user_yim']."<br>\n";
-		if ($userinfo['user_msnm']) echo ""._MSNM.": ".$userinfo['user_msnm']."<br>\n";
-		if ($userinfo['user_from']) echo ""._LOCATION.": ".$userinfo['user_from']."<br>\n";
-		if ($userinfo['user_occ']) echo ""._OCCUPATION.": ".$userinfo['user_occ']."<br>\n";
-		if ($userinfo['user_interests']) echo ""._INTERESTS.": ".$userinfo['user_interests']."<br>\n";
+		
+		if ($userinfo['user_website'] != "http://" AND !empty($userinfo['user_website'])) { 
+		  echo ""._MYHOMEPAGE." <a href=\"".$userinfo['user_website']."\" target=\"new\">".$userinfo['user_website']."</a><br>\n"; 
+		}
+	
+		if ($userinfo['femail']) { 
+		  echo ""._MYEMAIL." <a href=\"mailto:".$userinfo['femail']."\">".$userinfo['femail']."</a><br>\n"; 
+		}
+	
+		if ($userinfo['user_icq'] && preg_match('/^[0-9]+$/', (string) $userinfo['user_icq'])) {
+		  echo ""._ICQ.": ".$userinfo['user_icq']."<br>\n";
+		}
+	
+		if ($userinfo['user_aim']) {
+		  echo ""._AIM.": ".$userinfo['user_aim']."<br>\n";
+		}
+		if ($userinfo['user_yim']) {
+		  echo ""._YIM.": ".$userinfo['user_yim']."<br>\n";
+		}
+		if ($userinfo['user_msnm']) {
+		  echo ""._MSNM.": ".$userinfo['user_msnm']."<br>\n";
+		}
+		if ($userinfo['user_from']) {
+		  echo ""._LOCATION.": ".$userinfo['user_from']."<br>\n";
+		}
+		if ($userinfo['user_occ']) {
+		  echo ""._OCCUPATION.": ".$userinfo['user_occ']."<br>\n";
+		}
+		if ($userinfo['user_interests']) { 
+		  echo ""._INTERESTS.": ".$userinfo['user_interests']."<br>\n";
+		}
+		
 		$userinfo['user_sig'] = nl2br((string) $userinfo['user_sig']);
-		if ($userinfo['user_sig']) echo "<br><b>"._SIGNATURE.":</b><br>".$userinfo['user_sig']."<br>\n";
-		if ($userinfo['bio']) { echo "<br><b>"._EXTRAINFO.":</b><br>".$userinfo['bio']."<br>\n"; }
+		
+		if ($userinfo['user_sig']) {
+		  echo "<br><b>"._SIGNATURE.":</b><br>".$userinfo['user_sig']."<br>\n";
+		}
+		if ($userinfo['bio']) { 
+		  echo "<br><b>"._EXTRAINFO.":</b><br>".$userinfo['bio']."<br>\n"; 
+		}
+		
 		$sql2 = "SELECT uname FROM ".$prefix."_session WHERE uname='$username'";
 		$result2 = $db->sql_query($sql2);
 		$row2 = $db->sql_fetchrow($result2);
 		$username_pm = $username;
 		$username_online = $row2['uname'];
+		
 		if (empty($username_online)) {
 			$online = _OFFLINE;
 		} else {
 			$online = _ONLINE;
 		}
 		echo "<br><br>"._USERSTATUS.": <b>$online</b><br>\n";
+		
 		if (($userinfo['newsletter'] == 1) AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2]) OR (is_admin() AND ($userinfo['newsletter'] == 1))) {
 			echo "<i>"._SUBSCRIBED."</i><br>";
 		} elseif ((isset($cookie[1])) AND ($userinfo['newsletter'] == 0) AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2]) OR (is_admin() AND ($userinfo['newsletter'] == 0))) {
 			echo "<i>"._NOTSUBSCRIBED."</i><br>";
 		}
+		
 		if (is_user() AND $cookie[1] == "$username" OR is_admin()) {
 			$numpoints = $db->sql_fetchrow($db->sql_query("SELECT points FROM ".$user_prefix."_users WHERE user_id = '".intval($cookie[0])."'"));
 			$n_points = intval($numpoints['points']);
 			echo ""._YOUHAVEPOINTS." <b>$n_points</b><br>";
+		
 			if (paid()) {
 				$row = $db->sql_fetchrow($db->sql_query("SELECT * FROM ".$prefix."_subscriptions WHERE userid='".intval($cookie[0])."'"));
 				if (!empty($subscription_url)) {
@@ -347,6 +516,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				$diff = $row['subscription_expire']-time();
 				$yearDiff = floor($diff/60/60/24/365);
 				$diff -= $yearDiff*60*60*24*365;
+		
 				if ($yearDiff < 1) {
 					$diff = $row['subscription_expire']-time();
 				}
@@ -357,6 +527,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				$minsDiff = floor($diff/60);
 				$diff -= $minsDiff*60;
 				$secsDiff = $diff;
+		
 				if ($yearDiff < 1) {
 					$rest = "$daysDiff "._SBDAYS.", $hrsDiff "._SBHOURS.", $minsDiff "._SBMINUTES.", $secsDiff "._SBSECONDS."";
 				} elseif ($yearDiff == 1) {
@@ -365,25 +536,32 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 					$rest = "$yearDiff "._SBYEARS.", $daysDiff "._SBDAYS.", $hrsDiff "._SBHOURS.", $minsDiff "._SBMINUTES.", $secsDiff "._SBSECONDS."";
 				}
 				$content .= "<b>"._SUBEXPIREIN."<br><font color='#FF0000'>$rest</font></b></center>";
+				
 			} else {
+		
 				if (!empty($subscription_url)) {
 					$content .= "<br><center>"._NOTSUB." $sitename. "._SUBFROM." <a href='$subscription_url'>"._HERE."</a> "._NOW."";
 				} else {
 					$content .= "<br><center>"._NOTSUB." $sitename.";
 				}
+				
 			}
 			echo "$content<br><br>";
+		
 			if (is_admin()) {
 				$subnum = $db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_subscriptions WHERE userid='".intval($userinfo['user_id'])."'"));
+		
 				if ($subnum != 0) {
 					echo "<center><b>"._ADMSUB."</b></center><br>";
 					$row = $db->sql_fetchrow($db->sql_query("SELECT * FROM ".$prefix."_subscriptions WHERE userid='".intval($userinfo['user_id'])."'"));
 					$diff = $row['subscription_expire']-time();
 					$yearDiff = floor($diff/60/60/24/365);
 					$diff -= $yearDiff*60*60*24*365;
+		
 					if ($yearDiff < 1) {
 						$diff = $row['subscription_expire']-time();
 					}
+		
 					$daysDiff = floor($diff/60/60/24);
 					$diff -= $daysDiff*60*60*24;
 					$hrsDiff = floor($diff/60/60);
@@ -391,6 +569,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 					$minsDiff = floor($diff/60);
 					$diff -= $minsDiff*60;
 					$secsDiff = $diff;
+		
 					if ($yearDiff < 1) {
 						$rest = "$daysDiff "._SBDAYS.", $hrsDiff "._SBHOURS.", $minsDiff "._SBMINUTES.", $secsDiff "._SBSECONDS."";
 					} elseif ($yearDiff == 1) {
@@ -398,18 +577,22 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 					} elseif ($yearDiff > 1) {
 						$rest = "$yearDiff "._SBYEARS.", $daysDiff "._SBDAYS.", $hrsDiff "._SBHOURS.", $minsDiff "._SBMINUTES.", $secsDiff "._SBSECONDS."";
 					}
+	
 					$content = "<b>"._ADMSUBEXPIREIN."<br><font color='#FF0000'>$rest</font></b><br><br>";
 					echo "$content";
+	
 				} else {
 					echo "<center><b>"._ADMNOTSUB."</b><br><br>";
 			}
+		 }
 		}
-		}
+		
 		if (is_active("Journal") AND $cookie[1] != $username) {
 			$sql3 = "SELECT jid FROM ".$prefix."_journal WHERE aid='$username' AND status='yes' ORDER BY pdate,jid DESC LIMIT 0,1";
 			$result3 = $db->sql_query($sql3);
 			$row3 = $db->sql_fetchrow($result3);
 			$jid = intval($row3['jid']);
+			
 			if (!empty($jid) AND isset($jid)) {
 				echo "[ <a href=\"modules.php?name=Journal&amp;file=search&amp;bywhat=aid&amp;forwhat=$username\">"._READMYJOURNAL."</a> ]<br>";
 			}
@@ -417,58 +600,105 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 		if (is_admin()) {
 			echo "<br>";
 			OpenTable2();
+			
 			if ($userinfo['last_ip'] != 0) {
 				echo "<center><font class=\"title\">"._ADMINFUNCTIONS."</font><br><br>"._LASTIP." <b>".$userinfo['last_ip']."</b><br><br>";
 				echo "[ <a href='".$admin_file.".php?op=ipban&ip=".$userinfo['last_ip']."'>"._BANTHIS."</a> | <a href=\"".$admin_file.".php?op=modifyUser&chng_uid=".$userinfo['username']."\">"._EDITUSER."</a> ]</center>";
 			} else {
 				echo "<center>[ <a href=\"".$admin_file.".php?op=modifyUser&chng_uid=".$userinfo['username']."\">"._EDITUSER."</a> ]</center>";
 			}
+			
 			if ($userinfo['karma'] == 0) { 
+				
 				$karma = _KARMAGOOD;
 				$karma_help = _KARMAGOODHLP;
-				$change_karma = "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=1\"><img src=\"images/karma/1.gif\" border=\"0\" alt=\""._KARMALOW."\" title=\""._KARMALOW."\" hspace=\"5\"></a>";
-				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=2\"><img src=\"images/karma/2.gif\" border=\"0\" alt=\""._KARMABAD."\" title=\""._KARMABAD."\" hspace=\"5\"></a>";
-				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=3\"><img src=\"images/karma/3.gif\" border=\"0\" alt=\""._KARMADEVIL."\" title=\""._KARMADEVIL."\" hspace=\"5\"></a>";
+				
+				$change_karma = "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=1\"><img 
+				src=\"images/karma/1.gif\" border=\"0\" alt=\""._KARMALOW."\" title=\""._KARMALOW."\" hspace=\"5\"></a>";
+				
+				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=2\"><img 
+				src=\"images/karma/2.gif\" border=\"0\" alt=\""._KARMABAD."\" title=\""._KARMABAD."\" hspace=\"5\"></a>";
+				
+				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=3\"><img 
+				src=\"images/karma/3.gif\" border=\"0\" alt=\""._KARMADEVIL."\" title=\""._KARMADEVIL."\" hspace=\"5\"></a>";
+				
 			} elseif ($userinfo['karma'] == 1) {
+				
 				$karma = _KARMALOW;
 				$karma_help = _KARMALOWHLP;
-				$change_karma = "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=0\"><img src=\"images/karma/0.gif\" border=\"0\" alt=\""._KARMAGOOD."\" title=\""._KARMAGOOD."\" hspace=\"5\"></a>";
-				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=2\"><img src=\"images/karma/2.gif\" border=\"0\" alt=\""._KARMABAD."\" title=\""._KARMABAD."\" hspace=\"5\"></a>";
-				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=3\"><img src=\"images/karma/3.gif\" border=\"0\" alt=\""._KARMADEVIL."\" title=\""._KARMADEVIL."\" hspace=\"5\"></a>";
+				
+				$change_karma = "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=0\"><img 
+				src=\"images/karma/0.gif\" border=\"0\" alt=\""._KARMAGOOD."\" title=\""._KARMAGOOD."\" hspace=\"5\"></a>";
+				
+				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=2\"><img 
+				src=\"images/karma/2.gif\" border=\"0\" alt=\""._KARMABAD."\" title=\""._KARMABAD."\" hspace=\"5\"></a>";
+				
+				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=3\"><img 
+				src=\"images/karma/3.gif\" border=\"0\" alt=\""._KARMADEVIL."\" title=\""._KARMADEVIL."\" hspace=\"5\"></a>";
+				
 			} elseif ($userinfo['karma'] == 2) {
+				
 				$karma = _KARMABAD;
 				$karma_help = _KARMABADHLP;
-				$change_karma = "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=0\"><img src=\"images/karma/0.gif\" border=\"0\" alt=\""._KARMAGOOD."\" title=\""._KARMAGOOD."\" hspace=\"5\"></a>";
-				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=1\"><img src=\"images/karma/1.gif\" border=\"0\" alt=\""._KARMALOW."\" title=\""._KARMALOW."\" hspace=\"5\"></a>";
-				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=3\"><img src=\"images/karma/3.gif\" border=\"0\" alt=\""._KARMADEVIL."\" title=\""._KARMADEVIL."\" hspace=\"5\"></a>";
+				
+				$change_karma = "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=0\"><img 
+				src=\"images/karma/0.gif\" border=\"0\" alt=\""._KARMAGOOD."\" title=\""._KARMAGOOD."\" hspace=\"5\"></a>";
+				
+				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=1\"><img 
+				src=\"images/karma/1.gif\" border=\"0\" alt=\""._KARMALOW."\" title=\""._KARMALOW."\" hspace=\"5\"></a>";
+				
+				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=3\"><img 
+				src=\"images/karma/3.gif\" border=\"0\" alt=\""._KARMADEVIL."\" title=\""._KARMADEVIL."\" hspace=\"5\"></a>";
+				
 			} elseif ($userinfo['karma'] == 3) {
+				
 				$karma = _KARMADEVIL;
 				$karma_help = _KARMADEVILHLP;
-				$change_karma = "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=0\"><img src=\"images/karma/0.gif\" border=\"0\" alt=\""._KARMAGOOD."\" title=\""._KARMAGOOD."\" hspace=\"5\"></a>";
-				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=1\"><img src=\"images/karma/1.gif\" border=\"0\" alt=\""._KARMALOW."\" title=\""._KARMALOW."\" hspace=\"5\"></a>";
-				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=2\"><img src=\"images/karma/2.gif\" border=\"0\" alt=\""._KARMABAD."\" title=\""._KARMABAD."\" hspace=\"5\"></a>";
+				
+				$change_karma = "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=0\"><img 
+				src=\"images/karma/0.gif\" border=\"0\" alt=\""._KARMAGOOD."\" title=\""._KARMAGOOD."\" hspace=\"5\"></a>";
+				
+				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=1\"><img 
+				src=\"images/karma/1.gif\" border=\"0\" alt=\""._KARMALOW."\" title=\""._KARMALOW."\" hspace=\"5\"></a>";
+				
+				$change_karma .= "<a href=\"modules.php?name=$module_name&op=change_karma&user_id=".$userinfo['user_id']."&karma=2\"><img 
+				src=\"images/karma/2.gif\" border=\"0\" alt=\""._KARMABAD."\" title=\""._KARMABAD."\" hspace=\"5\"></a>";
+				
 			}
+			
 			echo "<center><br><br>"._USERKARMA." <img src=\"images/karma/".$userinfo['karma'].".gif\" border=\"0\" alt=\"$karma\" title=\"$karma\"> ($karma)<br>($karma_help)</center><br><br>";
+	
 			OpenTable2();
 			echo "<center><b>"._CHANGEKARMA." <i>".$userinfo['username']."</i></b><br><br>";
 			echo "$change_karma</center>";
 			CloseTable2();
+	
 			echo "<br>";
+			
 			echo "<table border=\"0\" width=\"80%\" cellpadding=\"3\" cellspacing=\"3\" align=\"center\">";
 			echo "<tr><td valign=\"middle\"><img src=\"images/karma/0.gif\" border=\"0\" alt=\""._KARMAGOOD."\" title=\""._KARMAGOOD."\"></td><td>"._KARMAGOODREF."</td></tr>";
 			echo "<tr><td valign=\"middle\"><img src=\"images/karma/1.gif\" border=\"0\" alt=\""._KARMALOW."\" title=\""._KARMALOW."\"></td><td>"._KARMALOWREF."</td></tr>";
 			echo "<tr><td valign=\"middle\"><img src=\"images/karma/2.gif\" border=\"0\" alt=\""._KARMABAD."\" title=\""._KARMABAD."\"></td><td>"._KARMABADREF."</td></tr>";
 			echo "<tr><td valign=\"middle\"><img src=\"images/karma/3.gif\" border=\"0\" alt=\""._KARMADEVIL."\" title=\""._KARMADEVIL."\"></td><td>"._KARMADEVILREF."</td></tr></table>";
+			
 			CloseTable2();
 		}
-		if (((is_user() AND $cookie[1] != $username) OR is_admin()) AND is_active("Private_Messages")) { echo "<br>[ <a href=\"modules.php?name=Private_Messages&amp;mode=post&amp;u=".intval($userinfo['user_id'])."\">"._USENDPRIVATEMSG." $username_pm</a> ]<br>\n"; }
+		
+		if (((is_user() AND $cookie[1] != $username) OR is_admin()) AND is_active("Private_Messages")) 
+		{ 
+		  echo "<br>[ <a href=\"modules.php?name=Private_Messages&amp;mode=post&amp;u=".intval($userinfo['user_id'])."\">"._USENDPRIVATEMSG." $username_pm</a> ]<br>\n"; 
+		}
 		echo "</center></font>";
+		
 	} else {
 		echo "<center>"._NOINFOFOR." ".htmlentities($username)."</center>";
 	}
 	CloseTable();
+	
 	if ((isset($cookie[1])) AND $my_headlines == 1 AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2])) {
+	
 		echo "<br>";
+	
 		OpenTable();
 		echo "<center><b>"._MYHEADLINES."</b><br><br>"
 		.""._SELECTASITE."<br><br>"
@@ -479,11 +709,14 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 		."<input type=\"hidden\" name=\"url\" value=\"0\">"
 		."<select name=\"hid\" onChange='submit()'>\n"
 		."<option value=\"0\">"._SELECTASITE2."</option>";
+	
 		$sql4 = "SELECT hid, sitename FROM ".$prefix."_headlines ORDER BY sitename";
 		$headl = $db->sql_query($sql4);
+	
 		while($row4 = $db->sql_fetchrow($headl)) {
 			$nhid = intval($row4['hid']);
 			$hsitename = filter($row4['sitename'], "nohtml");
+	
 			if ($hid == $nhid ) {
 				$sel = "selected";
 			} else {
@@ -501,7 +734,9 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 		."<input type=\"text\" name=\"url\" size=\"40\" maxlength=\"200\" value=\"http://\">&nbsp;&nbsp;"
 		."<input type=\"submit\" value=\""._GO."\"></form>"
 		."</center><br>";
+	
 		if ($hid != 0 OR ($hid == 0 AND $url != "0" AND $url != "http://") AND !empty($url)) {
+	
 			if ($hid != 0) {
 				$sql5 = "SELECT sitename, headlinesurl FROM ".$prefix."_headlines WHERE hid='$hid'";
 				$result5 = $db->sql_query($sql5);
@@ -519,15 +754,19 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				$siteurl = explode("/", (string) $siteurl);
 				$title = "http://$siteurl[0]";
 			}
+	
 			$rdf = parse_url((string) $url);
 			$fp = fsockopen($rdf['host'], 80, $errno, $errstr, 15);
+	
 			if (!$fp) {
 				$content = "<center><font class=\"content\">"._RSSPROBLEM."</font></center>";
 			}
+	
 			if ($fp) {
 				fputs($fp, "GET " . $rdf['path'] . "?" . $rdf['query'] . " HTTP/1.0\r\n");
 				fputs($fp, "HOST: " . $rdf['host'] . "\r\n\r\n");
 				$string	= "";
+	
 				while(!feof($fp)) {
 					$pagetext = fgets($fp,300);
 					$string .= chop($pagetext);
@@ -536,6 +775,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				fclose($fp);
 				$items = explode("</item>",$string);
 				$content = "<font class=\"content\">";
+	
 				for ($i=0;$i<10;$i++) {
 					$link = preg_replace('#.*<link>#m',"",$items[$i]);
 					$link = preg_replace('#<\/link>.*#m',"",(string) $link);
@@ -543,9 +783,11 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 					$title2 = preg_replace('#.*<title>#m',"",$items[$i]);
 					$title2 = preg_replace('#<\/title>.*#m',"",(string) $title2);
 					$title2 = stripslashes((string) check_html($title2, "nohtml"));
+	
 					if (empty($items[$i]) AND $cont != 1) {
 						$content = "<center>"._RSSPROBLEM."</center>";
 					} else {
+	
 						if (strcmp($link,$title2) AND !empty($items[$i])) {
 							$cont = 1;
 							$content .= "<img src=\"images/arrow.gif\" border=\"0\" hspace=\"5\"><a href=\"$link\" target=\"new\">$title2</a><br>\n";
@@ -553,22 +795,30 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 					}
 				}
 			}
+	
 			if (!empty($content)) {
+	
 				OpenTable2();
 				echo "<center><b>"._HEADLINESFROM." <a href=\"http://$siteurl[0]\" target=\"new\">$title</a></b></center><br>";
 				echo "$content";
 				CloseTable2();
+	
 			} elseif (($cont == 0) OR (empty($content))) {
+	
 				OpenTable2();
 				echo "<center>"._RSSPROBLEM."</center><br>";
 				CloseTable2();
+	
 			}
+	
 			echo "<br>";
 		}
 		CloseTable();
 	}
 	if ((isset($cookie[1])) AND $broadcast_msg == 1 AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2])) {
+	
 		echo "<br>";
+	
 		OpenTable();
 		echo "<center><b>"._BROADCAST."</b><br><br>"._BROADCASTTEXT."<br><br>"
 		."<form action=\"modules.php?name=$module_name\" method=\"post\">"
@@ -579,20 +829,25 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 		CloseTable();
 	}
 	if ((isset($cookie[1])) AND is_active("Private_Messages") AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2])) {
+	
 		echo "<br>";
+	
 		OpenTable();
 		echo "<center><b>"._PRIVATEMESSAGES."</b><br><br>";
 		$numrow = $db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_bbprivmsgs WHERE privmsgs_to_userid='".intval($userinfo['user_id'])."' AND (privmsgs_type='1' OR privmsgs_type='5' OR privmsgs_type='0')"));
+	
 		if (is_active("Members_List")) {
 			$mem_list = "<a href=\"modules.php?name=Members_List\">"._BROWSEUSERS."</a>";
 		} else {
 			$mem_list = "";
 		}
+	
 		if (is_active("Search")) {
 			$mod_search = "<a href=\"modules.php?name=Search&amp;type=users\">"._SEARCHUSERS."</a>";
 		} else {
 			$mod_search = "";
 		}
+	
 		if (!empty($mem_list) AND !empty($mod_search)) { $a = " | "; } else { $a = ""; }
 		if (!empty($mem_list) OR !empty($mod_search)) {
 			$links = "[ $mem_list $a $mod_search ]";
@@ -607,12 +862,16 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 		."</form></center>";
 		CloseTable();
 	}
+	
 	if ($articlecomm == 1) {
+	
 		echo "<br>";
+	
 		OpenTable();
 		echo "<b>"._LAST10COMMENTS." ".$userinfo['username'].":</b><br>";
 		$sql6 = "SELECT tid, sid, subject FROM ".$prefix."_comments WHERE name='".$userinfo['username']."' ORDER BY tid DESC LIMIT 0,10";
 		$result6 = $db->sql_query($sql6);
+	
 		while($row6 = $db->sql_fetchrow($result6)) {
 			$tid = intval($row6['tid']);
 			$sid = intval($row6['sid']);
@@ -621,50 +880,67 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 		}
 		CloseTable();
 	}
+	
 	echo "<br>";
+	
 	OpenTable();
 	echo "<b>"._LAST10SUBMISSIONS." ".$userinfo['username'].":</b><br>";
 	$sql7 = "SELECT sid, title FROM ".$prefix."_stories WHERE informant='".$userinfo['username']."' ORDER BY sid DESC LIMIT 0,10";
 	$result7 = $db->sql_query($sql7);
+	
 	while($row7 = $db->sql_fetchrow($result7)) {
 		$sid = intval($row7['sid']);
 		$title = filter($row7['title'], "nohtml");
 		echo "<li><a href=\"modules.php?name=News&file=article&sid=$sid\">$title</a><br>";
 	}
 	CloseTable();
+	
 	include("footer.php");
 }
 
 function main($user) {
 	global $stop, $module_name, $redirect, $mode, $t, $f, $gfx_chk;
+	
 	if(!is_user()) {
+	
 		include("header.php");
+	
 		if ($stop) {
+	
 			OpenTable();
 			echo "<center><font class=\"title\"><b>"._LOGININCOR."</b></font></center>\n";
 			CloseTable();
+	
 			echo "<br>\n";
+	
 		} else {
+	
 			OpenTable();
 			echo "<center><font class=\"title\"><b>"._USERREGLOGIN."</b></font></center>\n";
 			CloseTable();
+	
 			echo "<br>\n";
 		}
+	
 		if (!is_user()) {
+	
 			OpenTable();
 			mt_srand ((double)microtime()*1_000_000);
 			$maxran = 1_000_000;
 			$random_num = random_int(0, $maxran);
+	
 			echo "<form action=\"modules.php?name=$module_name\" method=\"post\">\n"
 			."<b>"._USERLOGIN."</b><br><br>\n"
 			."<table border=\"0\"><tr><td>\n"
 			.""._NICKNAME.":</td><td><input type=\"text\" name=\"username\" size=\"15\" maxlength=\"25\"></td></tr>\n"
 			."<tr><td>"._PASSWORD.":</td><td><input type=\"password\" name=\"user_password\" size=\"15\" maxlength=\"20\"></td></tr>\n";
+	
 			if (extension_loaded("gd") AND ($gfx_chk == 2 OR $gfx_chk == 4 OR $gfx_chk == 5 OR $gfx_chk == 7)) {
 				echo "<tr><td colspan='2'>"._SECURITYCODE.": <img src='?gfx=gfx&random_num=$random_num' border='1' alt='"._SECURITYCODE."' title='"._SECURITYCODE."'></td></tr>\n"
 				."<tr><td colspan='2'>"._TYPESECCODE.": <input type=\"text\" NAME=\"gfx_check\" SIZE=\"7\" MAXLENGTH=\"6\"></td></tr>\n"
 				."<input type=\"hidden\" name=\"random_num\" value=\"$random_num\">\n";
 			}
+	
 			echo "</table><input type=\"hidden\" name=\"redirect\" value=\"$redirect\">\n"
 			."<input type=\"hidden\" name=\"mode\" value=$mode>\n"
 			."<input type=\"hidden\" name=\"f\" value=$f>\n"
@@ -676,8 +952,11 @@ function main($user) {
 			
 			CloseTable();
 		}
+	
 		include("footer.php");
+	
 	} elseif (is_user()) {
+	
 		global $cookie;
 		cookiedecode($user);
 		userinfo($cookie[1]);
@@ -685,17 +964,23 @@ function main($user) {
 }
 
 function new_user() {
+	
 	$prefix = null;
- global $my_headlines, $module_name, $db, $gfx_chk, $user;
+    global $my_headlines, $module_name, $db, $gfx_chk, $user;
+	
 	if (!is_user()) {
 		mt_srand ((double)microtime()*1_000_000);
 		$maxran = 1_000_000;
 		$random_num = random_int(0, $maxran);
+	
 		include("header.php");
+	
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._USERREGLOGIN."</b></font></center>\n";
 		CloseTable();
+	
 		echo "<br>\n";
+	
 		OpenTable();
 		echo "<form action=\"modules.php?name=$module_name\" method=\"post\">\n"
 		."<b>"._REGNEWUSER."</b> ("._ALLREQUIRED.")<br><br>\n"
@@ -704,11 +989,13 @@ function new_user() {
 		."<tr><td>"._EMAIL.":</td><td><input type=\"text\" name=\"user_email\" size=\"30\" maxlength=\"255\"></td></tr>\n"
 		."<tr><td>"._PASSWORD.":</td><td><input type=\"password\" name=\"user_password\" size=\"11\" maxlength=\"40\"></td></tr>\n"
 		."<tr><td>"._RETYPEPASSWORD.":</td><td><input type=\"password\" name=\"user_password2\" size=\"11\" maxlength=\"40\"><br><font class=\"tiny\">("._BLANKFORAUTO.")</font></td></tr>\n";
+	
 		if (extension_loaded("gd") AND ($gfx_chk == 3 OR $gfx_chk == 4 OR $gfx_chk == 6 OR $gfx_chk == 7)) {
 			echo "<tr><td>"._SECURITYCODE.":</td><td><img src='?gfx=gfx&random_num=$random_num' border='1' alt='"._SECURITYCODE."' title='"._SECURITYCODE."'></td></tr>\n"
 			."<tr><td>"._TYPESECCODE.":</td><td><input type=\"text\" NAME=\"gfx_check\" SIZE=\"7\" MAXLENGTH=\"6\"></td></tr>\n"
 			."<input type=\"hidden\" name=\"random_num\" value=\"$random_num\">\n";
 		}
+	
 		echo "<tr><td colspan='2'>\n"
 		."<input type=\"hidden\" name=\"op\" value=\"new user\">\n"
 		."<input type=\"submit\" value=\""._NEWUSER."\">\n"
@@ -724,61 +1011,83 @@ function new_user() {
 		."<li>"._ASREG3."\n"
 		."<li>"._ASREG4."\n"
 		."<li>"._ASREG5."\n";
+	
 		$handle=opendir('themes');
 		$thmcount = 0;
+	
 		while ($file = readdir($handle)) {
 			if ((!preg_match('#[\.]#m',$file) AND file_exists("themes/$file/theme.php"))) {
 				$thmcount++;
 			}
 		}
 		closedir($handle);
+	
 		if ($thmcount > 1) {
 			echo "<li>"._ASREG6."\n";
 		}
+	
 		$sql = "SELECT custom_title FROM ".$prefix."_modules WHERE active='1' AND view='1' AND inmenu='1'";
 		$result = $db->sql_query($sql);
+	
 		while ($row = $db->sql_fetchrow($result)) {
 			$custom_title = filter($row['custom_title'], "nohtml");
+	
 			if (!empty($custom_title)) {
 				echo "<li>"._ACCESSTO." $custom_title\n";
 			}
 		}
+	
 		$sql = "SELECT title FROM ".$prefix."_blocks WHERE active='1' AND view='1'";
 		$result = $db->sql_query($sql);
+	
 		while ($row = $db->sql_fetchrow($result)) {
 			$b_title = filter($row['title'], "nohtml");
+	
 			if (!empty($b_title)) {
 				echo "<li>"._ACCESSTO." $b_title\n";
 			}
 		}
+	
 		if (is_active("Journal")) {
 			echo "<li>"._CREATEJOURNAL."\n";
 		}
+	
 		if ($my_headlines == 1) {
 			echo "<li>"._READHEADLINES."\n";
 		}
+	
 		echo "<li>"._ASREG7."\n"
 		."</ul>\n"
 		.""._REGISTERNOW."<br>\n"
 		.""._WEDONTGIVE."<br><br>\n"
 		."<center><font class=\"content\">[ <a href=\"modules.php?name=$module_name\">"._USERLOGIN."</a> | <a href=\"modules.php?name=$module_name&amp;op=pass_lost\">"._PASSWORDLOST."</a> ]</font></center>\n";
 		CloseTable();
+	
 		include("footer.php");
+		
 	} elseif (is_user()) {
+	
 		global $cookie;
 		cookiedecode($user);
 		userinfo($cookie[1]);
+	
 	}
 }
 
 function pass_lost() {
+	
 	global $user, $module_name;
+	
 	if (!is_user()) {
+	
 		include("header.php");
+	
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._USERREGLOGIN."</b></font></center>\n";
 		CloseTable();
+	
 		echo "<br>\n";
+	
 		OpenTable();
 		echo "<b>"._PASSWORDLOST."</b><br><br>\n"
 		.""._NOPROBLEM."<br><br>\n"
@@ -790,8 +1099,11 @@ function pass_lost() {
 		."<input type=\"submit\" value=\""._SENDPASSWORD."\"></form><br>\n"
 		."<center><font class=\"content\">[ <a href=\"modules.php?name=$module_name\">"._USERLOGIN."</a> | <a href=\"modules.php?name=$module_name&amp;op=new_user\">"._REGNEWUSER."</a> ]</font></center>\n";
 		CloseTable();
+	
 		include("footer.php");
+	
 	} elseif(is_user()) {
+	
 		global $cookie;
 		cookiedecode($user);
 		userinfo($cookie[1]);
@@ -799,15 +1111,19 @@ function pass_lost() {
 }
 
 function logout() {
+	
 	global $prefix, $db, $user, $cookie, $redirect;
 	cookiedecode($user);
+	
 	$r_uid = $cookie[0];
 	$r_username = $cookie[1];
 	setcookie("user", false);
 	$db->sql_query("DELETE FROM ".$prefix."_session WHERE uname='$r_username'");
 	$db->sql_query("DELETE FROM ".$prefix."_bbsessions WHERE session_user_id='$r_uid'");
 	$user = "";
+	
 	include("header.php");
+	
 	OpenTable();
 	if (!empty($redirect)) {
 		echo "<META HTTP-EQUIV=\"refresh\" content=\"3;URL=modules.php?name=$redirect\">";
@@ -816,22 +1132,30 @@ function logout() {
 	}
 	echo "<center><font class=\"option\"><b>"._YOUARELOGGEDOUT."</b></font></center>";
 	CloseTable();
+	
 	include("footer.php");
 }
 
 function mail_password($username, $code) {
+	
 	global $sitename, $adminmail, $nukeurl, $user_prefix, $db, $module_name;
+	
 	$username = substr(htmlspecialchars(str_replace("\'", "'", trim((string) $username))), 0, 25);
 	$username = rtrim($username, "\\");	
 	$username = str_replace("'", "\'", $username);
+	
 	$sql = "SELECT user_email, user_password FROM ".$user_prefix."_users WHERE username='$username'";
 	$result = $db->sql_query($sql);
+	
 	if($db->sql_numrows($result) == 0) {
+	
 		include("header.php");
 		OpenTable();
 		echo "<center>"._SORRYNOUSERINFO."</center>";
 		CloseTable();
+	
 		include("footer.php");
+	
 	} else {
 		$host_name = $_SERVER['REMOTE_ADDR'];
 		$row = $db->sql_fetchrow($result);
@@ -839,33 +1163,52 @@ function mail_password($username, $code) {
 		$user_password = $row['user_password'];
                 $user_password = htmlspecialchars(stripslashes((string) $user_password));
 		$areyou = substr($user_password, 0, 10);
+	
 		if ($areyou==$code) {
 			$newpass=makepass();
-			$message = ""._USERACCOUNT." '$username' "._AT." $sitename "._HASTHISEMAIL."  "._AWEBUSERFROM." $host_name "._HASREQUESTED."\n\n"._YOURNEWPASSWORD." $newpass\n\n "._YOUCANCHANGE." $nukeurl/modules.php?name=$module_name\n\n"._IFYOUDIDNOTASK."";
+			$message = ""._USERACCOUNT." '$username' "._AT." $sitename "
+			                                          ._HASTHISEMAIL."  "
+													  ._AWEBUSERFROM." $host_name "
+													  ._HASREQUESTED."\n\n"
+													  ._YOURNEWPASSWORD." $newpass\n\n "
+													  ._YOUCANCHANGE." $nukeurl/modules.php?name=$module_name\n\n"
+													  ._IFYOUDIDNOTASK."";
+													  
 			$subject = ""._USERPASSWORD4." $username";
 			mail((string) $user_email, $subject, $message, "From: $adminmail\nX-Mailer: PHP/" . phpversion());
 			/* Next step: add the new password to the database */
 			$cryptpass = md5((string) $newpass);
+			
 			$query = "UPDATE ".$user_prefix."_users SET user_password='$cryptpass' WHERE username='$username'";
 			if (!$db->sql_query($query)) {
 				echo ""._UPDATEFAILED."";
 			}
+			
 			include ("header.php");
 			OpenTable();
 			echo "<center>"._PASSWORD4." $username "._MAILED."<br><br>"._GOBACK."</center>";
 			CloseTable();
+		
 			include ("footer.php");
+			
 			/* If no Code, send it */
+		
 		} else {
+		
 			$sql = "SELECT user_email, user_password FROM ".$user_prefix."_users WHERE username='$username'";
 			$result = $db->sql_query($sql);
+		
 			if($db->sql_numrows($result) == 0) {
-				include ("header.php");
+		 
+		 		include ("header.php");
 				OpenTable();
 				echo "<center>"._SORRYNOUSERINFO."</center>";
 				CloseTable();
+		
 				include ("footer.php");
+		
 			} else {
+		
 				$host_name = $_SERVER['REMOTE_ADDR'];
 				$row = $db->sql_fetchrow($result);
 				$user_email = filter($row['user_email'], "nohtml");
@@ -890,23 +1233,31 @@ function docookie($setuid, $setusername, $setpass, $setstorynum, $setumode, $set
 }
 
 function login($username, $user_password, $redirect, $mode, $f, $t, $random_num, $gfx_check) {
-	$sitekey = null;
- $gfx_chk = null;
- global $setinfo, $user_prefix, $db, $module_name, $pm_login, $prefix;
+ 
+    $sitekey = null;
+    $gfx_chk = null;
+ 
+    global $setinfo, $user_prefix, $db, $module_name, $pm_login, $prefix;
+	
 	$user_password = htmlspecialchars(stripslashes((string) $user_password));
+	
 	include("config.php");
+	
 	$sql = "SELECT user_password, user_id, storynum, umode, uorder, thold, noscore, ublockon, theme, commentmax FROM ".$user_prefix."_users WHERE username='$username'";
 	$result = $db->sql_query($sql);
 	$setinfo = $db->sql_fetchrow($result);
 	$forward = preg_replace('#redirect=#m', "", "$redirect");
+	
 	if (preg_match('#privmsg#m', (string) $forward)) {
 		$pm_login = "active";
 	}
+	
 	if (($db->sql_numrows($result)==1) AND ($setinfo['user_id'] != 1) AND (!empty($setinfo['user_password']))) {
 		$dbpass=$setinfo['user_password'];
 		$non_crypt_pass = $user_password;
 		$old_crypt_pass = crypt($user_password,substr((string) $dbpass,0,2));
 		$new_pass = md5($user_password);
+	
 		if (($dbpass == $non_crypt_pass) OR ($dbpass == $old_crypt_pass)) {
 			$db->sql_query("UPDATE ".$user_prefix."_users SET user_password='$new_pass' WHERE username='$username'");
 			$sql = "SELECT user_password FROM ".$user_prefix."_users WHERE username='$username'";
@@ -914,13 +1265,16 @@ function login($username, $user_password, $redirect, $mode, $f, $t, $random_num,
 			$row = $db->sql_fetchrow($result);
 			$dbpass = $row['user_password'];
 		}
+	
 		if ($dbpass != $new_pass) {
 			Header("Location: modules.php?name=$module_name&stop=1");
 			return;
 		}
+	
 		$datekey = date("F j");
 		$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $random_num . $datekey));
 		$code = substr($rcode, 2, 6);
+	
 		if (extension_loaded("gd") AND $code != $gfx_check AND ($gfx_chk == 2 OR $gfx_chk == 4 OR $gfx_chk == 5 OR $gfx_chk == 7)) {
 			Header("Location: modules.php?name=$module_name&stop=1");
 			die();
@@ -930,10 +1284,12 @@ function login($username, $user_password, $redirect, $mode, $f, $t, $random_num,
 			$db->sql_query("DELETE FROM ".$prefix."_session WHERE uname='$uname' AND guest='1'");
 			$db->sql_query("UPDATE ".$prefix."_users SET last_ip='$uname' WHERE username='$username'");
 		}
+	
 		if (!empty($pm_login)) {
 			Header("Location: modules.php?name=Private_Messages&file=index&folder=inbox");
 			exit;
 		}
+	
 		if (empty($redirect)) {
 			Header("Location: modules.php?name=Your_Account&op=userinfo&bypass=1&username=$username");
 		} else if (empty($mode)) {
@@ -949,28 +1305,40 @@ function login($username, $user_password, $redirect, $mode, $f, $t, $random_num,
 }
 
 function edituser() {
+	
 	$_POST = [];
- $avatar_name = [];
- $board_config = [];
- global $prefix, $db, $user, $userinfo, $cookie, $module_name, $bgcolor2, $bgcolor3;
+    $avatar_name = [];
+    $board_config = [];
+    
+	global $prefix, $db, $user, $userinfo, $cookie, $module_name, $bgcolor2, $bgcolor3;
+	
 	cookiedecode($user);
 	getusrinfo($user);
+	
 	if ((is_user()) AND (strtolower((string) $userinfo['username']) == strtolower((string) $cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+	
 		include("header.php");
+	
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._PERSONALINFO."</b></font></center>";
 		CloseTable();
+	
 		echo "<br>";
+	
 		OpenTable();
 		nav();
 		CloseTable();
+	
 		echo "<br>";
+	
 		if (!preg_match('#^http[s]?:\/\/#i', (string) $userinfo['user_website'])) {
 			$userinfo['user_website'] = "http://" . $userinfo['user_website'];
 		}
+	
 		if (!preg_match('#^http[s]?\\:\\/\\/[a-z0-9\-]+\.([a-z0-9\-]+\.)?[a-z]+#i', (string) $userinfo['user_website'])) {
 			$userinfo['user_website'] = '';
 		}
+	
 		if (!preg_match('/^[0-9]+$/', (string) $userinfo['user_icq'])) { $userinfo['user_icq'] = ""; }
 		OpenTable();
 		echo "<table class=forumline cellpadding=\"3\" border=\"0\" width='100%'>"
@@ -999,6 +1367,7 @@ function edituser() {
 		."<tr><td bgcolor='$bgcolor2'><b>"._YINTERESTS.":</b><br>"._OPTIONAL."</td>"
 		."<td bgcolor='$bgcolor3'><input type=\"text\" name=\"user_interests\" value=\"".$userinfo['user_interests']."\" size=\"30\" maxlength=\"100\"></td></tr>";
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._RECEIVENEWSLETTER."</b></td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['newsletter'] == 1) {
 			echo "<input type=\"radio\" name=\"newsletter\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"newsletter\" value=\"0\">"._NO."";
@@ -1009,6 +1378,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._ALWAYSSHOWEMAIL.":</b></td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_viewemail'] == 1) {
 			echo "<input type=\"radio\" name=\"user_viewemail\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_viewemail\" value=\"0\">"._NO."";
@@ -1019,6 +1389,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._HIDEONLINE.":</b></td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_allow_viewonline'] == 1) {
 			echo "<input type=\"radio\" name=\"user_allow_viewonline\" value=\"0\">"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_allow_viewonline\" value=\"1\" checked>"._NO."";
@@ -1029,6 +1400,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._REPLYNOTIFY.":</b><br>"._REPLYNOTIFYMSG."</td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_notify'] == 1) {
 			echo "<input type=\"radio\" name=\"user_notify\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_notify\" value=\"0\">"._NO."";
@@ -1039,6 +1411,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._PMNOTIFY.":</b></td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_notify_pm'] == 1) {
 			echo "<input type=\"radio\" name=\"user_notify_pm\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_notify_pm\" value=\"0\">"._NO."";
@@ -1049,6 +1422,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._POPPM.":</b><br>"._POPPMMSG."</td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_popup_pm'] == 1) {
 			echo "<input type=\"radio\" name=\"user_popup_pm\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_popup_pm\" value=\"0\">"._NO."";
@@ -1059,6 +1433,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._ATTACHSIG.":</b></td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_attachsig'] == 1) {
 			echo "<input type=\"radio\" name=\"user_attachsig\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_attachsig\" value=\"0\">"._NO."";
@@ -1069,6 +1444,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._ALLOWBBCODE."</b></td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_allowbbcode'] == 1) {
 			echo "<input type=\"radio\" name=\"user_allowbbcode\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_allowbbcode\" value=\"0\">"._NO."";
@@ -1079,6 +1455,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._ALLOWHTMLCODE."</b></td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_allowhtml'] == 1) {
 			echo "<input type=\"radio\" name=\"user_allowhtml\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_allowhtml\" value=\"0\">"._NO."";
@@ -1089,6 +1466,7 @@ function edituser() {
 		echo "</td></tr>";
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._ALLOWSMILIES."</b></td><td bgcolor='$bgcolor3'>";
+	
 		if ($userinfo['user_allowsmile'] == 1) {
 			echo "<input type=\"radio\" name=\"user_allowsmile\" value=\"1\" checked>"._YES." &nbsp;"
 			."<input type=\"radio\" name=\"user_allowsmile\" value=\"0\">"._NO."";
@@ -1100,7 +1478,9 @@ function edituser() {
 
 		echo "<tr><td bgcolor='$bgcolor2'><b>"._FORUMSTIME."</b></td><td bgcolor='$bgcolor3'>";
 		echo "<select name='user_timezone'>";
+	
 		for ($i=-12; $i<13; $i++) {
+	
 			if ($i == 0) {
 				$dummy = "GMT";
 			} else {
@@ -1109,6 +1489,7 @@ function edituser() {
 				}
 				$dummy = "GMT $i "._HOURS."";
 			}
+	
 			if ($userinfo['user_timezone'] == $i) {
 				echo "<option name=\"user_timezone\" value=\"$i\" selected>$dummy</option>";
 			} else {
@@ -1126,17 +1507,22 @@ function edituser() {
 		."<tr><td bgcolor='$bgcolor2'><b>"._EXTRAINFO.":</b><br>"._OPTIONAL."</td>"
 		."<td bgcolor='$bgcolor3'><textarea wrap=\"virtual\" cols=\"70\" rows=\"15\" name=\"bio\">".$userinfo['bio']."</textarea><br>"._CANKNOWABOUT."</td></tr>"
 		."<tr><td bgcolor='$bgcolor2'><b>"._PASSWORD."</b>:</td><br>"
-		."<td bgcolor='$bgcolor3'><input type=\"password\" name=\"user_password\" size=\"22\" maxlength=\"20\">&nbsp;&nbsp;&nbsp;<input type=\"password\" name=\"vpass\" size=\"22\" maxlength=\"20\"><br>"._TYPENEWPASSWORD."</td></tr>"
+		
+		."<td bgcolor='$bgcolor3'><input type=\"password\" name=\"user_password\" size=\"22\" maxlength=\"20\">&nbsp;&nbsp;&nbsp;<input type=\"password\" name=\"vpass\" 
+		size=\"22\" maxlength=\"20\"><br>"._TYPENEWPASSWORD."</td></tr>"
+		
 		."<tr><td bgcolor='$bgcolor3' colspan='2' align='center'>"
 		."<input type=\"hidden\" name=\"username\" value=\"".$userinfo['username']."\">"
 		."<input type=\"hidden\" name=\"user_id\" value=\"".intval($userinfo['user_id'])."\">"
 		."<input type=\"hidden\" name=\"op\" value=\"saveuser\">"
 		."<input class=button type=\"submit\" value=\""._SAVECHANGES."\">"
 		."</form></td></tr>";
+		
 		$avatar_category = ( !empty($_POST['avatarcategory']) ) ? $_POST['avatarcategory'] : '';
 		$direktori = "modules/Forums/images/avatars";
 		$dir = opendir($direktori);
 		$avatar_images = [];
+		
 		while( $file = readdir($dir) )
 		{
 			if( $file != '.' && $file != '..' && !is_file($direktori . '/' . $file) && !is_link($direktori . '/' . $file) )
@@ -1144,6 +1530,7 @@ function edituser() {
 				$sub_dir = opendir($direktori . '/' . $file);
 				$avatar_row_count = 0;
 				$avatar_col_count = 0;
+		
 				while( $sub_file = readdir($sub_dir) )
 				{
 					if( preg_match('/(\.gif$|\.png$|\.jpg|\.jpeg)$/is', $sub_file) )
@@ -1151,6 +1538,7 @@ function edituser() {
 						$avatar_images[$file][$avatar_row_count][$avatar_col_count] = $file . '/' . $sub_file;
 						$avatar_name[$file][$avatar_row_count][$avatar_col_count] = ucfirst(str_replace("_", " ", preg_replace('/^(.*)\..*$/', '\1', $sub_file)));
 						$avatar_col_count++;
+		
 						if( $avatar_col_count == 5 )
 						{
 							$avatar_row_count++;
@@ -1163,26 +1551,32 @@ function edituser() {
 		closedir($dir);
 		ksort($avatar_images);
 		reset($avatar_images);
+		
 		if( empty($category) )
 		{
 			$category = key($avatar_images);
 		}
 		reset($avatar_images);
 		$s_categories = '<select name="avatarcategory">';
+		
 		foreach (array_keys($avatar_images) as $key) {
-      $selected = ( $key == $category ) ? ' selected="selected"' : '';
-      if( count($avatar_images[$key]) )
-   			{
-   				$s_categories .= '<option value="' . $key . '"' . $selected . '>' . ucfirst((string) $key) . '</option>';
-   			}
-  }
+          $selected = ( $key == $category ) ? ' selected="selected"' : '';
+        
+		  if( count($avatar_images[$key]) )
+   		  {
+   		    $s_categories .= '<option value="' . $key . '"' . $selected . '>' . ucfirst((string) $key) . '</option>';
+   		  }
+        }
+		
 		$s_categories .= '</select>';
 		$sql = "SELECT * FROM ".$prefix."_bbconfig";
 		$result = $db->sql_query($sql);
+		
 		while ( $row = $db->sql_fetchrow($result) )
 		{
 			$board_config[$row['config_name']] = $row['config_value'];
 		}
+		
 		if ($userinfo['user_avatar_type'] == 1) { 
 			$userinfo['user_avatar'] = $board_config['avatar_path']."/".$userinfo['user_avatar']; 
 		} elseif ($userinfo['user_avatar_type'] == 2) { 
@@ -1190,10 +1584,12 @@ function edituser() {
 		} else {
 			$userinfo['user_avatar'] = $board_config['avatar_gallery_path']."/".$userinfo['user_avatar']; 
 		}
+		
 		echo "<tr><td bgcolor='$bgcolor3' colspan='2' align='center'>"
 		."<BR><b><h5>Avatar control panel</h5></b>"
 		."<tr><td bgcolor='$bgcolor2'>Displays a small graphic image below your details in forum posts and on your profile. Only one image can be displayed at a time, its width can be no greater than ".$board_config['avatar_max_width']." pixels, the height no greater than ".$board_config['avatar_max_height']." pixels, and the file size no more than ".CoolSize($board_config['avatar_filesize']).".</td>";
 		echo "<td bgcolor='$bgcolor3' align=center>Current Avatar<BR><BR><IMG alt=\"\" src=\"$userinfo[user_avatar]\"></td></tr><BR>";
+		
 		if ($board_config['allow_avatar_local']) {
 			echo "<form action=\"modules.php?name=Your_Account&op=avatarlist\" method=\"post\">"
 			."<tr><td bgcolor='$bgcolor2'><b>Select Avatar from gallery:</b></td>"
@@ -1203,6 +1599,7 @@ function edituser() {
 			echo "<tr><td bgcolor='$bgcolor2'><b>Select Avatar from gallery:</b></td>"
 			."<td bgcolor='$bgcolor3'><b>Gallery Avatars Currently Disabled</b></td></tr>";
 		}
+		
 		if ($board_config['allow_avatar_upload']) {
 			echo "<tr><td bgcolor='$bgcolor2'><b>Upload Avatar from your machine:</b></td>"
 			."<td bgcolor='$bgcolor3'><a href=\"modules.php?name=Forums&file=profile&mode=editprofile\"><b>Upload Through Forum Profile</b></a></td></tr>"
@@ -1214,6 +1611,7 @@ function edituser() {
 			."<tr><td bgcolor='$bgcolor2'><b>Upload Avatar from a URL:</b><br><SPAN class=gensmall>Enter the URL of the location containing the Avatar image and click on the submit button below, the Avatar image will be copied to this site.</SPAN></td>"
 			."<td bgcolor='$bgcolor3'><b>Currently Disabled</b></td></tr>";
 		}
+		
 		if ($board_config['allow_avatar_remote']) {
 			echo "<form action=\"modules.php?name=Your_Account&op=avatarlinksave\" method=\"post\">"
 			."<tr><td bgcolor='$bgcolor2'><b>Link to off-site Avatar:</b><br><SPAN class=gensmall>Enter the URL of the location containing the Avatar image you wish to link to and click on the submit button below.</SPAN></td>"
@@ -1232,11 +1630,44 @@ function edituser() {
 	}
 }
 
-function saveuser($realname, $user_email, $femail, $user_website, $user_icq, $user_aim, $user_yim, $user_msnm, $user_from, $user_occ, $user_interests, $newsletter, $user_viewemail, $user_allow_viewonline, $user_notify, $user_notify_pm, $user_popup_pm, $user_attachsig, $user_allowbbcode, $user_allowhtml, $user_allowsmile, $user_timezone, $user_dateformat, $user_sig, $bio, $user_password, $vpass, $username, $user_id) {
+function saveuser($realname, 
+                $user_email, 
+				    $femail, 
+			  $user_website, 
+			      $user_icq, 
+				  $user_aim, 
+				  $user_yim, 
+				 $user_msnm, 
+				 $user_from, 
+				  $user_occ, 
+			$user_interests, 
+			    $newsletter, 
+			$user_viewemail, 
+	 $user_allow_viewonline, 
+	           $user_notify, 
+			$user_notify_pm, 
+			 $user_popup_pm, 
+		    $user_attachsig, 
+	      $user_allowbbcode, 
+		    $user_allowhtml, 
+		   $user_allowsmile, 
+		     $user_timezone, 
+		   $user_dateformat, 
+		          $user_sig, 
+				       $bio, 
+			 $user_password, 
+			         $vpass, 
+				  $username, 
+				   $user_id) {
+					   
 	$user_avatar = null;
- global $user, $cookie, $userinfo, $EditedMessage, $user_prefix, $db, $module_name, $minpass;
+    
+	global $user, $cookie, $userinfo, $EditedMessage, $user_prefix, $db, $module_name, $minpass;
+	
 	$user_password = htmlspecialchars(stripslashes((string) $user_password));
+	
 	cookiedecode($user);
+	
 	$check = $cookie[1];
 	$check = filter($check, "nohtml", 1);
 	$check2 = $cookie[2];
@@ -1260,19 +1691,25 @@ function saveuser($realname, $user_email, $femail, $user_website, $user_icq, $us
 	$user_interests = filter($user_interests, "nohtml", 1);
 	$realname = filter($realname, "nohtml", 1);
 	$user_avatar = "$user_avatar";
+	
 	if (($user_id == $vuid) AND ($check2 == $ccpass)) {
+	
 		if (!preg_match('#^http[s]?:\/\/#i', (string) $user_website)) {
 			$user_website = "http://" . $user_website;
 		}
+	
 		if (!preg_match('#^http[s]?\\:\\/\\/[a-z0-9\-]+\.([a-z0-9\-]+\.)?[a-z]+#i', (string) $user_website)) {
 			$user_website = '';
 		}
+	
 		if ((isset($user_password)) && ("$user_password" != "$vpass")) {
 			echo "<center>"._PASSDIFFERENT."</center>";
 		} elseif ((!empty($user_password)) && (strlen($user_password) < $minpass)) {
 			echo "<center>"._YOUPASSMUSTBE." <b>$minpass</b> "._CHARLONG."</center>";
 		} else {
+	
 			if ($bio) { filter_text($bio); $bio = $EditedMessage; $bio = FixQuotes($bio); }
+	
 			if (!empty($user_password)) {
 				cookiedecode($user);
 				$db->sql_query("LOCK TABLES ".$user_prefix."_users WRITE");
@@ -1286,45 +1723,140 @@ function saveuser($realname, $user_email, $femail, $user_website, $user_icq, $us
 				$user_allowhtml = intval($user_allowhtml);
 				$user_allowsmile = intval($user_allowsmile);
 				$user_id = intval($user_id);
-				$db->sql_query("UPDATE ".$user_prefix."_users SET name='$realname', user_email='$user_email', femail='$femail', user_website='$user_website', user_password='$user_password', bio='$bio', user_icq='$user_icq', user_occ='$user_occ', user_from='$user_from', user_interests='$user_interests', user_sig='$user_sig', user_aim='$user_aim', user_yim='$user_yim', user_msnm='$user_msnm', newsletter='$newsletter', user_viewemail='$user_viewemail', user_allow_viewonline='$user_allow_viewonline', user_notify='$user_notify', user_notify_pm='$user_notify_pm', user_popup_pm='$user_popup_pm', user_attachsig='$user_attachsig', user_allowbbcode='$user_allowbbcode', user_allowhtml='$user_allowhtml', user_allowsmile='$user_allowsmile', user_timezone='$user_timezone', user_dateformat='$user_dateformat' WHERE user_id='$user_id'");
-				$sql = "SELECT user_id, username, user_password, storynum, umode, uorder, thold, noscore, ublockon, theme FROM ".$user_prefix."_users WHERE username='$username' AND user_password='$user_password'";
+				$db->sql_query("UPDATE ".$user_prefix."_users SET name='$realname', 
+				                                          user_email='$user_email', 
+														          femail='$femail', 
+													  user_website='$user_website', 
+													user_password='$user_password', 
+													                    bio='$bio', 
+															  user_icq='$user_icq', 
+															  user_occ='$user_occ', 
+															user_from='$user_from', 
+												  user_interests='$user_interests', 
+												              user_sig='$user_sig', 
+															  user_aim='$user_aim', 
+															  user_yim='$user_yim', 
+															user_msnm='$user_msnm', 
+														  newsletter='$newsletter', 
+												  user_viewemail='$user_viewemail', 
+									user_allow_viewonline='$user_allow_viewonline', 
+									                    user_notify='$user_notify', 
+												  user_notify_pm='$user_notify_pm', 
+												    user_popup_pm='$user_popup_pm', 
+												  user_attachsig='$user_attachsig', 
+											  user_allowbbcode='$user_allowbbcode', 
+											      user_allowhtml='$user_allowhtml', 
+												user_allowsmile='$user_allowsmile', 
+												    user_timezone='$user_timezone', 
+												user_dateformat='$user_dateformat' 
+												
+				WHERE user_id='$user_id'");
+				
+				$sql = "SELECT user_id, 
+				              username, 
+						 user_password, 
+						      storynum, 
+							     umode, 
+								uorder, 
+								 thold, 
+							   noscore, 
+							  ublockon, 
+							     theme 
+								 
+				FROM ".$user_prefix."_users 
+				
+				WHERE username='$username' AND user_password='$user_password'";
+				
 				$result = $db->sql_query($sql);
 				if ($db->sql_numrows($result) == 1) {
+					
 					$userinfo = $db->sql_fetchrow($result);
-					docookie($userinfo['user_id'],$userinfo['username'],$userinfo['user_password'],$userinfo['storynum'],$userinfo['umode'],$userinfo['uorder'],$userinfo['thold'],$userinfo['noscore'],$userinfo['ublockon'],$userinfo['theme'],$userinfo['commentmax']);
+					
+					docookie($userinfo['user_id'],
+					        $userinfo['username'],
+					   $userinfo['user_password'],
+					        $userinfo['storynum'],
+							   $userinfo['umode'],
+							  $userinfo['uorder'],
+							   $userinfo['thold'],
+							 $userinfo['noscore'],
+							$userinfo['ublockon'],
+							   $userinfo['theme'],
+						  $userinfo['commentmax']);
+						  
 				} else {
 					echo "<center>"._SOMETHINGWRONG."</center><br>";
 				}
 				$db->sql_query("UNLOCK TABLES");
 			} else {
-				$db->sql_query("UPDATE ".$user_prefix."_users SET name='$realname', user_email='$user_email', femail='$femail', user_website='$user_website', bio='$bio', user_icq='$user_icq', user_occ='$user_occ', user_from='$user_from', user_interests='$user_interests', user_sig='$user_sig', user_aim='$user_aim', user_yim='$user_yim', user_msnm='$user_msnm', newsletter='$newsletter', user_viewemail='$user_viewemail', user_allow_viewonline='$user_allow_viewonline', user_notify='$user_notify', user_notify_pm='$user_notify_pm', user_popup_pm='$user_popup_pm', user_attachsig='$user_attachsig', user_allowbbcode='$user_allowbbcode', user_allowhtml='$user_allowhtml', user_allowsmile='$user_allowsmile', user_timezone='$user_timezone', user_dateformat='$user_dateformat' WHERE user_id='$user_id'");
+				$db->sql_query("UPDATE ".$user_prefix."_users SET name='$realname', 
+				                                          user_email='$user_email', 
+														          femail='$femail', 
+													  user_website='$user_website', 
+													                    bio='$bio', 
+															  user_icq='$user_icq', 
+															  user_occ='$user_occ', 
+															user_from='$user_from', 
+												  user_interests='$user_interests', 
+												              user_sig='$user_sig', 
+															  user_aim='$user_aim', 
+															  user_yim='$user_yim', 
+															user_msnm='$user_msnm', 
+														  newsletter='$newsletter', 
+												  user_viewemail='$user_viewemail', 
+									user_allow_viewonline='$user_allow_viewonline', 
+									                    user_notify='$user_notify', 
+												  user_notify_pm='$user_notify_pm', 
+												    user_popup_pm='$user_popup_pm', 
+												  user_attachsig='$user_attachsig', 
+											  user_allowbbcode='$user_allowbbcode', 
+											      user_allowhtml='$user_allowhtml', 
+												user_allowsmile='$user_allowsmile', 
+												    user_timezone='$user_timezone', 
+												user_dateformat='$user_dateformat' 
+												
+				WHERE user_id='$user_id'");
 			}
+			
 			Header("Location: modules.php?name=$module_name");
 		}
 	}
 }
 
 function edithome() {
+	
 	$sel1 = null;
- $sel2 = null;
- global $user, $userinfo, $Default_Theme, $cookie, $broadcast_msg, $user_news, $storyhome, $module_name;
+    $sel2 = null;
+    
+	global $user, $userinfo, $Default_Theme, $cookie, $broadcast_msg, $user_news, $storyhome, $module_name;
+	
 	cookiedecode($user);
+	
 	getusrinfo($user);
+	
 	if ((is_user()) AND (strtolower((string) $userinfo['username']) == strtolower((string) $cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+	
 		include ("header.php");
+	
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._HOMECONFIG."</b></font></center>";
 		CloseTable();
+	
 		echo "<br>";
+	
 		OpenTable();
 		nav();
 		CloseTable();
+	
 		echo "<br>";
+	
 		if(empty($userinfo['theme'])) {
 			$userinfo['theme'] = $Default_Theme;
 		}
+	
 		OpenTable();
 		echo "<form action=\"modules.php?name=$module_name\" method=\"post\">";
+	
 		if ($user_news == 1) {
 			echo "<b>"._NEWSINHOME."</b> "._MAX127." "
 			."<input type=\"text\" name=\"storynum\" size=\"4\" maxlength=\"3\" value=\"".$userinfo['storynum']."\">"
@@ -1332,9 +1864,11 @@ function edithome() {
 		} else {
 			echo "<input type=\"hidden\" name=\"storynum\" value=\"$storyhome\">";
 		}
+	
 		if ($userinfo['ublockon']==1) {
 			$sel = "checked";
 		} else { $sel = ""; }
+	
 		if ($broadcast_msg == 1) {
 			if ($userinfo['broadcast'] == 1) {
 				$sel1 = "checked";
@@ -1347,6 +1881,7 @@ function edithome() {
 		} else {
 			echo "<input type=\"hidden\" name=\"broadcast\" value=\"1\">";
 		}
+	
 		echo "<input type=\"checkbox\" name=\"ublockon\" $sel>"
 		." <b>"._ACTIVATEPERSONAL."</b>"
 		."<br>"._CHECKTHISOPTION.""
@@ -1366,32 +1901,45 @@ function edithome() {
 }
 
 function chgtheme() {
+	
 	$themelist = [];
- global $user, $userinfo, $Default_Theme, $cookie, $module_name, $db, $prefix;
+    
+	global $user, $userinfo, $Default_Theme, $cookie, $module_name, $db, $prefix;
+	
 	cookiedecode($user);
+	
 	getusrinfo($user);
+	
 	if ((is_user()) AND (strtolower((string) $userinfo['username']) == strtolower((string) $cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
 		$row = $db->sql_fetchrow($db->sql_query("SELECT overwrite_theme from ".$prefix."_config"));
 		$overwrite_theme = intval($row['overwrite_theme']);
+	
 		if ($overwrite_theme != 1) {
 			Header("Location: modules.php?name=$module_name");	
 			die();
 		}
+	
 		include ("header.php");
+	
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._THEMESELECTION."</b></font></center>";
 		CloseTable();
+	
 		echo "<br>";
+	
 		OpenTable();
 		nav();
 		CloseTable();
+	
 		echo "<br>";
+	
 		OpenTable();
 		echo "<center>"
 		."<form action=\"modules.php?name=$module_name\" method=\"post\">"
 		."<b>"._SELECTTHEME."</b><br>"
 		."<select name=\"theme\">";
 		$handle=opendir('themes');
+	
 		while ($file = readdir($handle)) {
 			if ( (!preg_match('#[\.]#m',$file) AND file_exists("themes/".$file."/theme.php")) ) {
 				$themelist .= "$file ";
@@ -1400,13 +1948,20 @@ function chgtheme() {
 		closedir($handle);
 		$themelist = explode(" ", (string) $themelist);
 		sort($themelist);
+	
 		for ($i=0; $i < sizeof($themelist); $i++) {
+	
 			if(!empty($themelist[$i])) {
 				echo "<option value=\"$themelist[$i]\" ";
-				if(((empty($userinfo['theme'])) && ($themelist[$i]==$Default_Theme)) || ($userinfo['theme']==$themelist[$i])) echo "selected";
+	
+				if(((empty($userinfo['theme'])) && ($themelist[$i]==$Default_Theme)) || ($userinfo['theme']==$themelist[$i])) {
+				  echo "selected";
+				}
+				
 				echo ">$themelist[$i]\n";
 			}
 		}
+		
 		if(empty($userinfo['theme'])) $userinfo['theme'] = $Default_Theme;
 		echo "</select><br>"
 		.""._THEMETEXT1."<br>"
@@ -1417,7 +1972,9 @@ function chgtheme() {
 		."<input type=\"submit\" value=\""._SAVECHANGES."\">"
 		."</form>";
 		CloseTable();
+		
 		include ("footer.php");
+		
 	} else {
 		main($user);
 	}
@@ -1425,8 +1982,11 @@ function chgtheme() {
 
 
 function savehome($user_id, $username, $storynum, $ublockon, $ublock, $broadcast) {
+	
 	global $user, $cookie, $userinfo, $user_prefix, $db, $module_name;
+	
 	cookiedecode($user);
+	
 	$check = $cookie[1];
 	$check = filter($check, "nohtml", 1);
 	$check2 = $cookie[2];
@@ -1435,27 +1995,53 @@ function savehome($user_id, $username, $storynum, $ublockon, $ublock, $broadcast
 	$row = $db->sql_fetchrow($result);
 	$vuid = intval($row['user_id']);
 	$ccpass = filter($row['user_password'], "nohtml", 1);
+	
 	if (($user_id == $vuid) AND ($check2 == $ccpass)) {
-		if(isset($ublockon)) $ublockon=1; else $ublockon=0;
+	
+		if(isset($ublockon)) {
+		  $ublockon=1; 
+		} else { 
+		  $ublockon=0;
+		}
+		
 		$ublock = FixQuotes($ublock);
 		$db->sql_query("UPDATE ".$user_prefix."_users SET storynum='$storynum', ublockon='$ublockon', ublock='$ublock', broadcast='$broadcast' WHERE user_id='$user_id'");
+		
 		getusrinfo($user);
-		docookie($userinfo['user_id'],$userinfo['username'],$userinfo['user_password'],$userinfo['storynum'],$userinfo['umode'],$userinfo['uorder'],$userinfo['thold'],$userinfo['noscore'],$userinfo['ublockon'],$userinfo['theme'],$userinfo['commentmax']);
+		
+		docookie($userinfo['user_id'],
+		        $userinfo['username'],
+		   $userinfo['user_password'],
+		        $userinfo['storynum'],
+				   $userinfo['umode'],
+				  $userinfo['uorder'],
+				   $userinfo['thold'],
+				 $userinfo['noscore'],
+				$userinfo['ublockon'],
+				   $userinfo['theme'],
+			  $userinfo['commentmax']);
+			  
 		Header("Location: modules.php?name=$module_name");
 	}
 }
 
 function savetheme($user_id, $theme) {
+	
 	$prefix = null;
- $theme_id = null;
- global $user, $cookie, $userinfo, $user_prefix, $db, $module_name;
+    $theme_id = null;
+    
+	global $user, $cookie, $userinfo, $user_prefix, $db, $module_name;
+	
 	$row = $db->sql_fetchrow($db->sql_query("SELECT overwrite_theme from ".$prefix."_config"));
 	$overwrite_theme = intval($row['overwrite_theme']);
+	
 	if ($overwrite_theme != 1) {
 		Header("Location: modules.php?name=$module_name");	
 		die();
 	}
+	
 	cookiedecode($user);
+	
 	$user_id = intval($user_id);
 	$check = $cookie[1];
 	$check = filter($check, "nohtml", 1);
@@ -1466,29 +2052,53 @@ function savetheme($user_id, $theme) {
 	$row = $db->sql_fetchrow($result);
 	$vuid = intval($row['user_id']);
 	$ccpass = filter($row['user_password'], "nohtml", 1);
+	
 	if (($user_id == $vuid) AND ($check2 == $ccpass)) {
 		$db->sql_query("UPDATE ".$user_prefix."_users SET user_style='$theme_id' WHERE user_id='$user_id'");
 		$db->sql_query("UPDATE ".$user_prefix."_users SET theme='$theme' WHERE user_id='$user_id'");
+		
 		getusrinfo($user);
-		docookie($userinfo['user_id'],$userinfo['username'],$userinfo['user_password'],$userinfo['storynum'],$userinfo['umode'],$userinfo['uorder'],$userinfo['thold'],$userinfo['noscore'],$userinfo['ublockon'],$userinfo['theme'],$userinfo['commentmax']);
+	
+		docookie($userinfo['user_id'],
+		        $userinfo['username'],
+		   $userinfo['user_password'],
+		        $userinfo['storynum'],
+				   $userinfo['umode'],
+				  $userinfo['uorder'],
+				   $userinfo['thold'],
+				 $userinfo['noscore'],
+				$userinfo['ublockon'],
+				   $userinfo['theme'],
+			  $userinfo['commentmax']);
+			  
 		Header("Location: modules.php?name=$module_name&theme=$theme");
 	}
 }
 
 function editcomm() {
+	
 	global $user, $userinfo, $cookie, $module_name;
+	
 	cookiedecode($user);
+	
 	getusrinfo($user);
+	
 	if ((is_user()) AND (strtolower((string) $userinfo['username']) == strtolower((string) $cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
+	
 		include ("header.php");
+	
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._COMMENTSCONFIG."</b></font></center>";
 		CloseTable();
+	
 		echo "<br>";
+	
 		OpenTable();
 		nav();
 		CloseTable();
+	
 		echo "<br>";
+	
 		OpenTable();
 		echo "<table cellpadding=\"8\" border=\"0\"><tr><td>"
 		."<form action=\"modules.php?name=$module_name\" method=\"post\">"
@@ -1541,8 +2151,11 @@ function editcomm() {
 }
 
 function savecomm($user_id, $username, $umode, $uorder, $thold, $noscore, $commentmax) {
+	
 	global $user, $cookie, $userinfo, $user_prefix, $db, $module_name;
+	
 	cookiedecode($user);
+	
 	$check = $cookie[1];
 	$check2 = $cookie[2];
 	$sql = "SELECT user_id, user_password FROM ".$user_prefix."_users WHERE username='$check'";
@@ -1550,39 +2163,69 @@ function savecomm($user_id, $username, $umode, $uorder, $thold, $noscore, $comme
 	$row = $db->sql_fetchrow($result);
 	$vuid = intval($row['user_id']);
 	$ccpass = filter($row['user_password'], "nohtml", 1);
+	
 	if (($user_id == $vuid) AND ($check2 == $ccpass)) {
+	
 		if(isset($noscore)) $noscore=1; else $noscore=0;
+	
 		$db->sql_query("UPDATE ".$user_prefix."_users SET umode='$umode', uorder='$uorder', thold='$thold', noscore='$noscore', commentmax='$commentmax' WHERE user_id='$user_id'");
+	
 		getusrinfo($user);
-		docookie($userinfo['user_id'],$userinfo['username'],$userinfo['user_password'],$userinfo['storynum'],$userinfo['umode'],$userinfo['uorder'],$userinfo['thold'],$userinfo['noscore'],$userinfo['ublockon'],$userinfo['theme'],$userinfo['commentmax']);
+	
+		docookie($userinfo['user_id'],
+		        $userinfo['username'],
+		   $userinfo['user_password'],
+		        $userinfo['storynum'],
+				   $userinfo['umode'],
+				  $userinfo['uorder'],
+				   $userinfo['thold'],
+				 $userinfo['noscore'],
+				$userinfo['ublockon'],
+				   $userinfo['theme'],
+			  $userinfo['commentmax']);
+			  
 		Header("Location: modules.php?name=$module_name");
 	}
 }
 
 function avatarlist($avatarcategory) {
+	
 	$patterns = [];
- $replacements = [];
- global $user, $userinfo, $cookie, $module_name;
+    $replacements = [];
+    
+	global $user, $userinfo, $cookie, $module_name;
+	
 	cookiedecode($user);
 	getusrinfo($user);
+	
 	include("header.php");
-	if ((is_user()) AND (strtolower((string) $userinfo['username']) == strtolower((string) $cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) { // SecurityReason Fix 2005 - sp3x -> check if we are user if not then Access Denied
+	
+	if ((is_user()) AND (strtolower((string) $userinfo['username']) == strtolower((string) $cookie[1])) 
+	AND ($userinfo['user_password'] == $cookie[2])) { // SecurityReason Fix 2005 - sp3x -> check if we are user if not then Access Denied
+	
 	$avatarcatname = preg_replace ('#_#m', "&nbsp;", (string) $avatarcategory);
 	$avatarcategory = htmlspecialchars((string) $avatarcategory); //SecurityReason Fix 2005 - sp3x 
+	
 	title("".$avatarcategory." Avatar Gallery");
 	Opentable();
 	nav();
 	CloseTable();
+	
 	echo "<br>";
+	
 	Opentable();
 	echo "<center><font class=\"title\"><b>"._AVAILABLEAVATARS." on category ".$avatarcatname."</b></font><br><br>";
 	echo "<b>To Select Your Avatar Click On It</b><br><br></center>";
 	Opentable2();
+	
 	echo "<center>";
 	$d = dir("modules/Forums/images/avatars/$avatarcategory");
 	$temcount = 1;
+	
 	while (false !== ($entry = $d->read())) {
+	
 		if( preg_match('/(\.gif$|\.png$|\.jpg|\.jpeg)$/is', $entry) ) {
+	
 			if( $entry != '.' && $entry != '..' ) {
 				$patterns[0] = "/\.gif/";
 				$patterns[1] = "/\.png/";
@@ -1602,6 +2245,7 @@ function avatarlist($avatarcategory) {
 				$a=1;
 				echo "<a href=\"modules.php?name=$module_name&op=avatarsave&category=$avatarcategory&avatar=$entry\"><img src=\"modules/Forums/images/avatars/$avatarcategory/$entry\" border=\"0\" alt=\"$entryname\" title=\"$entryname\" hspace=\"10\" vspace=\"10\"></a>";
 			}
+	
 			if ($temcount == 10) {
 				echo "<br>";
 				$temcount -= 10;
@@ -1611,32 +2255,42 @@ function avatarlist($avatarcategory) {
 	}
 	echo "</center>";
 	CloseTable2();
+	
 	echo "<center><br>"
 	.""._GOBACK.""
 	."<br></center>";
 	$d->close();
 	CloseTable();
+	
 	include("footer.php");
+	
 } else die("Access Denied");
 }
 
 function avatarsave($avatar, $category) { 
+   
    global $user_prefix, $db, $module_name, $user, $cookie, $prefix; 
+   
    $sql = "SELECT * FROM ".$prefix."_bbconfig WHERE config_name = 'allow_avatar_local'"; 
    $result = $db->sql_query($sql); 
+   
    if ($row = $db->sql_fetchrow($result)) 
    { 
       $allow_avatar_local = $row['config_value']; 
    } 
    else { $allow_avatar_local = 0; } 
+   
    if (is_user() AND $allow_avatar_local) { 
 		getusrinfo($user);
 		cookiedecode($user);
+	
 		include("header.php");
+	
 		title("Avatar Selection Successful!");
 		OpenTable();
 		nav();
 		CloseTable();
+	
 		OpenTable();
 		$category = stripslashes((string) check_html($category,"nohtml")); 
 		if(preg_match('/(\.gif$|\.png$|\.jpg|\.jpeg)$/is', (string) $avatar) AND file_exists("modules/Forums/images/avatars/$category/$avatar")) 
@@ -1644,7 +2298,13 @@ function avatarsave($avatar, $category) {
 		$newavatar=$category."/".$avatar;
 		$db->sql_query("UPDATE ".$user_prefix."_users SET user_avatar='$newavatar', user_avatar_type='3' WHERE user_id = '".intval($cookie[0])."'");
 		echo "<center><font class=\"content\">Avatar for ".$cookie[1]." Saved!</center></font><br><br>";
-		if (preg_match('#(http)#m', $newavatar)) { echo "<center>Your New Avatar:<br><br><IMG alt=\"\" src=\"$newavatar\"><br><br> [ <a href=\"modules.php?name=$module_name&amp;op=edituser\">Back to Profile</a> | <a href=\"modules.php?name=$module_name\">Done</a> ]<br><br></center>"; } elseif ($newavatar) { echo "<center>Your New Avatar:<br><br><IMG alt=\"\" src=\"modules/Forums/images/avatars/$newavatar\"><br><br>[ <a href=\"modules.php?name=$module_name&amp;op=edituser\">Back to Profile</a> | <a href=\"modules.php?name=$module_name\">Done</a> ]<br><br></center>"; }
+	
+		if (preg_match('#(http)#m', $newavatar)) { 
+		  echo "<center>Your New Avatar:<br><br><IMG alt=\"\" src=\"$newavatar\"><br><br> [ <a href=\"modules.php?name=$module_name&amp;op=edituser\">Back to Profile</a> | <a 
+		  href=\"modules.php?name=$module_name\">Done</a> ]<br><br></center>"; 
+		} elseif ($newavatar) { 
+		  echo "<center>Your New Avatar:<br><br><IMG alt=\"\" src=\"modules/Forums/images/avatars/$newavatar\"><br><br>[ <a 
+		  href=\"modules.php?name=$module_name&amp;op=edituser\">Back to Profile</a> | <a href=\"modules.php?name=$module_name\">Done</a> ]<br><br></center>"; }
 		} else { 
 		   echo "<center><b>Error:</b> Wrong avatar format! Avatars can only be gif, jpg, or png format.<br />"._GOBACK."</center>"; 
 		} 
@@ -1654,29 +2314,43 @@ function avatarsave($avatar, $category) {
 }
 
 function avatarlinksave($avatar) {
+	
 	global $user_prefix, $db, $module_name, $user, $cookie, $prefix; 
+	
 	$sql = "SELECT * FROM ".$prefix."_bbconfig WHERE config_name = 'allow_avatar_remote'"; 
 	$result = $db->sql_query($sql); 
+	
 	if ($row = $db->sql_fetchrow($result)) 
 	{ 
 	  $allow_avatar_remote = $row['config_value']; 
 	} 
 	else { $allow_avatar_remote = 0; } 
+	
 	if (is_user() AND $allow_avatar_remote) { 
 		getusrinfo($user);
 		cookiedecode($user);
+	
 		include("header.php");
+	
 		title("Avatar Selection Successful!");
 		OpenTable();
 		nav();
 		CloseTable();
+	
 		OpenTable();
 		if( !preg_match("#^http:\/\/#i", (string) $avatar) ){ 
 		$avatar = "http://" . $avatar;} 
-		if(preg_match("#^(http:\/\/[a-z0-9\-]+?\.([a-z0-9\-]+\.)*[a-z]+\/.*?\.(gif|jpg|png)$)#is", (string) $avatar) && !preg_match('#.php#mi',(string) $avatar) && !preg_match('#.js#mi',(string) $avatar) && !preg_match('#.cgi#mi',(string) $avatar)){
+	
+		if(preg_match("#^(http:\/\/[a-z0-9\-]+?\.([a-z0-9\-]+\.)*[a-z]+\/.*?\.(gif|jpg|png)$)#is", (string) $avatar) 
+		&& !preg_match('#.php#mi',(string) $avatar) && !preg_match('#.js#mi',(string) $avatar) && !preg_match('#.cgi#mi',(string) $avatar)){
 		$db->sql_query("UPDATE ".$user_prefix."_users SET user_avatar='$avatar', user_avatar_type='2' WHERE user_id = '".intval($cookie[0])."'");
 		echo "<center><font class=\"content\">Avatar for ".$cookie[1]." Saved!</center></font><br><br>";
-		if (preg_match('#(http)#m', (string) $avatar)) { echo "<center>Your New Avatar:<br><br><IMG alt=\"\" src=\"$avatar\"><br><br>[ <a href=\"modules.php?name=$module_name&amp;op=edituser\">Back to Profile</a> | <a href=\"modules.php?name=$module_name\">Done</a> ]<br><br></center>"; } elseif ($avatar) { echo "<center>Your New Avatar:<br><br><IMG alt=\"\" src=\"modules/Forums/images/avatars/$avatar\"><br><br>[ <a href=\"modules.php?name=$module_name&amp;op=edituser\">Back to Profile</a> | <a href=\"modules.php?name=$module_name\">Done</a> ]<br><br></center>"; }
+		if (preg_match('#(http)#m', (string) $avatar)) { 
+		echo "<center>Your New Avatar:<br><br><IMG alt=\"\" src=\"$avatar\"><br><br>[ <a href=\"modules.php?name=$module_name&amp;op=edituser\">Back to Profile</a> | <a 
+		href=\"modules.php?name=$module_name\">Done</a> ]<br><br></center>"; 
+		} elseif ($avatar) { 
+		echo "<center>Your New Avatar:<br><br><IMG alt=\"\" src=\"modules/Forums/images/avatars/$avatar\"><br><br>[ <a 
+		href=\"modules.php?name=$module_name&amp;op=edituser\">Back to Profile</a> | <a href=\"modules.php?name=$module_name\">Done</a> ]<br><br></center>"; }
 		} else { 
 		  echo "<center><b>Error:</b> Wrong avatar format! Avatars can only be gif, jpg, or png format.<br />"._GOBACK."</center>"; 
 		} 
@@ -1686,22 +2360,32 @@ function avatarlinksave($avatar) {
 }
 
 function broadcast($the_message, $who) {
+	
 	global $prefix, $db, $broadcast_msg, $module_name, $cookie, $user, $userinfo, $user_prefix;
+	
 	cookiedecode($user);
 	getusrinfo($user);
+	
 	$row = $db->sql_fetchrow($db->sql_query("SELECT karma FROM ".$user_prefix."_users WHERE user_id = '".intval($cookie[0])."'"));
+	
 	if (($row['karma'] == 2) OR ($row['karma'] == 3)) {
 		Header("Location: modules.php?name=".$module_name);
 		die();
 	}
+	
 	if ((is_user()) AND (strtolower((string) $who) == strtolower((string) $cookie[1])) AND (strtolower((string) $userinfo['username']) == strtolower((string) $cookie[1])) AND ($userinfo['user_password'] == $cookie[2])) {
 		$who = $cookie[1];
 		$the_message = filter($the_message, "nohtml", 1);
+	
 		if ($broadcast_msg == 1) {
+	
 			include("header.php");
+	
 			title(""._BROADCAST."");
 			OpenTable();
+	
 			$numrows = $db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_public_messages WHERE who='$who'"));
+	
 			if (!empty($the_message) AND $numrows == 0) {
 				$the_time = time();
 				$who = filter($who, "nohtml", 1);
@@ -1712,7 +2396,9 @@ function broadcast($the_message, $who) {
 				echo "<center>"._BROADCASTNOTSENT."<br><br>[ <a href=\"modules.php?name=$module_name\">"._RETURNPAGE."</a> ]</center>";
 			}
 			CloseTable();
+			
 			include("footer.php");
+			
 		} else {
 			echo "I don't like you...";
 		}
@@ -1721,7 +2407,9 @@ function broadcast($the_message, $who) {
 
 function my_headlines($hid, $url=0) {
 	$title = null;
- global $prefix, $db, $user;
+    
+	global $prefix, $db, $user;
+	
 	if (!is_user() || empty($url)) {
 		die();
 	}
@@ -1732,31 +2420,38 @@ function my_headlines($hid, $url=0) {
 	$url = filter($row['headlinesurl'], "nohtml");
 	$rdf = parse_url((string) $url);
 	$fp = fsockopen($rdf['host'], 80, $errno, $errstr, 15);
+	
 	if (!$fp) {
 		$content = "<font class=\"content\">Problema!</font>";
 		return;
 	}
+	
 	if ($fp) {
 		fputs($fp, "GET " . $rdf['path'] . "?" . $rdf['query'] . " HTTP/1.0\r\n");
 		fputs($fp, "HOST: " . $rdf['host'] . "\r\n\r\n");
 		$string	= "";
+	
 		while(!feof($fp)) {
 			$pagetext = fgets($fp,300);
 			$string .= chop($pagetext);
 		}
+	
 		fputs($fp,"Connection: close\r\n\r\n");
 		fclose($fp);
 		$items = explode("</item>",$string);
 		$content = "<font class=\"content\">";
+	
 		for ($i=0;$i<10;$i++) {
 			$link = preg_replace('#.*<link>#m',"",$items[$i]);
 			$link = preg_replace('#<\/link>.*#m',"",(string) $link);
 			$title2 = preg_replace('#.*<title>#m',"",$items[$i]);
 			$title2 = preg_replace('#<\/title>.*#m',"",(string) $title2);
+	
 			if (empty($items[$i])) {
 				$content = "";
 				return;
 			} else {
+	
 				if (strcmp((string) $link,(string) $title)) {
 					$cont = 1;
 					$content .= "<img src=\"images/arrow.gif\" border=\"0\" hspace=\"5\"><a href=\"$link\" target=\"new\">$title2</a><br>\n";
@@ -1768,7 +2463,9 @@ function my_headlines($hid, $url=0) {
 }
 
 function CoolSize($size) {
+	
 	$mb = 1024*1024;
+	
 	if ( $size > $mb ) {
 		$mysize = sprintf ("%01.2f",$size/$mb) . " MB";
 	} elseif ( $size >= 1024 ) {
@@ -1780,11 +2477,14 @@ function CoolSize($size) {
 }
 
 function change_karma($user_id, $karma) {
+	
 	global $admin, $user_prefix, $db, $module_name;
+	
 	if (!is_admin()) {
 		Header("location: index.php");
 		die();
 	} else {
+	
 		if ($user_id > 1) {
 			$karma = intval($karma);
 			$db->sql_query("UPDATE ".$user_prefix."_users SET karma='$karma' WHERE user_id='$user_id'");
@@ -1852,7 +2552,35 @@ switch($op) {
 	break;
 
 	case "saveuser":
-	saveuser($realname, $user_email, $femail, $user_website, $user_icq, $user_aim, $user_yim, $user_msnm, $user_from, $user_occ, $user_interests, $newsletter, $user_viewemail, $user_allow_viewonline, $user_notify, $user_notify_pm, $user_popup_pm, $user_attachsig, $user_allowbbcode, $user_allowhtml, $user_allowsmile, $user_timezone, $user_dateformat, $user_sig, $bio, $user_password, $vpass, $username, $user_id);
+	saveuser($realname, 
+	       $user_email, 
+		       $femail, 
+		 $user_website, 
+		     $user_icq, 
+			 $user_aim, 
+			 $user_yim, 
+			$user_msnm, 
+			$user_from, 
+			 $user_occ, 
+	   $user_interests, 
+	       $newsletter, 
+	   $user_viewemail, 
+$user_allow_viewonline, 
+          $user_notify, 
+	   $user_notify_pm, 
+	    $user_popup_pm, 
+	   $user_attachsig, 
+	 $user_allowbbcode, 
+	   $user_allowhtml, 
+	  $user_allowsmile, 
+	    $user_timezone, 
+	  $user_dateformat, 
+	         $user_sig, 
+			      $bio, 
+		$user_password, 
+		        $vpass, 
+			 $username, 
+			  $user_id);
 	break;
 
 	case "edithome":
@@ -1919,4 +2647,3 @@ switch($op) {
 
 }
 
-?>

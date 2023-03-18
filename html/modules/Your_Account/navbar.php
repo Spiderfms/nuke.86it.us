@@ -12,6 +12,10 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ */
+ 
 if (!defined('MODULE_FILE')) {
     die("You can't access this file directly...");
 }
@@ -40,7 +44,7 @@ if (!is_user()) {
 		$thmcount = 0;
 	    $handle=opendir('themes');
 	    while ($file = readdir($handle)) {
-			if ( (!ereg("[.]",$file)) ) {
+			if ( (!preg_match('#[\.]#m',$file)) ) {
 				$thmcount++;
 			}
 	    }

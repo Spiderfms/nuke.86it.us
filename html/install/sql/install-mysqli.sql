@@ -1041,7 +1041,7 @@ CREATE TABLE IF NOT EXISTS `#prefix#_users` (
   `noscore` tinyint(1) NOT NULL DEFAULT 0,
   `bio` text NOT NULL DEFAULT 'Edit Bio In User Control Panel',
   `ublockon` tinyint(1) NOT NULL DEFAULT 0,
-  `ublock` tinytext NOT NULL,
+  `ublock` tinytext NOT NULL DEFAULT 'Edit User Block In User Control Panel',
   `theme` varchar(255) NOT NULL DEFAULT '',
   `commentmax` int(11) NOT NULL DEFAULT 4096,
   `counter` int(11) NOT NULL DEFAULT 0,
