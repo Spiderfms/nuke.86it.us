@@ -1039,7 +1039,7 @@ CREATE TABLE IF NOT EXISTS `#prefix#_users` (
   `uorder` tinyint(1) NOT NULL DEFAULT 0,
   `thold` tinyint(1) NOT NULL DEFAULT 0,
   `noscore` tinyint(1) NOT NULL DEFAULT 0,
-  `bio` tinytext NOT NULL,
+  `bio` text NOT NULL DEFAULT 'Edit Bio In User Control Panel',
   `ublockon` tinyint(1) NOT NULL DEFAULT 0,
   `ublock` tinytext NOT NULL,
   `theme` varchar(255) NOT NULL DEFAULT '',
