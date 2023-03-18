@@ -12,6 +12,13 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * RandomFunctionRector
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
+ */
+ 
 define('ADMIN_FILE', true);
 
 if(isset($aid)) {
@@ -86,7 +93,7 @@ if ($the_first == 0) {
 	die();
 }
 
-if (isset($aid) && (ereg("[^a-zA-Z0-9_-]",trim($aid)))) {
+if (isset($aid) && (preg_match('#[^a-zA-Z0-9_\-]#m',trim($aid)))) {
 	die("Begone");
 }
 if (isset($aid)) { $aid = substr($aid, 0,25);}
@@ -102,11 +109,11 @@ if ((isset($aid)) && (isset($pwd)) && (isset($op)) && ($op == "login")) {
 	if(!empty($aid) AND !empty($pwd)) {
 		$pwd = md5($pwd);
 		$result = $db->sql_query("SELECT pwd, admlanguage FROM ".$prefix."_authors WHERE aid='$aid'");
-		list($rpwd, $admlanguage) = $db->sql_fetchrow($result);
+		[$rpwd, $admlanguage] = $db->sql_fetchrow($result);
 		$admlanguage = addslashes($admlanguage);
 		if($rpwd == $pwd) {
 			$admin = base64_encode("$aid:$pwd:$admlanguage");
-			setcookie("admin",$admin,time()+2592000);
+			setcookie("admin",$admin,['expires' => time()+2592000]);
 			unset($op);
 		}
 	}
@@ -136,7 +143,7 @@ if(isset($admin) && !empty($admin)) {
 	if (!$result2) {
 		die("Selection from database failed!");
 		} else {
-			list($rname, $rpwd) = $db->sql_fetchrow($result2);
+			[$rname, $rpwd] = $db->sql_fetchrow($result2);
 			if($rpwd == $pwd && !empty($rpwd)) {
 				$admintest = 1;
 			}
@@ -159,7 +166,7 @@ if(isset($admin) && !empty($admin)) {
 			include("header.php");
 			mt_srand ((double)microtime()*1000000);
 			$maxran = 1000000;
-			$random_num = mt_rand(0, $maxran);
+			$random_num = random_int(0, $maxran);
 			OpenTable();
 			echo "<center><font class=\"title\"><b>"._ADMINLOGIN."</b></font></center>";
 			CloseTable();
@@ -259,7 +266,7 @@ if(isset($admin) && !empty($admin)) {
 						$handle=opendir('modules');
 						$modlist = "";
 						while ($file = readdir($handle)) {
-							if ( (!ereg("[.]",$file)) ) {
+							if ( (!preg_match('#[\.]#m',$file)) ) {
 								$modlist .= "$file ";
 							}
 						}
@@ -319,9 +326,9 @@ if(isset($admin) && !empty($admin)) {
 						$admlanguage = addslashes($row['admlanguage']);
 						$result = $db->sql_query("SELECT admins FROM ".$prefix."_modules WHERE title='News'");
 						$result2 = $db->sql_query("SELECT name FROM ".$prefix."_authors WHERE aid='$aid'");
-						list($aidname) = $db->sql_fetchrow($result2);
+						[$aidname] = $db->sql_fetchrow($result2);
 						$radminarticle = 0;
-						while (list($admins) = $db->sql_fetchrow($result)) {
+						while ([$admins] = $db->sql_fetchrow($result)) {
 							$admins = explode(",", $admins);
 							$auth_user = 0;
 							for ($i=0; $i < sizeof($admins); $i++) {
@@ -350,8 +357,8 @@ if(isset($admin) && !empty($admin)) {
 							$member_online_num = intval($db->sql_numrows($db->sql_query("SELECT uname FROM ".$prefix."_session WHERE guest='0'")));
 							$who_online_num = $guest_online_num + $member_online_num;
 							$who_online = "<center><font class=\"option\">"._WHOSONLINE."</font><br><br><font class=\"content\">"._CURRENTLY." $guest_online_num "._GUESTS." $member_online_num "._MEMBERS."<br>";
-							list($userCount) = $db->sql_fetchrow($db->sql_query("SELECT COUNT(user_id) AS userCount from ".$user_prefix."_users WHERE user_regdate LIKE '$curDate2'"));
-							list($userCount2) = $db->sql_fetchrow($db->sql_query("SELECT COUNT(user_id) AS userCount FROM ".$user_prefix."_users WHERE user_regdate LIKE '$curDateP'"));
+							[$userCount] = $db->sql_fetchrow($db->sql_query("SELECT COUNT(user_id) AS userCount from ".$user_prefix."_users WHERE user_regdate LIKE '$curDate2'"));
+							[$userCount2] = $db->sql_fetchrow($db->sql_query("SELECT COUNT(user_id) AS userCount FROM ".$user_prefix."_users WHERE user_regdate LIKE '$curDateP'"));
 							echo "<center>$who_online<br>"
 							.""._BTD.": <b>$userCount</b> - "._BYD.": <b>$userCount2</b></center>";
 							CloseTable();
@@ -361,7 +368,7 @@ if(isset($admin) && !empty($admin)) {
 								echo "<center><b>"._AUTOMATEDARTICLES."</b></center><br>";
 								$count = 0;
 								$result5 = $db->sql_query("SELECT anid, aid, title, time, alanguage FROM ".$prefix."_autonews $queryalang ORDER BY time ASC");
-								while (list($anid, $aid, $listtitle, $time, $alanguage) = $db->sql_fetchrow($result5)) {
+								while ([$anid, $aid, $listtitle, $time, $alanguage] = $db->sql_fetchrow($result5)) {
 									$anid = intval($anid);
 									$said = substr($aid, 0,25);
 									$title = $listtitle;
@@ -501,7 +508,7 @@ if(isset($admin) && !empty($admin)) {
 												}
 												closedir($casedir->handle);
 												$result = $db->sql_query("SELECT title FROM ".$prefix."_modules ORDER BY title ASC");
-												while (list($mod_title) = $db->sql_fetchrow($result)) {
+												while ([$mod_title] = $db->sql_fetchrow($result)) {
 													if (file_exists("modules/$mod_title/admin/index.php") AND file_exists("modules/$mod_title/admin/links.php") AND file_exists("modules/$mod_title/admin/case.php")) {
 														include("modules/$mod_title/admin/case.php");
 													}
