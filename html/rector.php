@@ -150,6 +150,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
         //__DIR__ . '/admin',
         //__DIR__ . '/blocks',
+		  __DIR__ . '/blocks/blocks-Modules.php',
         //__DIR__ . '/install/includes/database.php',
 		//__DIR__ . '/install/install2.php',
 		//__DIR__ . '/install',
@@ -167,7 +168,7 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/modules/Feedback/index.php',
 		//__DIR__ . '/modules/Forums/common.php',
         //__DIR__ . '/themes',
-		  __DIR__ . '/admin.php',
+		//__DIR__ . '/admin.php',
 		//__DIR__ . '/backend.php',
 		//__DIR__ . '/footer.php',
 		//__DIR__ . '/header.php',

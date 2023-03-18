@@ -1,5 +1,7 @@
 <?php
 
+use function PHP81_BC\strftime;
+
 /************************************************************************/
 /* PHP-NUKE: Web Portal System                                          */
 /* ===========================                                          */
@@ -102,7 +104,11 @@ if ((isset($aid)) && (isset($pwd)) && (isset($op)) && ($op == "login")) {
 	$datekey = date("F j");
 	$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $_POST['random_num'] . $datekey));
 	$code = substr($rcode, 2, 6);
-	if (extension_loaded("gd") AND $code != $_POST['gfx_check'] AND ($gfx_chk == 1 OR $gfx_chk == 5 OR $gfx_chk == 6 OR $gfx_chk == 7)) {
+	
+	if(!isset($gfx_chk))
+	$gfx_chk = 0;
+	
+	if (isset($_POST['gfx_check']) && extension_loaded("gd") AND $code != $_POST['gfx_check'] AND ($gfx_chk == 1 OR $gfx_chk == 5 OR $gfx_chk == 6 OR $gfx_chk == 7)) {
 		Header("Location: ".$admin_file.".php");
 		die();
 	}

@@ -81,7 +81,8 @@ if (file_exists("themes/$ThemeSel/module.php")) {
     if (is_admin()) {
 	$handle=opendir('modules');
 	while ($file = readdir($handle)) {
-	    if ( (!ereg("[.]",$file)) ) {
+	    if ( (!preg_match('#[\.]#m',$file)) ) {
+		if(!isset($modlist)){ $modlist = ''; }
 		$modlist .= "$file ";
 	    }
 	}
@@ -92,7 +93,7 @@ if (file_exists("themes/$ThemeSel/module.php")) {
 	    if($modlist[$i] != "") {
 		$row4 = $db->sql_fetchrow($db->sql_query("SELECT mid FROM ".$prefix."_modules WHERE title='$modlist[$i]'"));
 		$mid = intval($row4['mid']);
-		$mod_uname = ereg_replace("_", " ", $modlist[$i]);
+		$mod_uname = preg_replace('#_#m', " ", (string) $modlist[$i]);
 		if ($mid == "") {
 		    $db->sql_query("INSERT INTO ".$prefix."_modules VALUES (NULL, '$modlist[$i]', '$mod_uname', '0', '0', '1', '0')");
 		}
@@ -104,7 +105,7 @@ if (file_exists("themes/$ThemeSel/module.php")) {
 	while ($row5 = $db->sql_fetchrow($result5)) {
 	    $mn_title = filter($row5['title'], "nohtml");
 	    $custom_title = filter($row5['custom_title'], "nohtml");
-	    $mn_title2 = ereg_replace("_", " ", $mn_title);
+		$mn_title2 = preg_replace('#_#m', " ", (string) $mn_title);
 	    if ($custom_title != "") {
 		$mn_title2 = $custom_title;
 	    }
@@ -124,7 +125,7 @@ if (file_exists("themes/$ThemeSel/module.php")) {
 	while ($row6 = $db->sql_fetchrow($result6)) {
 	    $mn_title = filter($row6['title'], "nohtml");
 	    $custom_title = filter($row6['custom_title'], "nohtml");
-	    $mn_title2 = ereg_replace("_", " ", $mn_title);
+		$mn_title2 = preg_replace('#_#m', " ", (string) $mn_title);
 		if (!empty($custom_title)) {
 		$mn_title2 = $custom_title;
 	    }
