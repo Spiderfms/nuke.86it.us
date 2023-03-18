@@ -1218,7 +1218,15 @@ function mail_password($username, $code) {
 				$user_email = filter($row['user_email'], "nohtml");
 				$user_password = $row['user_password'];
 				$areyou = substr((string) $user_password, 0, 10);
-				$message = ""._USERACCOUNT." '$username' "._AT." $sitename "._HASTHISEMAIL." "._AWEBUSERFROM." $host_name "._CODEREQUESTED."\n\n"._YOURCODEIS." $areyou \n\n"._WITHTHISCODE." $nukeurl/modules.php?name=$module_name&op=pass_lost\n"._IFYOUDIDNOTASK2."";
+				$message = ""._USERACCOUNT." '$username' "
+				             ._AT." $sitename "
+							 ._HASTHISEMAIL." "
+							 ._AWEBUSERFROM." $host_name "
+							 ._CODEREQUESTED."\n\n"
+							 ._YOURCODEIS." $areyou \n\n"
+							 ._WITHTHISCODE." $nukeurl/modules.php?name=$module_name&op=pass_lost\n"
+							 ._IFYOUDIDNOTASK2."";
+							 
 				$subject=""._CODEFOR." $username";
 				mail((string) $user_email, $subject, $message, "From: $adminmail\nX-Mailer: PHP/" . phpversion());
 				include ("header.php");
@@ -1283,8 +1291,20 @@ function login($username, $user_password, $redirect, $mode, $f, $t, $random_num,
 			Header("Location: modules.php?name=$module_name&stop=1");
 			die();
 		} else {
-			docookie($setinfo['user_id'], $username, $new_pass, $setinfo['storynum'], $setinfo['umode'], $setinfo['uorder'], $setinfo['thold'], $setinfo['noscore'], $setinfo['ublockon'], $setinfo['theme'], $setinfo['commentmax']);
+			docookie($setinfo['user_id'], 
+			                   $username, 
+							   $new_pass, 
+					$setinfo['storynum'], 
+					   $setinfo['umode'], 
+					  $setinfo['uorder'], 
+					   $setinfo['thold'], 
+					 $setinfo['noscore'], 
+					$setinfo['ublockon'], 
+					   $setinfo['theme'], 
+				  $setinfo['commentmax']);
+			
 			$uname = $_SERVER['REMOTE_ADDR'];
+			
 			$db->sql_query("DELETE FROM ".$prefix."_session WHERE uname='$uname' AND guest='1'");
 			$db->sql_query("UPDATE ".$prefix."_users SET last_ip='$uname' WHERE username='$username'");
 		}
