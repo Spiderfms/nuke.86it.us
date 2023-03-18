@@ -39,6 +39,7 @@ function at_credits($vars)
 
 function at_admin_credits($credits)
 {
+    $type = null;
     extract($credits);
     
     $image = $text = "";
@@ -59,5 +60,3 @@ function at_admin_credits($credits)
 	
 	return $output;
 }
-
-?>

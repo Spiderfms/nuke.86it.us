@@ -20,7 +20,11 @@ $extra['loginpage'] = array (
 //
 function at_loginpage($vars)
 {
-	extract($vars);
+	$loginpage = [];
+    $themepath = null;
+    $atdir = null;
+    $command = null;
+    extract($vars);
 	$template = $loginpage['template'];
 
     session_start();
@@ -40,10 +44,10 @@ function at_loginpage($vars)
 	if (!$template) {
         $template = "loginpage.html";
     }
-    if (@file_exists($themepath.$template)) {
+    if (file_exists($themepath.$template)) {
 		$file = $themepath.$template;
 	}
-	elseif (@file_exists($atdir."templates/$template")) {
+	elseif (file_exists($atdir."templates/$template")) {
 		$file = $atdir."templates/$template";
 	}
 	else {
@@ -57,6 +61,8 @@ function at_loginpage($vars)
 
 function at_admin_loginpage($vars)
 {
+    $themedir = null;
+    $template = null;
     extract($vars);
     
     $themepath = at_gettheme_path($themedir);
@@ -66,5 +72,3 @@ function at_admin_loginpage($vars)
     	
 	return $output;
 }
-
-?>

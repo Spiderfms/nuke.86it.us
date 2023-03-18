@@ -47,5 +47,3 @@ function at_autoimages($display)
 	
     return $display;
 }
-
-?>

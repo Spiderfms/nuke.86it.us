@@ -20,7 +20,8 @@ $extra['autolang'] = array (
 //
 function at_autolang($config)
 {
-	extract($config);
+	$autolang = [];
+    extract($config);
 	
 	$lang = atGetLang();
 	
@@ -47,5 +48,3 @@ function at_admin_autolang($autolang)
     
 	return $output;
 }
-
-?>

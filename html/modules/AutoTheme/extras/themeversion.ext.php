@@ -20,7 +20,12 @@ $extra['themeversion'] = array (
 //
 function at_themeversion($runningconfig)
 {
-	if (is_array($runningconfig['themeversion'])) {
+ $name = null;
+ $version = null;
+ $description = null;
+ $author = null;
+ $contact = null;
+ if (is_array($runningconfig['themeversion'])) {
         extract($runningconfig['themeversion']);
     }	
 	if (!$name) { $name = $runningconfig['thename']; }
@@ -40,6 +45,12 @@ function at_themeversion($runningconfig)
 //
 function at_admin_themeversion($themeversion)
 {	
+    $include = null;
+    $name = null;
+    $version = null;
+    $description = null;
+    $author = null;
+    $contact = null;
     extract($themeversion);
     
     $yinc = $ninc = "";
@@ -61,5 +72,3 @@ function at_admin_themeversion($themeversion)
 	
     return $output;
 }
-
-?>

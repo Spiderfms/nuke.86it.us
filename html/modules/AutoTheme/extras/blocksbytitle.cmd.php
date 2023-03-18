@@ -10,4 +10,3 @@ foreach ($blocklist as $title) {
     $extracmd['all'][$title] = "atBlockDisplay('', '$title');";
 }
 
-?>

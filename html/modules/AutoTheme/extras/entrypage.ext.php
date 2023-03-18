@@ -20,7 +20,10 @@ $extra['entrypage'] = array (
 //
 function at_entrypage($vars)
 {
-	session_start();
+ $themepath = null;
+ $atdir = null;
+ $command = null;
+ session_start();
 	if (isset($_SESSION['entered'])) {
     	return;
     }
@@ -55,10 +58,10 @@ function at_entrypage($vars)
     if (!$template) {
         $template = "entrypage.html";
     }
-    if (@file_exists($themepath.$template)) {
+    if (file_exists($themepath.$template)) {
 		$file = $themepath.$template;
 	}
-	elseif (@file_exists($atdir."templates/$template")) {
+	elseif (file_exists($atdir."templates/$template")) {
 		$file = $atdir."templates/$template";
 	}
 	else {
@@ -72,6 +75,9 @@ function at_entrypage($vars)
 
 function at_admin_entrypage($vars)
 {
+    $template = null;
+    $type = null;
+    $themedir = null;
     extract($vars);
 
     if (!$template) {
@@ -109,5 +115,3 @@ function at_admin_entrypage($vars)
 	
 	return $output;
 }
-
-?>

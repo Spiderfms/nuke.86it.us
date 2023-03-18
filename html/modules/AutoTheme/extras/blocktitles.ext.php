@@ -19,6 +19,9 @@ $extra['blocktitles'] = array (
 //
 function at_block_titles()
 {
+    $block = [];
+    $imagepath = null;
+    $language = null;
     $runningconfig = atGetRunningConfig();
     extract($runningconfig);
     
@@ -51,5 +54,3 @@ function at_block_titles()
     }
     atCommandBuild($block, "block");
 }	
-
-?>

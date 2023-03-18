@@ -20,7 +20,16 @@ $extra['transitionpages'] = array (
 //
 function at_transitionpages($transitionpages)
 {
-	atCommandAdd("page-url", 'echo $_SERVER["REQUEST_URI"];');
+ $modtemplate = null;
+ $modops = null;
+ $visits = null;
+ $type = null;
+ $rotate = null;
+ $template = [];
+ $themepath = null;
+ $atdir = null;
+ $command = null;
+ atCommandAdd("page-url", 'echo $_SERVER["REQUEST_URI"];');
 	
 	$runningconfig = atGetRunningConfig();
 	extract($runningconfig);
@@ -71,7 +80,7 @@ function at_transitionpages($transitionpages)
     	$c = $_SESSION[$module.'_count'];
     	$template = $template[$c];
     	
-    	if (!isset($_SESSION[$module.'_count']) || $_SESSION[$module.'_count'] > (count($template) - 1)) {
+    	if (!isset($_SESSION[$module.'_count']) || $_SESSION[$module.'_count'] > ((is_countable($template) ? count($template) : 0) - 1)) {
     		$_SESSION[$module.'_count'] = 0;
     	}
     	else {
@@ -101,6 +110,12 @@ function at_transitionpages($transitionpages)
 
 function at_admin_transitionpages($vars)
 {
+    $themedir = null;
+    $visits = null;
+    $rotate = null;
+    $type = null;
+    $template = null;
+    $output = null;
     extract($vars);
     
     $themepath = at_gettheme_path($themedir);
@@ -154,5 +169,3 @@ function at_admin_transitionpages($vars)
 	
 	return $output;
 }
-
-?>

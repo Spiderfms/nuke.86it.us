@@ -22,4 +22,3 @@ function at_style_fixes()
     echo "<!-- Make forms inline for IE -->\n<style type=\"text/css\">form { display: inline }</style>\n";
 }
 
-?>

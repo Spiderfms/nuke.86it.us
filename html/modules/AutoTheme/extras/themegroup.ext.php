@@ -20,6 +20,8 @@ $extra['themegroup'] = array (
 //
 function at_themegroup($vars)
 {
+    $newtheme = null;
+    $user = null;
     extract($vars);
     
     $themegroup = atAutoGetVar("themegroup");
@@ -46,6 +48,7 @@ function at_themegroup($vars)
 
 function at_admin_themegroup($themegroup)
 {
+    $output = null;
     $themelist = atThemeList();
     $grouplist = atGroupList();
 	
@@ -99,5 +102,3 @@ function at_admin_themegroup($themegroup)
     
 	return $output;
 }
-
-?>

@@ -20,12 +20,15 @@ $extra['maintenance'] = array (
 //
 function at_maintenance($vars)
 {
-	extract($vars);
+	$themepath = null;
+    $atdir = null;
+    $command = null;
+    extract($vars);
     
     $maintenance = atAutoGetVar("maintenance");
     $template = $maintenance['template'];
     
-    if (atISAdminUser() || eregi($GLOBALS['admin_file'], $_SERVER['PHP_SELF'])) {
+    if (atISAdminUser() || preg_match($GLOBALS['admin_file'], $_SERVER['PHP_SELF'])) {
     	return;
     }        
     if (!$template) {
@@ -48,6 +51,8 @@ function at_maintenance($vars)
 
 function at_admin_maintenance($vars)
 {
+    $themedir = null;
+    $template = null;
     extract($vars);
 
     $themepath = at_gettheme_path($themedir);
@@ -57,5 +62,3 @@ function at_admin_maintenance($vars)
     	
 	return $output;
 }
-
-?>

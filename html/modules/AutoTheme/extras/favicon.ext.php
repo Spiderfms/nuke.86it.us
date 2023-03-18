@@ -20,7 +20,9 @@ $extra['favicon'] = array (
 //
 function at_shortcut_icon($config)
 {
-	extract($config);
+	$imagepath = null;
+    $xhtml = null;
+    extract($config);
 	
 	$favicon = atAutoGetVar("favicon");
     $icon = $favicon['icon'];	
@@ -37,6 +39,7 @@ function at_shortcut_icon($config)
 
 function at_admin_shortcuticon($vars)
 {
+    $icon = null;
     extract($vars);
 
     if (!$icon) {
@@ -46,5 +49,3 @@ function at_admin_shortcuticon($vars)
 	
 	return $output;
 }
-
-?>

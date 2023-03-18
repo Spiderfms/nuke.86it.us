@@ -21,7 +21,8 @@ $extra['modstyles'] = array (
 //
 function open_mod_styles($vars)
 {
-	extract($vars);
+	$display = null;
+    extract($vars);
 
     $modname = atGetModName();
     
@@ -36,7 +37,8 @@ function open_mod_styles($vars)
 
 function close_mod_styles($vars)
 {
-	extract($vars);
+	$display = null;
+ extract($vars);
 	
 	if (!isset($tag)) {
     	$tag = "div";
@@ -46,5 +48,3 @@ function close_mod_styles($vars)
 
   	echo $display;
 }
-
-?>

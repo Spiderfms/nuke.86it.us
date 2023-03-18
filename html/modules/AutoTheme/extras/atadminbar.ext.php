@@ -20,6 +20,8 @@ $extra['atadminbar'] = array (
 //
 function at_admin_bar()
 {
+    $multipath = null;
+    $template = [];
     $runningconfig = atGetRunningConfig();
     extract($runningconfig);
 
@@ -55,7 +57,9 @@ function at_admin_bar()
 
 function at_config_display()
 {
-	if (!atIsAdminUser()) {
+ $command = [];
+ $vars = null;
+ if (!atIsAdminUser()) {
 	    return;
 	}
 	$runningconfig = atGetRunningConfig();
@@ -151,5 +155,3 @@ function at_config_display()
         die();
 	}
 }
-	
-?>

@@ -20,6 +20,8 @@ $extra['themesonadate'] = array (
 //
 function at_themesonadate($vars)
 {
+    $newtheme = null;
+    $user = null;
     extract($vars);
     
     $themesonadate = atAutoGetVar("themesonadate");
@@ -48,7 +50,8 @@ function at_themesonadate($vars)
 
 function at_admin_themesonadate($themesonadate)
 {
-	$themelist = atThemeList();
+	$output = null;
+    $themelist = atThemeList();
 		
     foreach ($themesonadate['date'] as $k => $date) {
     	$theme = $themesonadate['theme'][$k];
@@ -78,5 +81,3 @@ function at_admin_themesonadate($themesonadate)
     
 	return $output;
 }
-
-?>

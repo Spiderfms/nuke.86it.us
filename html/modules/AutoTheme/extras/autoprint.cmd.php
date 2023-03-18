@@ -42,5 +42,3 @@ atRunningSetVar("thisurl", $thisurl);
 $extracmd['all'] = array (
 	'print-link' => 'echo "<a target=\"_blank\" href=\"$thisurl\">$printimage"._AT_PRINTERFRIENDLYPAGE."</a>";',
 );
-
-?>

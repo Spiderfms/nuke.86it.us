@@ -20,6 +20,8 @@ $extra['themetime'] = array (
 //
 function at_themetime($vars)
 {
+    $newtheme = null;
+    $user = null;
     extract($vars);
     
     $themetime = atAutoGetVar("themetime");
@@ -47,6 +49,7 @@ function at_themetime($vars)
 
 function at_admin_themetime($themetime)
 {
+    $output = null;
     $themelist = atThemeList();
     
 	foreach ($themetime['time'] as $k => $time) {
@@ -77,5 +80,3 @@ function at_admin_themetime($themetime)
     
 	return $output;
 }
-
-?>

@@ -36,5 +36,3 @@ function at_rendertime_stop($vars)
 	
 	printf('<div align="center">'._AT_PAGECREATED." %f "._AT_SECONDS.'</div>', $rendertime);
 }
-
-?>

@@ -20,7 +20,11 @@ $extra['logoutpage'] = array (
 //
 function at_logoutpage($vars)
 {
-	extract($vars);
+	$logoutpage = [];
+    $themepath = null;
+    $atdir = null;
+    $command = null;
+    extract($vars);
 	$template = $logoutpage['template'];
 
     session_start();
@@ -39,10 +43,10 @@ function at_logoutpage($vars)
 	if (!$template) {
         $template = "logoutpage.html";
     }
-    if (@file_exists($themepath.$template)) {
+    if (file_exists($themepath.$template)) {
 		$file = $themepath.$template;
 	}
-	elseif (@file_exists($atdir."templates/$template")) {
+	elseif (file_exists($atdir."templates/$template")) {
 		$file = $atdir."templates/$template";
 	}
 	else {
@@ -56,6 +60,8 @@ function at_logoutpage($vars)
 
 function at_admin_logoutpage($vars)
 {
+    $themedir = null;
+    $template = null;
     extract($vars);
     
     $themepath = at_gettheme_path($themedir);    
@@ -65,5 +71,3 @@ function at_admin_logoutpage($vars)
     	
 	return $output;
 }
-
-?>

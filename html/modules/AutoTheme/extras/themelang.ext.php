@@ -20,6 +20,8 @@ $extra['themelang'] = array (
 //
 function at_themelang($vars)
 {
+    $newtheme = null;
+    $user = null;
     extract($vars);
     
     $themelang = atAutoGetVar("themelang");
@@ -48,7 +50,8 @@ function at_themelang($vars)
 
 function at_admin_themelang($themelang)
 {
-	$themelist = atThemeList();
+	$output = null;
+    $themelist = atThemeList();
 	
     foreach ($themelang['lang'] as $k => $lang) {
     	$theme = $themelang['theme'][$k];
@@ -78,5 +81,3 @@ function at_admin_themelang($themelang)
     
 	return $output;
 }
-
-?>

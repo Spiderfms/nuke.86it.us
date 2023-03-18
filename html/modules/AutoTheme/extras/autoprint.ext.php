@@ -19,6 +19,7 @@ $extra['autoprint'] = array (
 //
 function at_admin_autoprint($vars)
 {
+    $theme = null;
     extract($vars);
 
     if (!$theme) {
@@ -28,5 +29,3 @@ function at_admin_autoprint($vars)
 	
 	return $output;
 }
-
-?>
