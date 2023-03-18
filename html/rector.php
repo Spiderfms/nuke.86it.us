@@ -66,10 +66,10 @@ use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 
 return static function (RectorConfig $rectorConfig): void {
     // A. run whole set
-    $rectorConfig->sets([
-		SetList::PHP_82,
-		LevelSetList::UP_TO_PHP_82,
-    ]);
+    //$rectorConfig->sets([
+	//	SetList::PHP_82,
+	//	LevelSetList::UP_TO_PHP_82,
+    //]);
 
     // B. or single rule
     $rectorConfig->rule(TypedPropertyFromAssignsRector::class);
