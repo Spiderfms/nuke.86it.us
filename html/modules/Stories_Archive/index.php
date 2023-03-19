@@ -21,7 +21,9 @@ $module_name = basename(dirname(__FILE__));
 get_lang($module_name);
 
 function select_month() {
-	global $prefix, $user_prefix, $db, $module_name;
+	$getdate = [];
+ $month = null;
+ global $prefix, $user_prefix, $db, $module_name;
 	include("header.php");
 	title(""._STORIESARCHIVE."");
 	OpenTable();
@@ -31,7 +33,7 @@ function select_month() {
 	$thismonth = "";
 	while($row = $db->sql_fetchrow($result)) {
 		$time = $row['time'];
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $getdate);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $getdate);
 		if ($getdate[2] == "01") { $month = _JANUARY; } elseif ($getdate[2] == "02") { $month = _FEBRUARY; } elseif ($getdate[2] == "03") { $month = _MARCH; } elseif ($getdate[2] == "04") { $month = _APRIL; } elseif ($getdate[2] == "05") { $month = _MAY; } elseif ($getdate[2] == "06") { $month = _JUNE; } elseif ($getdate[2] == "07") { $month = _JULY; } elseif ($getdate[2] == "08") { $month = _AUGUST; } elseif ($getdate[2] == "09") { $month = _SEPTEMBER; } elseif ($getdate[2] == "10") { $month = _OCTOBER; } elseif ($getdate[2] == "11") { $month = _NOVEMBER; } elseif ($getdate[2] == "12") { $month = _DECEMBER; }
 		if ($month != $thismonth) {
 			$year = $getdate[1];
@@ -51,10 +53,11 @@ function select_month() {
 }
 
 function show_month($year, $month, $month_l) {
-	global $userinfo, $prefix, $user_prefix, $db, $bgcolor1, $bgcolor2, $user, $cookie, $sitename, $multilingual, $language, $module_name, $articlecomm;
+	$getdate = [];
+ global $userinfo, $prefix, $user_prefix, $db, $bgcolor1, $bgcolor2, $user, $cookie, $sitename, $multilingual, $language, $module_name, $articlecomm;
 	$year = intval($year);
-	$month = htmlentities($month);
-	$month_l = htmlentities($month_l);
+	$month = htmlentities((string) $month);
+	$month_l = htmlentities((string) $month_l);
 	include("header.php");
 	title(""._STORIESARCHIVE."");
 	title("$sitename: $month_l $year");
@@ -103,7 +106,7 @@ function show_month($year, $month, $month_l) {
 		$alanguage = $row['alanguage'];
 		$score = intval($row['score']);
 		$ratings = intval($row['ratings']);
-		$time = explode(" ", $time);
+		$time = explode(" ", (string) $time);
 		$actions = "<a href=\"modules.php?name=News&amp;file=print&amp;sid=$sid\"><img src=\"images/print.gif\" border=0 alt=\""._PRINTER."\" title=\""._PRINTER."\" width=\"16\" height=\"11\"></a>&nbsp;<a href=\"modules.php?name=News&amp;file=friend&amp;op=FriendSend&amp;sid=$sid\"><img src=\"images/friend.gif\" border=0 alt=\""._FRIEND."\" title=\""._FRIEND."\" width=\"16\" height=\"11\"></a>";
 		if ($score != 0) {
 			$rated = substr($score / $ratings, 0, 4);
@@ -121,7 +124,7 @@ function show_month($year, $month, $month_l) {
 			if (empty($alanguage)) {
 				$alanguage = $language;
 			}
-			$alt_language = ucfirst($alanguage);
+			$alt_language = ucfirst((string) $alanguage);
 			$lang_img = "<img src=\"images/language/flag-$alanguage.png\" border=\"0\" hspace=\"2\" alt=\"$alt_language\" title=\"$alt_language\">";
 		} else {
 			$lang_img = "<strong><big><b>&middot;</b></big></strong>";
@@ -145,7 +148,7 @@ function show_month($year, $month, $month_l) {
 	$thismonth = "";
 	while($row2 = $db->sql_fetchrow($result2)) {
 		$time = $row2['time'];
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $getdate);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $getdate);
 		if ($getdate[2] == "01") { $month = _JANUARY; } elseif ($getdate[2] == "02") { $month = _FEBRUARY; } elseif ($getdate[2] == "03") { $month = _MARCH; } elseif ($getdate[2] == "04") { $month = _APRIL; } elseif ($getdate[2] == "05") { $month = _MAY; } elseif ($getdate[2] == "06") { $month = _JUNE; } elseif ($getdate[2] == "07") { $month = _JULY; } elseif ($getdate[2] == "08") { $month = _AUGUST; } elseif ($getdate[2] == "09") { $month = _SEPTEMBER; } elseif ($getdate[2] == "10") { $month = _OCTOBER; } elseif ($getdate[2] == "11") { $month = _NOVEMBER; } elseif ($getdate[2] == "12") { $month = _DECEMBER; }
 		if ($month != $thismonth) {
 			$year = $getdate[1];
@@ -164,7 +167,9 @@ function show_month($year, $month, $month_l) {
 }
 
 function show_all($min) {
-	global $prefix, $user_prefix, $db, $bgcolor1, $bgcolor2, $user, $cookie, $sitename, $multilingual, $language, $module_name, $userinfo;
+	$getdate = [];
+ $month = null;
+ global $prefix, $user_prefix, $db, $bgcolor1, $bgcolor2, $user, $cookie, $sitename, $multilingual, $language, $module_name, $userinfo;
 	if (!isset($min) || intval($min) <= 0) {
 		$min = 0;
 	}
@@ -201,7 +206,7 @@ function show_all($min) {
 		$alanguage = $row['alanguage'];
 		$score = intval($row['score']);
 		$ratings = intval($row['ratings']);
-		$time = explode(" ", $time);
+		$time = explode(" ", (string) $time);
 		$actions = "<a href=\"modules.php?name=News&amp;file=print&amp;sid=$sid\"><img src=\"images/print.gif\" border=0 alt=\""._PRINTER."\" title=\""._PRINTER."\" width=\"15\" height=\"11\"></a>&nbsp;<a href=\"modules.php?name=News&amp;file=friend&amp;op=FriendSend&amp;sid=$sid\"><img src=\"images/friend.gif\" border=0 alt=\""._FRIEND."\" title=\""._FRIEND."\" width=\"15\" height=\"11\"></a>";
 		if ($score != 0) {
 			$rated = substr($score / $ratings, 0, 4);
@@ -219,7 +224,7 @@ function show_all($min) {
 			if (empty($alanguage)) {
 				$alanguage = $language;
 			}
-			$alt_language = ucfirst($alanguage);
+			$alt_language = ucfirst((string) $alanguage);
 			$lang_img = "<img src=\"images/language/flag-$alanguage.png\" border=\"0\" hspace=\"2\" alt=\"$alt_language\" title=\"$alt_language\">";
 		} else {
 			$lang_img = "<strong><big><b>&middot;</b></big></strong>";
@@ -257,7 +262,7 @@ function show_all($min) {
 	$thismonth = "";
 	while($row2 = $db->sql_fetchrow($result2)) {
 		$time = $row2['time'];
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $getdate);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $getdate);
 		if ($getdate[2] == "01") { $month = _JANUARY; } elseif ($getdate[2] == "02") { $month = _FEBRUARY; } elseif ($getdate[2] == "03") { $month = _MARCH; } elseif ($getdate[2] == "04") { $month = _APRIL; } elseif ($getdate[2] == "05") { $month = _MAY; } elseif ($getdate[2] == "06") { $month = _JUNE; } elseif ($getdate[2] == "07") { $month = _JULY; } elseif ($getdate[2] == "08") { $month = _AUGUST; } elseif ($getdate[2] == "09") { $month = _SEPTEMBER; } elseif ($getdate[2] == "10") { $month = _OCTOBER; } elseif ($getdate[2] == "11") { $month = _NOVEMBER; } elseif ($getdate[2] == "12") { $month = _DECEMBER; }
 		if ($month != $thismonth) {
 			$year = $getdate[1];
@@ -275,7 +280,7 @@ function show_all($min) {
 	include("footer.php");
 }
 
-$sa = isset($sa) ? $sa : "";
+$sa ??= "";
 $min = isset($min) ? intval($min) : 0;
 $year = (isset($year) && intval($year) > 0) ? intval($year) : gmdate('Y');
 $month = (isset($month) && intval($month) > 0) ? intval($month) : gmdate('m');
