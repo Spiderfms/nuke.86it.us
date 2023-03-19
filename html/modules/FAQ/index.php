@@ -19,7 +19,7 @@ if (!defined('MODULE_FILE')) {
 require_once("mainfile.php");
 $module_name = basename(dirname(__FILE__));
 get_lang($module_name);
-
+define('INDEX_FILE', true);
 $pagetitle = "- $module_name";
 
 function ShowFaq($id_cat, $categories) {

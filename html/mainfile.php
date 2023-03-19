@@ -1357,7 +1357,7 @@ function filter($what, $strip="", $save="", $type="") {
 /*********************************************************/
 /* formatting stories                                    */
 /*********************************************************/
-
+use function PHP81_BC\strftime;
 function formatTimestamp($time) {
     global $datetime, $locale;
     setlocale(LC_TIME, $locale);

@@ -1,4 +1,8 @@
 <?php
+global $sitename;
+if(!isset($anonwaitdays)) { $anonwaitdays = 0; }
+if(!isset($outsidewaitdays)) { $outsidewaitdays = 0; }
+
 
 /**************************************************************************/
 /* PHP-NUKE: Advanced Content Management System                           */

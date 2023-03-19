@@ -28,7 +28,7 @@ if (isset($privmsg_id)) {
 }
 
 if (!empty($pm_uname)) {
-	$pm_uname = addslashes(check_html($pm_uname, "nohtml"));
+	$pm_uname = addslashes((string) check_html($pm_uname, "nohtml"));
     $sql = "SELECT user_id from ".$user_prefix."_users WHERE username='$pm_uname'";
     $result = $db->sql_query($sql);
     $row = $db->sql_fetchrow($result);
@@ -43,7 +43,7 @@ $result_title = $db->sql_query($sql_title);
 $row_title = $db->sql_fetchrow($result_title);
 
 if ($row_title['custom_title'] == "") {
-$mod_name = preg_replace('#_#m', " ", $name);
+$mod_name = preg_replace('#_#m', " ", (string) $name);
 } else {
 $mod_name = $row_title['custom_title'];
 }
@@ -99,7 +99,7 @@ $mark_list = ( !empty($HTTP_POST_VARS['mark']) ) ? $HTTP_POST_VARS['mark'] : 0;
 if ( isset($HTTP_POST_VARS['folder']) || isset($HTTP_GET_VARS['folder']) )
 {
         $folder = $HTTP_POST_VARS['folder'] ?? $HTTP_GET_VARS['folder'];
-	$folder = htmlspecialchars($folder);
+	    $folder = htmlspecialchars((string) $folder);
 
         if ( $folder != 'inbox' && $folder != 'outbox' && $folder != 'sentbox' && $folder != 'savebox' )
         {
@@ -125,7 +125,7 @@ init_userprefs($userdata);
 //
 if ( $cancel )
 {
-        $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+        $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
         header($header_location . append_sid("privmsg.$phpEx?folder=$folder", true));
         exit;
 }
@@ -136,7 +136,7 @@ if ( $cancel )
 if ( !empty($HTTP_POST_VARS['mode']) || !empty($HTTP_GET_VARS['mode']) )
 {
         $mode = ( !empty($HTTP_POST_VARS['mode']) ) ? $HTTP_POST_VARS['mode'] : $HTTP_GET_VARS['mode'];
-	$mode = htmlspecialchars($mode);
+	$mode = htmlspecialchars((string) $mode);
 }
 else
 {
@@ -226,7 +226,7 @@ else if ( $mode == 'read' )
 
         if ( !$userdata['session_logged_in'] )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=$folder&mode=$mode&" . POST_POST_URL . "=$privmsgs_id", true));
                 exit;
         }
@@ -288,7 +288,7 @@ else if ( $mode == 'read' )
         //
         if ( !($privmsg = $db->sql_fetchrow($result)) )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("privmsg.$phpEx?folder=$folder", true));
                 exit;
         }
@@ -377,7 +377,7 @@ else if ( $mode == 'read' )
                 // set limits on numbers of storable posts for users ... hopefully!
                 //
                 $sql = "INSERT $sql_priority INTO " . PRIVMSGS_TABLE . " (privmsgs_type, privmsgs_subject, privmsgs_from_userid, privmsgs_to_userid, privmsgs_date, privmsgs_ip, privmsgs_enable_html, privmsgs_enable_bbcode, privmsgs_enable_smilies, privmsgs_attach_sig)
-                        VALUES (" . PRIVMSGS_SENT_MAIL . ", '" . str_replace("\'", "''", addslashes($privmsg['privmsgs_subject'])) . "', " . $privmsg['privmsgs_from_userid'] . ", " . $privmsg['privmsgs_to_userid'] . ", " . $privmsg['privmsgs_date'] . ", '" . $privmsg['privmsgs_ip'] . "', " . $privmsg['privmsgs_enable_html'] . ", " . $privmsg['privmsgs_enable_bbcode'] . ", " . $privmsg['privmsgs_enable_smilies'] . ", " .  $privmsg['privmsgs_attach_sig'] . ")";
+                        VALUES (" . PRIVMSGS_SENT_MAIL . ", '" . str_replace("\'", "''", addslashes((string) $privmsg['privmsgs_subject'])) . "', " . $privmsg['privmsgs_from_userid'] . ", " . $privmsg['privmsgs_to_userid'] . ", " . $privmsg['privmsgs_date'] . ", '" . $privmsg['privmsgs_ip'] . "', " . $privmsg['privmsgs_enable_html'] . ", " . $privmsg['privmsgs_enable_bbcode'] . ", " . $privmsg['privmsgs_enable_smilies'] . ", " .  $privmsg['privmsgs_attach_sig'] . ")";
                 if ( !$db->sql_query($sql) )
                 {
                         message_die(GENERAL_ERROR, 'Could not insert private message sent info', '', __LINE__, __FILE__, $sql);
@@ -386,7 +386,7 @@ else if ( $mode == 'read' )
                 $privmsg_sent_id = $db->sql_nextid();
 
                 $sql = "INSERT $sql_priority INTO " . PRIVMSGS_TEXT_TABLE . " (privmsgs_text_id, privmsgs_bbcode_uid, privmsgs_text)
-			VALUES ($privmsg_sent_id, '" . $privmsg['privmsgs_bbcode_uid'] . "', '" . str_replace("\'", "''", addslashes($privmsg['privmsgs_text'])) . "')";
+			VALUES ($privmsg_sent_id, '" . $privmsg['privmsgs_bbcode_uid'] . "', '" . str_replace("\'", "''", addslashes((string) $privmsg['privmsgs_text'])) . "')";
                 if ( !$db->sql_query($sql) )
                 {
                         message_die(GENERAL_ERROR, 'Could not insert private message sent text', '', __LINE__, __FILE__, $sql);
@@ -585,7 +585,7 @@ else if ( $mode == 'read' )
         $yim_img = ( $privmsg['user_yim'] ) ? '<a href="http://edit.yahoo.com/config/send_webmesg?.target=' . $privmsg['user_yim'] . '&amp;.src=pg"><img src="' . $images['icon_yim'] . '" alt="' . $lang['YIM'] . '" title="' . $lang['YIM'] . '" border="0" /></a>' : '';
         $yim = ( $privmsg['user_yim'] ) ? '<a href="http://edit.yahoo.com/config/send_webmesg?.target=' . $privmsg['user_yim'] . '&amp;.src=pg">' . $lang['YIM'] . '</a>' : '';
 
-        $temp_url = append_sid("search.$phpEx?search_author=" . urlencode($username_from) . "&amp;showresults=posts");
+        $temp_url = append_sid("search.$phpEx?search_author=" . urlencode((string) $username_from) . "&amp;showresults=posts");
         $search_img = '<a href="' . $temp_url . '"><img src="' . $images['icon_search'] . '" alt="' . sprintf($lang['Search_user_posts'], $username_from) . '" title="' . sprintf($lang['Search_user_posts'], $username_from) . '" border="0" /></a>';
         $search = '<a href="' . $temp_url . '">' . sprintf($lang['Search_user_posts'], $username_from) . '</a>';
 
@@ -616,23 +616,23 @@ else if ( $mode == 'read' )
         {
                 if ( $user_sig != '')
                 {
-                        $user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", $user_sig);
+                        $user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", (string) $user_sig);
                 }
 
                 if ( $privmsg['privmsgs_enable_html'] )
                 {
-                        $private_message = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", $private_message);
+                        $private_message = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", (string) $private_message);
                 }
         }
 
         if ( $user_sig != '' && $privmsg['privmsgs_attach_sig'] && $user_sig_bbcode_uid != '' )
         {
-                $user_sig = ( $board_config['allow_bbcode'] ) ? bbencode_second_pass($user_sig, $user_sig_bbcode_uid) : preg_replace('/\:[0-9a-z\:]+\]/si', ']', $user_sig);
+                $user_sig = ( $board_config['allow_bbcode'] ) ? bbencode_second_pass($user_sig, $user_sig_bbcode_uid) : preg_replace('/\:[0-9a-z\:]+\]/si', ']', (string) $user_sig);
         }
 
         if ( $bbcode_uid != '' )
         {
-                $private_message = ( $board_config['allow_bbcode'] ) ? bbencode_second_pass($private_message, $bbcode_uid) : preg_replace('/\:[0-9a-z\:]+\]/si', ']', $private_message);
+                $private_message = ( $board_config['allow_bbcode'] ) ? bbencode_second_pass($private_message, $bbcode_uid) : preg_replace('/\:[0-9a-z\:]+\]/si', ']', (string) $private_message);
         }
 
         $private_message = make_clickable($private_message);
@@ -648,8 +648,8 @@ else if ( $mode == 'read' )
 
         if ( count($orig_word) )
         {
-                $post_subject = preg_replace($orig_word, $replacement_word, $post_subject);
-                $private_message = preg_replace($orig_word, $replacement_word, $private_message);
+                $post_subject = preg_replace($orig_word, $replacement_word, (string) $post_subject);
+                $private_message = preg_replace($orig_word, $replacement_word, (string) $private_message);
         }
 
         if ( $board_config['allow_smilies'] && $privmsg['privmsgs_enable_smilies'] )
@@ -657,7 +657,7 @@ else if ( $mode == 'read' )
                 $private_message = smilies_pass($private_message);
         }
 
-        $private_message = str_replace("\n", '<br />', $private_message);
+        $private_message = str_replace("\n", '<br />', (string) $private_message);
 
         //
         // Dump it to the templating engine
@@ -702,7 +702,7 @@ else if ( ( $delete && $mark_list ) || $delete_all )
 {
         if ( !$userdata['session_logged_in'] )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=inbox", true));
                 exit;
         }
@@ -935,7 +935,7 @@ else if ( $save && $mark_list && $folder != 'savebox' && $folder != 'outbox' )
 {
         if ( !$userdata['session_logged_in'] )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=inbox", true));
                 exit;
         }
@@ -1109,7 +1109,7 @@ else if ( $save && $mark_list && $folder != 'savebox' && $folder != 'outbox' )
                 {
                         message_die(GENERAL_ERROR, 'Could not save private messages', '', __LINE__, __FILE__, $saved_sql);
                 }
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("privmsg.$phpEx?folder=savebox", true));
                 exit;
         }
@@ -1119,7 +1119,7 @@ else if ( $submit || $refresh || $mode != '' )
         if ( !$userdata['session_logged_in'] )
         {
                 $user_id = ( isset($HTTP_GET_VARS[POST_USERS_URL]) ) ? '&' . POST_USERS_URL . '=' . intval($HTTP_GET_VARS[POST_USERS_URL]) : '';
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=$folder&mode=$mode" . $user_id, true));
                 exit;
         }
@@ -1211,7 +1211,7 @@ else if ( $submit || $refresh || $mode != '' )
 
                         $sql = "SELECT user_id, user_notify_pm, user_email, user_lang, user_active
                                 FROM " . USERS_TABLE . "
-                                WHERE username = '" . str_replace("\'", "''", $to_username) . "'
+                                WHERE username = '" . str_replace("\'", "''", (string) $to_username) . "'
                                         AND user_id <> " . ANONYMOUS;
                         if ( !($result = $db->sql_query($sql)) )
                         {
@@ -1231,7 +1231,7 @@ else if ( $submit || $refresh || $mode != '' )
                         $error_msg .= ( ( !empty($error_msg) ) ? '<br />' : '' ) . $lang['No_to_user'];
                 }
 
-		$privmsg_subject = trim(htmlspecialchars($HTTP_POST_VARS['subject']));
+		$privmsg_subject = trim(htmlspecialchars((string) $HTTP_POST_VARS['subject']));
                 if ( empty($privmsg_subject) )
                 {
                         $error = TRUE;
@@ -1342,12 +1342,12 @@ else if ( $submit || $refresh || $mode != '' )
                         $privmsg_sent_id = $db->sql_nextid();
 
                         $sql = "INSERT INTO " . PRIVMSGS_TEXT_TABLE . " (privmsgs_text_id, privmsgs_bbcode_uid, privmsgs_text)
-				VALUES ($privmsg_sent_id, '" . $bbcode_uid . "', '" . str_replace("\'", "''", $privmsg_message) . "')";
+				VALUES ($privmsg_sent_id, '" . $bbcode_uid . "', '" . str_replace("\'", "''", (string) $privmsg_message) . "')";
                 }
                 else
                 {
                         $sql = "UPDATE " . PRIVMSGS_TEXT_TABLE . "
-                                SET privmsgs_text = '" . str_replace("\'", "''", $privmsg_message) . "', privmsgs_bbcode_uid = '$bbcode_uid'
+                                SET privmsgs_text = '" . str_replace("\'", "''", (string) $privmsg_message) . "', privmsgs_bbcode_uid = '$bbcode_uid'
 				WHERE privmsgs_text_id = $privmsg_id";
                 }
 
@@ -1372,9 +1372,9 @@ else if ( $submit || $refresh || $mode != '' )
                         if ( $to_userdata['user_notify_pm'] && !empty($to_userdata['user_email']) && $to_userdata['user_active'] )
                         {
                                 $script_name = 'modules.php?name=Private_Messages&file=index';
-                                $server_name = trim($board_config['server_name']);
+                                $server_name = trim((string) $board_config['server_name']);
                                 $server_protocol = ( $board_config['cookie_secure'] ) ? 'https://' : 'http://';
-                                $server_port = ( $board_config['server_port'] <> 80 ) ? ':' . trim($board_config['server_port']) . '/' : '/';
+                                $server_port = ( $board_config['server_port'] <> 80 ) ? ':' . trim((string) $board_config['server_port']) . '/' : '/';
 
                                 include("modules/Forums/includes/emailer.php");
                                 $emailer = new emailer($board_config['smtp_delivery']);
@@ -1387,7 +1387,7 @@ else if ( $submit || $refresh || $mode != '' )
                                 $emailer->set_subject($lang['Notification_subject']);
 
                                 $emailer->assign_vars(array(
-                                        'USERNAME' => stripslashes($to_username),
+                                        'USERNAME' => stripslashes((string) $to_username),
                                         'FROM' => $userdata['username'],
                                         'SITENAME' => $board_config['sitename'],
                                         'EMAIL_SIG' => (!empty($board_config['board_email_sig'])) ? str_replace('<br />', "\n", "-- \n" . $board_config['board_email_sig']) : '',
@@ -1416,10 +1416,10 @@ else if ( $submit || $refresh || $mode != '' )
                 // passed to the script, process it a little, do some checks
                 // where neccessary, etc.
                 //
-		$to_username = (isset($HTTP_POST_VARS['username']) ) ? trim(htmlspecialchars(stripslashes($HTTP_POST_VARS['username']))) : '';
+		$to_username = (isset($HTTP_POST_VARS['username']) ) ? trim(htmlspecialchars(stripslashes((string) $HTTP_POST_VARS['username']))) : '';
 
-		$privmsg_subject = ( isset($HTTP_POST_VARS['subject']) ) ? trim(htmlspecialchars(stripslashes($HTTP_POST_VARS['subject']))) : '';
-                $privmsg_message = ( isset($HTTP_POST_VARS['message']) ) ? trim($HTTP_POST_VARS['message']) : '';
+		$privmsg_subject = ( isset($HTTP_POST_VARS['subject']) ) ? trim(htmlspecialchars(stripslashes((string) $HTTP_POST_VARS['subject']))) : '';
+                $privmsg_message = ( isset($HTTP_POST_VARS['message']) ) ? trim((string) $HTTP_POST_VARS['message']) : '';
                 $privmsg_message = preg_replace('#<textarea>#si', '&lt;textarea&gt;', $privmsg_message);
                 if ( !$preview )
                 {
@@ -1510,7 +1510,7 @@ else if ( $submit || $refresh || $mode != '' )
 
                         if ( !($privmsg = $db->sql_fetchrow($result)) )
                         {
-                                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                                 header($header_location . append_sid("privmsg.$phpEx?folder=$folder", true));
                                 exit;
                         }
@@ -1522,10 +1522,10 @@ else if ( $submit || $refresh || $mode != '' )
 
                         if ( $privmsg_bbcode_enabled )
                         {
-                                $privmsg_message = preg_replace("/\:(([a-z0-9]:)?)$privmsg_bbcode_uid/si", '', $privmsg_message);
+                                $privmsg_message = preg_replace("/\:(([a-z0-9]:)?)$privmsg_bbcode_uid/si", '', (string) $privmsg_message);
                         }
 
-                        $privmsg_message = str_replace('<br />', "\n", $privmsg_message);
+                        $privmsg_message = str_replace('<br />', "\n", (string) $privmsg_message);
                         $privmsg_message = preg_replace('#</textarea>#si', '&lt;/textarea&gt;', $privmsg_message);
 
                         $user_sig = ( $board_config['allow_sig'] ) ? (($privmsg['privmsgs_type'] == PRIVMSGS_NEW_MAIL) ? $user_sig : $privmsg['user_sig']) : '';
@@ -1550,7 +1550,7 @@ else if ( $submit || $refresh || $mode != '' )
 
                         if ( !($privmsg = $db->sql_fetchrow($result)) )
                         {
-                                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                                 header($header_location . append_sid("privmsg.$phpEx?folder=$folder", true));
                                 exit;
                         }
@@ -1558,7 +1558,7 @@ else if ( $submit || $refresh || $mode != '' )
 			$orig_word = $replacement_word = array();
 			obtain_word_list($orig_word, $replacement_word);
 
-                        $privmsg_subject = ( ( !preg_match('/^Re:/', $privmsg['privmsgs_subject']) ) ? 'Re: ' : '' ) . $privmsg['privmsgs_subject'];
+                        $privmsg_subject = ( ( !preg_match('/^Re:/', (string) $privmsg['privmsgs_subject']) ) ? 'Re: ' : '' ) . $privmsg['privmsgs_subject'];
 			$privmsg_subject = preg_replace($orig_word, $replacement_word, $privmsg_subject);
 
                         $to_username = $privmsg['username'];
@@ -1569,7 +1569,7 @@ else if ( $submit || $refresh || $mode != '' )
                                 $privmsg_message = $privmsg['privmsgs_text'];
                                 $privmsg_bbcode_uid = $privmsg['privmsgs_bbcode_uid'];
 
-                                $privmsg_message = preg_replace("/\:(([a-z0-9]:)?)$privmsg_bbcode_uid/si", '', $privmsg_message);
+                                $privmsg_message = preg_replace("/\:(([a-z0-9]:)?)$privmsg_bbcode_uid/si", '', (string) $privmsg_message);
                                 $privmsg_message = str_replace('<br />', "\n", $privmsg_message);
                                 $privmsg_message = preg_replace('#</textarea>#si', '&lt;/textarea&gt;', $privmsg_message);
 				$privmsg_message = preg_replace($orig_word, $replacement_word, $privmsg_message);
@@ -1613,8 +1613,8 @@ else if ( $submit || $refresh || $mode != '' )
                         $bbcode_uid = make_bbcode_uid();
                 }
 
-                $preview_message = stripslashes(prepare_message($privmsg_message, $html_on, $bbcode_on, $smilies_on, $bbcode_uid));
-                $privmsg_message = stripslashes(preg_replace($html_entities_match, $html_entities_replace, $privmsg_message));
+                $preview_message = stripslashes((string) prepare_message($privmsg_message, $html_on, $bbcode_on, $smilies_on, $bbcode_uid));
+                $privmsg_message = stripslashes(preg_replace($html_entities_match, $html_entities_replace, (string) $privmsg_message));
 
                 //
                 // Finalise processing as per viewtopic
@@ -1623,7 +1623,7 @@ else if ( $submit || $refresh || $mode != '' )
                 {
                         if ( $user_sig != '' )
                         {
-                                $user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", $user_sig);
+                                $user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", (string) $user_sig);
                         }
                 }
 
@@ -1644,8 +1644,8 @@ else if ( $submit || $refresh || $mode != '' )
 
                 if ( count($orig_word) )
                 {
-                        $preview_subject = preg_replace($orig_word, $replacement_word, $privmsg_subject);
-                        $preview_message = preg_replace($orig_word, $replacement_word, $preview_message);
+                        $preview_subject = preg_replace($orig_word, $replacement_word, (string) $privmsg_subject);
+                        $preview_message = preg_replace($orig_word, $replacement_word, (string) $preview_message);
                 }
                 else
                 {
@@ -1658,7 +1658,7 @@ else if ( $submit || $refresh || $mode != '' )
                 }
 
                 $preview_message = make_clickable($preview_message);
-                $preview_message = str_replace("\n", '<br />', $preview_message);
+                $preview_message = str_replace("\n", '<br />', (string) $preview_message);
 
                 $s_hidden_fields = '<input type="hidden" name="folder" value="' . $folder . '" />';
                 $s_hidden_fields .= '<input type="hidden" name="mode" value="' . $mode . '" />';
@@ -1892,7 +1892,7 @@ else if ( $submit || $refresh || $mode != '' )
 //
 if ( !$userdata['session_logged_in'] )
 {
-        $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+        $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
         header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=inbox", true));
         exit;
 }
@@ -2196,7 +2196,7 @@ if ( $row = $db->sql_fetchrow($result) )
 
                 if ( count($orig_word) )
                 {
-                        $msg_subject = preg_replace($orig_word, $replacement_word, $msg_subject);
+                        $msg_subject = preg_replace($orig_word, $replacement_word, (string) $msg_subject);
                 }
 
                 $u_subject = append_sid("privmsg.$phpEx?folder=$folder&amp;mode=read&amp;" . POST_POST_URL . "=$privmsg_id");
@@ -2253,4 +2253,3 @@ $template->pparse('body');
 
             include("modules/Forums/includes/page_tail.php");
 }
-?>
