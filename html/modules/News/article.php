@@ -15,6 +15,11 @@ if(!strpos((string) $_SERVER['PHP_SELF'], 'admin.php')) {
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -24,10 +29,13 @@ $module_name = basename(dirname(__FILE__));
 get_lang($module_name);
 
 if (isset($sid)) { $sid = intval($sid); } else { $sid = ""; }
-if (stristr((string) $REQUEST_URI,"mainfile")) {
-	Header("Location: modules.php?name=$module_name&file=article&sid=$sid");
-} elseif (empty($sid) && !isset($tid)) {
+
+if(isset($REQUEST_URI)){
+   if (stristr((string) $REQUEST_URI,"mainfile")) {
+	 Header("Location: modules.php?name=$module_name&file=article&sid=$sid");
+   } elseif (empty($sid) && !isset($tid)) {
 	Header("Location: index.php");
+  }
 }
 
 if ($save AND is_user()) {
