@@ -12,6 +12,13 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * RandomFunctionRector
+ * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -22,6 +29,7 @@ $module_name = basename(dirname(__FILE__));
 get_lang($module_name);
 
 function theindex($new_topic="0") {
+   $subject = null;
    global $db, $storyhome, $topicname, $topicimage, $topictext, $datetime, $user, $cookie, $nukeurl, $prefix, $multilingual, $currentlang, $articlecomm, $sitename, $user_news, $userinfo;
         if (is_user()) { getusrinfo($user); }
 	$new_topic = intval($new_topic);
@@ -81,13 +89,13 @@ $result = $db->sql_query("SELECT sid, catid, aid, title, time, hometext, bodytex
 		$ratings = intval($row['ratings']);
 		if ($catid > 0) {
 			$row2 = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_stories_cat WHERE catid='$catid'"));
-			$cattitle = stripslashes(check_html($row2['title'], "nohtml"));
+			$cattitle = stripslashes((string) check_html($row2['title'], "nohtml"));
 		}
 		getTopics($s_sid);
 		formatTimestamp($time);
 		$subject = filter($subject, "nohtml");
-		$introcount = strlen($hometext);
-		$fullcount = strlen($bodytext);
+		$introcount = strlen((string) $hometext);
+		$fullcount = strlen((string) $bodytext);
 		$totalcount = $introcount + $fullcount;
 		$c_count = $comments;
 		$r_options = "";
@@ -126,7 +134,11 @@ $result = $db->sql_query("SELECT sid, catid, aid, title, time, hometext, bodytex
 }
 
 function rate_article($sid, $score, $random_num="0", $gfx_check) {
-	global $prefix, $db, $ratecookie, $sitename, $r_options, $sitekey, $gfx_chk, $module_name;
+	$r_cookie = [];
+ $a = null;
+ $rcookie = null;
+ $code = null;
+ global $prefix, $db, $ratecookie, $sitename, $r_options, $sitekey, $gfx_chk, $module_name;
 	if (isset($random_num)) {
 		$datekey = date("F j");
 		$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $random_num . $datekey));
@@ -134,7 +146,7 @@ function rate_article($sid, $score, $random_num="0", $gfx_check) {
 		if (extension_loaded("gd") AND $code != $gfx_check AND $gfx_chk != 0) {
 			mt_srand ((double)microtime()*1000000);
 			$maxran = 1000000;
-			$random_num = mt_rand(0, $maxran);
+			$random_num = random_int(0, $maxran);
 			include("header.php");
 			title("$sitename: "._ARTICLERATING."");
 			OpenTable();
@@ -170,7 +182,7 @@ function rate_article($sid, $score, $random_num="0", $gfx_check) {
 					die();
 				}
 				if (isset($ratecookie)) {
-					$rcookie = base64_decode($ratecookie);
+					$rcookie = base64_decode((string) $ratecookie);
 					$rcookie = addslashes($rcookie);
 					$r_cookie = explode(":", $rcookie);
 				}
@@ -186,7 +198,7 @@ function rate_article($sid, $score, $random_num="0", $gfx_check) {
 					$ip = $_SERVER['REMOTE_ADDR'];
 					$result = $db->sql_query("update ".$prefix."_stories set score=score+$score, ratings=ratings+1, rating_ip='$ip' where sid='$sid'");
 					$info = base64_encode("$rcookie$sid:");
-					setcookie("ratecookie","$info",time()+86400);
+					setcookie("ratecookie","$info",['expires' => time()+86400]);
 					update_points(7);
 					Header("Location: modules.php?name=News&op=rate_complete&sid=$sid&score=$score");
 				}
@@ -203,7 +215,7 @@ function rate_article($sid, $score, $random_num="0", $gfx_check) {
 	} else {
 		mt_srand ((double)microtime()*1000000);
 		$maxran = 1000000;
-		$random_num = mt_rand(0, $maxran);
+		$random_num = random_int(0, $maxran);
 		if (extension_loaded("gd") AND $gfx_chk != 0 ) {
 			include("header.php");
 			title("$sitename: "._ARTICLERATING."");
@@ -230,7 +242,9 @@ function rate_article($sid, $score, $random_num="0", $gfx_check) {
 }
 
 function rate_complete($sid, $rated=0, $score) {
-	global $sitename, $user, $cookie, $module_name, $userinfo;
+	$db = null;
+ $prefix = null;
+ global $sitename, $user, $cookie, $module_name, $userinfo;
 	$r_options = "";
 	if (is_user()) {
                 getusrinfo($user);
@@ -273,6 +287,3 @@ switch ($op) {
 	break;
 
 }
-
-
-?>

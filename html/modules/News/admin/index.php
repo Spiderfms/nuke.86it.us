@@ -2271,4 +2271,3 @@ if (!isset($sid)) { $sid = ""; }
 	include("footer.php");
 }
 
-?>
