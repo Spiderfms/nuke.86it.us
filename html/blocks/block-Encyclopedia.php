@@ -26,4 +26,3 @@ $title = filter($row['title'], "nohtml");
     $content .= "<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=Encyclopedia&amp;op=list_content&amp;eid=$eid\">$title</a><br>";
 }
 
-?>

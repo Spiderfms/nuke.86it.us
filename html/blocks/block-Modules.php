@@ -94,7 +94,7 @@ if (file_exists("themes/$ThemeSel/module.php")) {
 		$row4 = $db->sql_fetchrow($db->sql_query("SELECT mid FROM ".$prefix."_modules WHERE title='$modlist[$i]'"));
 		$mid = intval($row4['mid']);
 		$mod_uname = preg_replace('#_#m', " ", (string) $modlist[$i]);
-		if ($mid == "") {
+		if ($mid == 0) {
 		    $db->sql_query("INSERT INTO ".$prefix."_modules VALUES (NULL, '$modlist[$i]', '$mod_uname', '0', '0', '1', '0')");
 		}
 	    }

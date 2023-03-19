@@ -54,4 +54,3 @@ global $cat, $language, $prefix, $multilingual, $currentlang, $db;
 	$content = $boxstuff;
     }
 
-?>

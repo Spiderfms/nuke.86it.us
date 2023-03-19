@@ -1,8 +1,4 @@
 <?php
-/*=======================================================================
- PHP-Nuke Titanium | Nuke-Evolution Basic : Enhanced and Advanced
- =======================================================================*/
-
 /**
  *
  * Variable validation and checking class.
@@ -561,7 +557,7 @@ function deepPurifier($data)
  * @package v4.0.3
  * @subpackage Variables
  */
-class Titanium_Variables
+class Nuke_Variables
 {
     /**
      * The raw or "dirty" variable
@@ -1084,7 +1080,7 @@ endif;
 }
 
 global $_GETVAR;
-$_GETVAR = new Titanium_Variables();
+$_GETVAR = new Nuke_Variables();
 $_GETVAR->check_valid_inputTypes();
 
 /**

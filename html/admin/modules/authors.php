@@ -575,4 +575,3 @@ if (($row['radminsuper'] == 1) && ($row['name'] == 'God')) {
 	echo "Access Denied";
 }
 
-?>

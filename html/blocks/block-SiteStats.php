@@ -49,4 +49,3 @@ $content .= "<br>PHP-Nuke's Downloads<br><b>$t_down</b>";
 $content .= "<br><br><b><u>Real Time Updated</u></b>";
 $content .= "</div>";
 
-?>

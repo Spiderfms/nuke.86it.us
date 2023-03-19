@@ -1,9 +1,4 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
-
 /***************************************************************************
                                 emailer.php
                              -------------------
@@ -76,7 +71,7 @@ if (!defined('IN_PHPBB'))
 
 //
 // The emailer class has support for attaching files, that isn't implemented
-// in the 2.0 release but we can probable find some way of using it in a future
+// in the 2.0 release but we can probably find some way of using it in a future
 // release
 //
 class emailer
@@ -187,13 +182,8 @@ class emailer
         }
 
         // Send the mail out to the recipients set previously in var $this->address
-/*****[BEGIN]******************************************
- [ Mod:     Custom mass PM                     v1.4.7 ]
- ******************************************************/
-        function send($error_level=0)
-/*****[END]********************************************
- [ Mod:     Custom mass PM                     v1.4.7 ]
- ******************************************************/
+        // custom mass pm
+		function send($error_level=0)
         {
                 global $board_config, $lang, $phpEx, $phpbb_root_path, $db, $cache;
 
@@ -302,37 +292,21 @@ class emailer
                                 {
                                         message_die(GENERAL_ERROR, 'Unable to update config table', '', __LINE__, __FILE__, $sql);
                                 }
-/*****['BEGIN']******************************************
- [ Base:    Caching System                     v3.0.0 ]
- ******************************************************/
+                                // Caching System
                                 $cache->delete('board_config', 'config');
-/*****['END']********************************************
- [ Base:    Caching System                     v3.0.0 ]
- ******************************************************/
                                 $board_config['sendmail_fix'] = 1;
+
                                 $result = mail($to, (string) $this->subject, preg_replace("#(?<!\r)\n#s", "\n", $this->msg), $this->extra_headers);
                         }
                 }
 
                 // Did it work?
-/*****[BEGIN]******************************************
- [ Mod:     Custom mass PM                     v1.4.7 ]
- ******************************************************/
+                // custom mass pm
                 if (!$result && !$error_level)
-/*****[END]********************************************
- [ Mod:     Custom mass PM                     v1.4.7 ]
- ******************************************************/
                 {
                         message_die(GENERAL_ERROR, 'Failed sending email :: ' . (($this->use_smtp) ? 'SMTP' : 'PHP') . ' :: ' . $result, '', __LINE__, __FILE__);
                 }
-
-/*****[BEGIN]******************************************
- [ Mod:     Custom mass PM                     v1.4.7 ]
- ******************************************************/
                 return $result;
-/*****[END]********************************************
- [ Mod:     Custom mass PM                     v1.4.7 ]
- ******************************************************/
         }
 
         // Encodes the given string for proper display for this encoding ... nabbed
@@ -470,5 +444,3 @@ class emailer
         }
 
 } // class emailer
-
-?>

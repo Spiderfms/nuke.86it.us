@@ -52,4 +52,3 @@ if (paid()) {
 	$content = "<center>"._NOTSUB." $sitename. "._SUBFROM." <a href='$subscription_url'>"._HERE."</a> "._NOW."";
 }
 
-?>

@@ -26,4 +26,3 @@ $title = filter($row['title'], "nohtml");
     $content .= "<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=Content&amp;pa=showpage&amp;pid=$pid\">$title</a><br>";
 }
 
-?>

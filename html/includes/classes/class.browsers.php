@@ -2157,6 +2157,6 @@ class Browser
         }
     }
 }
- 
-//$titanium_browser = new Browser();
-?>    
+global $titanium_browser; 
+$titanium_browser = new Browser();
+   

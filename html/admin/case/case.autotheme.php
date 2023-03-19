@@ -1,11 +1,10 @@
 <?php
+if(isset($_REQUEST['op'])) { $op = $_REQUEST['op']; } else { $op = ''; }
 
-switch ($_REQUEST['op']) {
-
+switch ($op) {
     case "autotheme":
     	$_REQUEST['op'] = "main";
     	$_REQUEST['module'] = "AutoTheme";
-        
     default:
     	if ($_REQUEST['module'] == "AutoTheme") {
         	include("modules/AutoTheme/admin.php");
@@ -15,5 +14,3 @@ switch ($_REQUEST['op']) {
     	}
     	break;
 }
-
-?>

@@ -22,4 +22,3 @@ $content = "<br>";
 $content .= ads(1);
 $content .= "<br>";
 
-?>

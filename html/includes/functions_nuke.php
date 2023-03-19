@@ -1,4 +1,7 @@
 <?php
+if (realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])) {
+    exit('Access Denied');
+}
 
 /************************************************************************/
 /* PHP-NUKE: Advanced Content Management System                         */
@@ -25,10 +28,6 @@
  * @param bool $is_name Is the $user a username
  * @return string
  */
-if (realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])) {
-    exit('Access Denied');
-}
-
 function get_user_field($field_name, $user, $is_name = false) 
 {
     global $db, $identify;

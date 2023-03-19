@@ -1,8 +1,4 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
 /*********************************************
   CPG Dragonfly™ CMS
   ********************************************
@@ -15,14 +11,6 @@
   $Revision: 9.25 $
   $Author: djmaze $
 **********************************************/
-
-/*
-	This was orginally derived from DragonFly CMS/CPG Nuke
-	but was modified to work with nuke by other coders that
-	removed the copyright information and distributed it
-	on other sites.
-*/
-
 class BBCode 
 {
 	public static function encode_html($text) 
@@ -497,25 +485,9 @@ class BBCode
 			$added = TRUE;
 		}
 
-		// if (PHPVERS < '4.2') {
-		// 	ob_start();
-		// 	highlight_string($text);
-		// 	$text = ob_get_contents();
-		// 	ob_end_clean();
-		// } else {
-		// 	$text = highlight_string($text, TRUE);
-		// }
-
 		$text = highlight_string($text, TRUE);
 
-		if (PHPVERS < '5.0') {
-			$text = preg_replace('/<font color="(.*?)">/si', '<span style="color: \\1;">', $text);
-			$text = str_replace('</font>', '</span>', $text);
-		}
 		if ($added == TRUE) {
-			if (PHPVERS < '5.0') {
-				$text = preg_replace('/^(.*)\n.*?<\/span>(.*)php<br \/>/i', "\\1\n\\2?php<br />", $text, 1);
-			}
 			$text = preg_replace('/^(.*)\n.*php<br \/><\/span>/i', "\\1\n", $text, 1);
 			$text = preg_replace('/^(.*)\n(.*)>.*php<br \/>/i', "\\1\n\\2>", $text, 1);
 		}

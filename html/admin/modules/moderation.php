@@ -413,4 +413,3 @@ if ($row['radminsuper'] == 1) {
 	echo "Access Denied";
 }
 
-?>

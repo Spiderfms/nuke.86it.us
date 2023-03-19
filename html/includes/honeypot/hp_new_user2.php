@@ -58,4 +58,3 @@ var itv = setInterval(countdownTimer, 1000);
 </script></td></tr>" , PHP_EOL;
  }
 }
-?>

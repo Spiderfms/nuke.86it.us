@@ -82,7 +82,7 @@ while ($row = $db->sql_fetchrow($result)) {
     $comments = intval($row['comments']);
     $see = 1;
     setlocale(LC_TIME, $locale);
-    ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $datetime2);
+    preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', $time, $datetime2);
     $datetime2 = strftime(_DATESTRING2, mktime($datetime2[4],$datetime2[5],$datetime2[6],$datetime2[2],$datetime2[3],$datetime2[1]));
     $datetime2 = ucfirst($datetime2);
     if ($articlecomm == 1) {
@@ -129,4 +129,3 @@ if ($see == 1) {
     $content = $boxstuff;
 }
 
-?>

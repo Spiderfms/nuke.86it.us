@@ -39,4 +39,3 @@ while ($row = $db->sql_fetchrow($result)) {
 $content .= "</table>";
 $content .= "<br><center>[ <a href=\"modules.php?name=News\">"._MORENEWS."</a> ]</center>";
 
-?>

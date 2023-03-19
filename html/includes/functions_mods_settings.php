@@ -157,4 +157,3 @@ function init_board_config($mod_name, $config_fields, $sub_name='', $sub_sort=0,
 	}
 }
 
-?>

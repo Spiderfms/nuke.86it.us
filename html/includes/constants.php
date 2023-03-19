@@ -1,8 +1,4 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
- 
 /***********************************************************************
  *                           includes/constants.php
  *                            -------------------
@@ -470,5 +466,3 @@ define_once('THEMES_THEMES_TABLE', $prefix.'_themes');
 define_once('HONEYPOT_TABLE', $prefix.'_honeypot');
 
 define_once('IP_TO_COUNTRY_TABLE', $prefix.'_nsnst_ip2country');
-
-?>

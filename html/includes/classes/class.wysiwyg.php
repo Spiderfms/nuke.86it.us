@@ -217,4 +217,3 @@ class Wysiwyg
 		return $this->getHTML(); 
 	}
 }
-?>

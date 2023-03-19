@@ -1,8 +1,4 @@
 <?php
-/*=======================================================================
-PHP-Nuke Titnaium v3.0.0 : Enhanced PHP-Nuke Web Portal System
-=======================================================================*/
-
 /************************************************************************
 PHP-Nuke Titnaium : Evolution Functions
 ============================================
@@ -168,8 +164,8 @@ function titanium_site_up($url) {
     //Set the address
     $address = parse_url($url);
     $host = $address['host'];
-    if (!($ip = @gethostbyname($host))) return false;
-    if (@fsockopen($host, 80, $errno, $errdesc, 10) === false) return false;
+    if (!($ip = gethostbyname($host))) return false;
+    if (fsockopen($host, 80, $errno, $errdesc, 10) === false) return false;
     return true;
 }
 
@@ -207,11 +203,9 @@ function get_time_relative($ptime) {
 
 // JeFFb68CAM, ReOrGaNiSaTiOn, and TheGhost
 // Changed for internatinal users by 
+// Advanced Time Management
 function FormatDate($format, $gmepoch, $tz)
 {
-/*****[BEGIN]******************************************
- [ Mod:    Advanced Time Management            v2.2.0 ]
- ******************************************************/
     global $board_config, $lang, $userdata, $pc_dateTime;
 	getusrinfo();
 	static $translate;
@@ -312,7 +306,4 @@ function FormatDate($format, $gmepoch, $tz)
 				break;
 		}
 	}
-/*****[END]********************************************
- [ Mod:    Advanced Time Management            v2.2.0 ]
- ******************************************************/
 }

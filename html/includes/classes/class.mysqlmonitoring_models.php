@@ -1,11 +1,6 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
-
 /************************************************************************
-   PHP-Nuke Titanium Database Monitor Models
+   PHP-Nuke Database Monitor Models
    ============================================
    Copyright (c) 2021 by The 86it Developers Network
 
@@ -47,4 +42,3 @@ class Mysqlmonitoring_model extends CI_Model
         return $this->db->query('SHOW GLOBAL STATUS')->result();
     }
 }
-?>

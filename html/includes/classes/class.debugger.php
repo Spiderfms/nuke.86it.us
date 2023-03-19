@@ -1,10 +1,6 @@
 <?php
 /*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
-/*======================================================================= 
-  Last Modified: 12/05/2022 2:12 am Ernest Allen Buffington
+  Last Modified: 12/05/2022 2:12 AM Ernest Allen Buffington
  =======================================================================*/
 if(realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])):
   exit('Access Denied');
@@ -75,5 +71,3 @@ class error_handler {
 }
 global $debug;
 $debugger = new error_handler($debug);
-
-?>

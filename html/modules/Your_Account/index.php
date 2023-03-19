@@ -977,7 +977,7 @@ function main($user) {
 
 function new_user() {
 	
-	$prefix = null;
+	//$prefix = null;
     global $my_headlines, $module_name, $db, $gfx_chk, $user;
 	
 	if (!is_user()) {
@@ -2065,10 +2065,10 @@ function savehome($user_id, $username, $storynum, $ublockon, $ublock, $broadcast
 
 function savetheme($user_id, $theme) {
 	
-	$prefix = null;
-    $theme_id = null;
+	//$prefix = null;
+    //$theme_id = null;
     
-	global $user, $cookie, $userinfo, $user_prefix, $db, $module_name;
+	global $prefix, $user, $cookie, $userinfo, $user_prefix, $db, $module_name;
 	
 	$row = $db->sql_fetchrow($db->sql_query("SELECT overwrite_theme from ".$prefix."_config"));
 	$overwrite_theme = intval($row['overwrite_theme']);
@@ -2085,8 +2085,10 @@ function savetheme($user_id, $theme) {
 	$check = filter($check, "nohtml", 1);
 	$check2 = $cookie[2];
 	$theme_error = "";
+	
 	$sql = "SELECT user_id, user_password FROM ".$user_prefix."_users WHERE username='$check'";
 	$result = $db->sql_query($sql);
+	
 	$row = $db->sql_fetchrow($result);
 	$vuid = intval($row['user_id']);
 	$ccpass = filter($row['user_password'], "nohtml", 1);

@@ -1,20 +1,15 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
 global $cache_debug;
 $cache_debug = 1;
-
 /************************************************************************
-   Nuke-Evolution: Caching System
+   PHP-Nuke: Caching System
    ============================================
-   Copyright (c) 2005 by The Nuke-Evolution Team
+   Copyright (c) 2005 by JeFFb68CAM & Quake
 
    Filename      : class.cache.php
-   Author        : JeFFb68CAM & Quake (www.Evo-Mods.com)
-   Version       : 3.0.2
-   Date          : 03.04.2006 (mm.dd.yyyy)
+   Author(s)     : JeFFb68CAM, Quake, Ernest Allen Buffington
+   Version       : 4.0.0
+   Date          : 03.18.2023 (mm.dd.yyyy)
 
    Notes         : New cache that only uses one file
                    in order to improve overall performance.
@@ -22,7 +17,6 @@ $cache_debug = 1;
                    Some function were derived from dragonfly cms and are
                    noted
 ************************************************************************/
-
 if (realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])) {
     exit('Access Denied');
 }
@@ -169,5 +163,3 @@ class cache
 global $use_cache;
 // Set up the cache class reference
 $cache = new cache($use_cache);
-
-?>

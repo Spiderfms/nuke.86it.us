@@ -109,5 +109,3 @@ function dbclose()
 {
 	return _db()->sql_close();
 }
-
-?>

@@ -1,10 +1,6 @@
 <?php 
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
 /************************************************************************
-   PHP-Nuke Titanium: Cookie Functions
+   PHP-Nuke: Cookie Functions
    ============================================
    Copyright (c) 2022 by The Titanium Group
 

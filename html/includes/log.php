@@ -1,17 +1,13 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
 /************************************************************************
-   Nuke-Evolution: Admin / Error Tracker
+   PHP-Nuke: Admin / Error Tracker
    ============================================
-   Copyright (c) 2005 by The Nuke-Evolution Team
+   Copyright (c) 2004 JeFFb68CAM
 
    Filename      : log.php
    Author        : JeFFb68CAM (www.Evo-Mods.com)
-   Version       : 1.0.2
-   Date          : 11.28.2005 (mm.dd.yyyy)
+   Version       : 1.0.0
+   Date          : 12.25.2004 (mm.dd.yyyy)
 
    Notes         : Logs the following:
                         - Admin account creation
@@ -95,10 +91,10 @@ function log_size($file) {
     if(filesize($filename) == 0) {
         return 0;
     }
-    $handle = @fopen($filename,'r');
+    $handle = fopen($filename,'r');
     if($handle) {
         $content = fread($handle, filesize($filename));
-        @fclose($handle);
+        fclose($handle);
     } else {
         return -1;
     }
@@ -109,5 +105,3 @@ function log_size($file) {
     }
     return 0;
 }
-
-?>

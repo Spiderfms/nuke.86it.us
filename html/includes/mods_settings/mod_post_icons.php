@@ -32,4 +32,3 @@ $config_fields = array(
 );
 # init config table
 init_board_config($mod_name, $config_fields);
-?>

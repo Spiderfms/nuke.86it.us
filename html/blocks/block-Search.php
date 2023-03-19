@@ -21,4 +21,3 @@ $content = "<form onSubmit=\"this.submit.disabled='true'\" action=\"modules.php?
 $content .= "<br><center><input type=\"text\" name=\"query\" size=\"15\">";
 $content .= "<br><input type=\"submit\" value=\""._SEARCH."\"></center></form>";
 
-?>

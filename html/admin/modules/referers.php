@@ -80,4 +80,3 @@ if ($row['radminsuper'] == 1) {
 } else {
 	echo "Access Denied";
 }
-?>

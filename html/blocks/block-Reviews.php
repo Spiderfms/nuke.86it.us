@@ -26,4 +26,3 @@ $title = filter($row['title'], "nohtml");
     $content .= "<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=Reviews&amp;rop=showcontent&amp;id=$id\">$title</a><br>";
 }
 
-?>

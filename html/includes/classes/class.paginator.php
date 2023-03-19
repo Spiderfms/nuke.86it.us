@@ -1,5 +1,4 @@
 <?php
-
 // ==================================================================
 	//  Author: Ted Kappes (pesoto74@soltec.net)
 	//	Web: 	http://tkap.org/paginator/
@@ -201,4 +200,3 @@ class Paginator {
       }
 			
 	}//ends Paginator class
-	?>

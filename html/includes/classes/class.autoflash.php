@@ -69,7 +69,7 @@ class swfheader {
 	//--------------------------------------------------------------------------- 
 	function loadswf($filename) {
 		$this->fname = $filename ;
-		$fp = @fopen($filename,"rb") ;
+		$fp = fopen($filename,"rb") ;
 		if ($fp) {
 			if ($this->debug) echo "DEBUG: Opened " . $this->fname . "<br>" ;
 			// Read MAGIC FIELD
@@ -101,7 +101,7 @@ class swfheader {
 					// First decompress GZ stream
 					$buffer = gzuncompress($buffer,$this->size) ;
 					}
-				$b 			= ord(substr($buffer,0,1)) ;
+				    $b		= ord(substr($buffer,0,1)) ;
 				$buffer = substr($buffer,1) ;
 				$cbyte 	= $b ;
 				$bits 	= $b>>3 ;
@@ -263,5 +263,5 @@ class swfheader {
 		  }
 	}
 }
-?>
+
 

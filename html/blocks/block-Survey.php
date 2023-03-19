@@ -95,4 +95,3 @@ if ($pollID == 0 || empty($pollID)) {
 	$content .= "</span></center></form>\n\n";
 }
 
-?>

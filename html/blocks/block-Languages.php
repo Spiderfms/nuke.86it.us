@@ -65,4 +65,3 @@ if ($useflags == 1) {
     $content .= "</select></form></div>";
 }
 
-?>

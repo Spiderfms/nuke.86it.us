@@ -36,5 +36,3 @@ function cache_resync()
 	global $cache;
 	$cache->resync();
 }
-
-?>

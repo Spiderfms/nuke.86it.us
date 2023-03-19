@@ -1,8 +1,4 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
 /************************************************************************
 
     MOO CMS, Copyright (c) 2005 The MOO Dev. Group. All rights reserved.
@@ -17,14 +13,14 @@
 ************************************************************************/
 
 /************************************************************************
-   Nuke-Evolution: Evolution Functions
+   PHP-Nuke
    ============================================
-   Copyright (c) 2005 by The Nuke-Evolution Team
+   Copyright (c) 2004 by Technocrat
 
    Filename      : class.identify.php
-   Author        : Technocrat (www.nuke-evolution.com)
+   Author(s)     : Technocrat, Ernest Allen Buffington
    Version       : 1.0.0
-   Date          : 01.26.2005 (mm.dd.yyyy)
+   Date          : 01.26.2004 (mm.dd.yyyy)
 
    Notes         : IDs the users info
 ************************************************************************/
@@ -41,8 +37,7 @@ class identify {
             $this->agent = $_SERVER['HTTP_USER_AGENT'];
         }
     }
-    # [21-Oct-2022 02:06:07 UTC] PHP Deprecated:  Non-static method identify::get_ip() should not be called statically
-	# so I changed it to public static - TheGhost 10/20/2022 10:19 pm
+
     public static function get_ip() 
 	{
         static $visitor_ip;
@@ -51,14 +46,16 @@ class identify {
 	    return $visitor_ip; 
         
 		$visitor_ip = (empty($_SERVER['REMOTE_ADDR'])) ? $_ENV['REMOTE_ADDR'] : $_SERVER['REMOTE_ADDR'];
-        $ips = [];
+        
+		$ips = [];
         
 		if (!empty($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] != 'unknown') 
         $ips = explode(', ', (string) $_SERVER['HTTP_X_FORWARDED_FOR']);
         
 		if (!empty($_SERVER['HTTP_CLIENT_IP']) && $_SERVER['HTTP_CLIENT_IP'] != 'unknown') 
         $ips[] = $_SERVER['HTTP_CLIENT_IP'];
-  $ipsCount = count($ips);
+        
+		$ipsCount = count($ips);
         
 		for ($i = 0; $i < $ipsCount; $i++) 
 		{

@@ -1,6 +1,6 @@
 <?php
 
-namespace titanium\fileLogger {
+namespace nuke\fileLogger {
     
     use Exception;
     

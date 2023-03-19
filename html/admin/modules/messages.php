@@ -356,4 +356,3 @@ if (!isset($ok)) { $ok = ""; }
 	echo "Access Denied";
 }
 
-?>

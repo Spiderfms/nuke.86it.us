@@ -1,16 +1,11 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
 if (realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])) {
     exit('Access Denied');
 }
-
-
-/** @class: InputFilter (PHP4 & PHP5, with comments)
+/** @class: InputFilter
   * @project: PHP Input Filter
-  * @date: 10-05-2005
-  * @version: 1.2.2_php4/php5
+  * @date: 10-05-2022
+  * @version: 3.2.8_php8/php82
   * @author: Daniel Morris
   * @contributors: Gianpaolo Racca, Ghislain Picard, Marco Wandschneider, Chris Tobin and Andrew Eddie.
   * @copyright: Daniel Morris
@@ -55,10 +50,8 @@ class InputFilter {
 							   'lowsrc');  # also will strip ALL event handlers
     var $current_string;
 
-    /*****[BEGIN]******************************************
-     [ Base:     Evolution Functions               v1.5.0 ]
-     ******************************************************/
-    function filtered($filtered, $source = '') {
+    // for Nuke Evolution log functins
+	function filtered($filtered, $source = '') {
         $logdata = array('An attempt has been made to use a blocked HTML tag.',
                          'Blocked string: ' . htmlspecialchars($filtered),
                          'Source: '. htmlspecialchars($source)
@@ -67,7 +60,7 @@ class InputFilter {
             log_write('error', $logdata, 'Script Attack');
 			log_write('error', $logdata, 'Suck it Tonight Fargnoggel!');
         } else {
-            @include_once(NUKE_INCLUDE_DIR.'log.php');
+            include_once(NUKE_INCLUDE_DIR.'log.php');
             log_write('error', $logdata, 'Script Attack');
 			log_write('error', $logdata, 'Suck it Tonight Fargnoggel!');
         }
@@ -76,9 +69,6 @@ class InputFilter {
         CloseTable();
 		exit;
     }
-    /*****[END]********************************************
-     [ Base:     Evolution Functions               v1.5.0 ]
-     ******************************************************/
 
     /**
       * Constructor for inputFilter class. Only first parameter is required.
@@ -231,15 +221,10 @@ class InputFilter {
                 $postTag = substr($postTag, ($tagLength + 2));
                 $tagOpen_start = strpos($postTag, '<');
                 
-				/*****[BEGIN]******************************************
-                 [ Base:     Evolution Functions               v1.5.0 ]
-                 ******************************************************/
-                if(!defined('MEDIUM_SECURITY') && $tagName != "!--pagebreak--") {
+                // from Nuke Evolution
+				if(!defined('MEDIUM_SECURITY') && $tagName != "!--pagebreak--") {
                     $this->filtered($tagName, $this->current_string);
                 }
-                /*****[END]********************************************
-                 [ Base:     Evolution Functions               v1.5.0 ]
-                 ******************************************************/
                 
 				# don't append this tag
                 continue;
@@ -381,13 +366,8 @@ class InputFilter {
 			# auto strip attr's with "javascript:
             if (InputFilter :: badAttributeValue($attrSubSet))
             {
-                /*****[BEGIN]******************************************
-                 [ Base:     Evolution Functions               v1.5.0 ]
-                 ******************************************************/
-                $this->filtered($attrSubSet[1], $this->current_string);
-                /*****[END]********************************************
-                 [ Base:     Evolution Functions               v1.5.0 ]
-                 ******************************************************/
+                // from Nuke Evolution
+				$this->filtered($attrSubSet[1], $this->current_string);
             }
 
             # if matches user defined array
@@ -530,4 +510,3 @@ class InputFilter {
         return $string;
     }
 }
-?>

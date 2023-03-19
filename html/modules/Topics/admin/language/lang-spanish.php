@@ -18,29 +18,28 @@
 /**************************************************************************/
 
 
-define("_CURRENTTOPICS","Tópicos Activos Actuales");
-define("_CLICK2EDIT","Haz Click sobre el Tópico para Editarlo");
-define("_ADDATOPIC","Agregar un Nuevo Tópico");
-define("_TOPICNAME","Nombre del Tópico");
-define("_TOPICNAME1","(sólo un nombre sin espacios - maximo 20 caracteres)");
-define("_TOPICNAME2","(por ejemplo: juegosyhobbies)");
-define("_TOPICTEXT","Texto del Tópico");
-define("_TOPICTEXT1","(el texto completo del tópico o su descripción - máximo 40 caracteres)");
-define("_TOPICTEXT2","(por ejemplo: Juegos y Hobbies)");
-define("_TOPICIMAGE","Imagen del Tópico");
-define("_ADDTOPIC","Agregar Tópico");
-define("_EDITTOPIC","Editar Tópico");
-define("_ADDRELATED","Agregar Enlaces Relacionados");
-define("_ACTIVERELATEDLINKS","Enlaces Relacionados Activos");
-define("_SITENAME","Nombre del Sitio");
-define("_NORELATED","No hay enlaces relacionados con este tópico");
-define("_EDITRELATED","Editar Enlace Relacionado");
-define("_YES","Sí");
-define("_NO","No");
-define("_TOPICSMANAGER","Tópicos");
-define("_DELETETOPIC","Borrar Tópico");
-define("_TOPICDELSURE","¿Estás seguro de querer borrar el Tópico?");
-define("_TOPICDELSURE1","¡Esto borrará TODAS sus historias y sus comentarios!");
+define_once("_CURRENTTOPICS","Tópicos Activos Actuales");
+define_once("_CLICK2EDIT","Haz Click sobre el Tópico para Editarlo");
+define_once("_ADDATOPIC","Agregar un Nuevo Tópico");
+define_once("_TOPICNAME","Nombre del Tópico");
+define_once("_TOPICNAME1","(sólo un nombre sin espacios - maximo 20 caracteres)");
+define_once("_TOPICNAME2","(por ejemplo: juegosyhobbies)");
+define_once("_TOPICTEXT","Texto del Tópico");
+define_once("_TOPICTEXT1","(el texto completo del tópico o su descripción - máximo 40 caracteres)");
+define_once("_TOPICTEXT2","(por ejemplo: Juegos y Hobbies)");
+define_once("_TOPICIMAGE","Imagen del Tópico");
+define_once("_ADDTOPIC","Agregar Tópico");
+define_once("_EDITTOPIC","Editar Tópico");
+define_once("_ADDRELATED","Agregar Enlaces Relacionados");
+define_once("_ACTIVERELATEDLINKS","Enlaces Relacionados Activos");
+define_once("_SITENAME","Nombre del Sitio");
+define_once("_NORELATED","No hay enlaces relacionados con este tópico");
+define_once("_EDITRELATED","Editar Enlace Relacionado");
+define_once("_YES","Sí");
+define_once("_NO","No");
+define_once("_TOPICSMANAGER","Tópicos");
+define_once("_DELETETOPIC","Borrar Tópico");
+define_once("_TOPICDELSURE","¿Estás seguro de querer borrar el Tópico?");
+define_once("_TOPICDELSURE1","¡Esto borrará TODAS sus historias y sus comentarios!");
 
 
-?>

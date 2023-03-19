@@ -1,8 +1,6 @@
 <?php
 
 /* -- -----------------------------------------------------------
- * // Nuke-Evolution Xtreme: Enhanced PHP-Nuke Web Portal System
- * -- -----------------------------------------------------------
  *
  * >> Exception Handler
  *
@@ -24,7 +22,7 @@
  * the Free Software Foundation; either version 2 of the license.
  */
 
-if (!defined('NUKE_EVO')) {
+if (!defined('NUKE_FILE')) {
 	die('You can\'t access this file directly...');
 }
 
@@ -35,8 +33,8 @@ class DBException extends aException {
 	/**
 	 * @public static var $validDBTypes
 	 *
-	 * The currently valid database class types that have been integrated with the Nuke Evolution
-	 * Xtreme Core
+	 * The currently valid database class types that have been integrated with Nuke
+	 * 
 	 */
 	public static $validDBTypes = array('MySQL', 'MySQLi');
 

@@ -24,9 +24,8 @@ $result = $db->sql_query("SELECT lid, title FROM ".$prefix."_links_links ORDER B
 while ($row = $db->sql_fetchrow($result)) {
     $lid = intval($row['lid']);
     $title = filter($row['title'], "nohtml");
-    $title2 = ereg_replace("_", " ", $title);
+    $title2 = preg_replace('#_#m', " ", $title);
     $content .= "<strong><big>&middot;</big></strong>&nbsp;$a: <a href=\"modules.php?name=Web_Links&amp;l_op=viewlinkdetails&amp;lid=$lid&amp;ttitle=$title\">$title2</a><br>";
     $a++;
 }
 
-?>

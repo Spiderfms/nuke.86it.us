@@ -1,36 +1,17 @@
 <?php
-/*======================================================================= 
-  PHP-Nuke Titanium | Nuke-Evolution Xtreme : PHP-Nuke Web Portal System
- =======================================================================*/
-
 /************************************************************************
-   PHP-Nuke Titanium: SQL Control System
+   PHP-Nuke: SQL Control System
    ============================================
-   Copyright (c) 2022 by The PHP-Nuke Titanium Group
-  
-   Filename      : class.database.php
-   Author(s)     : Ernest Allen Buffington (www.theghost.86it.us)
-   Version       : 2.0.0
-   Date          : 12.07.2021 (mm.dd.yyyy)
-                                                                        
-   Notes         : SQL Control Class for more database options. 
-                   Based on the same class by CPG Dragonfly CMS
-************************************************************************/
-
-/************************************************************************
-   Nuke-Evolution: SQL Control System
-   ============================================
-   Copyright (c) 2005 by The Nuke-Evolution Team
+   Copyright (c) 2005 by Quake
   
    Filename               : class.database.php
-   Original Author(s)     : Quake (www.Nuke-Evolution.com)
-   Version                : 1.0.0
-   Date                   : 12.03.2005 (mm.dd.yyyy)
+   Author(s)              : Quake, Ernest Allen Buffington
+   Version                : 2.0.0
+   Date                   : 03.18.2023 (mm.dd.yyyy)
                                                                         
    Notes                  : SQL Control Class for more database options. 
                             Based on the same class by CPG Dragonfly CMS
 ************************************************************************/
-
 if (realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])):
   exit('Access Denied');
 endif;
@@ -469,5 +450,3 @@ class DB {
         return $output;
     }
 } 
-
-?>

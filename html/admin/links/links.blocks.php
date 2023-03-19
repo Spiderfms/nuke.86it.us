@@ -21,4 +21,3 @@ if ($radminsuper==1) {
     adminmenu("".$admin_file.".php?op=BlocksAdmin", ""._BLOCKS."", "blocks.gif");
 }
 
-?>

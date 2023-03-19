@@ -387,4 +387,3 @@ include_once(NUKE_BASE_DIR.'footer.php');
 exit ();
 }
 }
-?>

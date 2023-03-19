@@ -68,4 +68,3 @@ if (is_user()) {
     $content .= "<br>"._YOUAREANON."</span></div>";
 }
 $content .= "</div>";
-?>

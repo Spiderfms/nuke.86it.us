@@ -24,7 +24,7 @@ $code = '';
 
 mt_srand ((double)microtime()*1000000);
 $maxran = 1000000;
-$random_num = mt_rand(0, $maxran);
+$random_num = random_int(0, $maxran);
 $content = '';
 $content .= "<div id='login'>";
 $content .= "<form onsubmit=\"this.submit.disabled='true'\" action=\"modules.php?name=Your_Account\" method=\"post\">";
@@ -51,4 +51,3 @@ if (is_admin() AND is_user()) {
     $content = "<center>"._ADMIN."<br>[ <a href=\"".$admin_file.".php?op=logout\">"._LOGOUT."</a> ]</center>";
 }
 
-?>

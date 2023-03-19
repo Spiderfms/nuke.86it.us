@@ -18,29 +18,28 @@
 /**************************************************************************/
 
 
-define("_CURRENTTOPICS","Current Active Topics");
-define("_CLICK2EDIT","Click on Topic to Edit");
-define("_ADDATOPIC","Add a New Topic");
-define("_TOPICNAME","Topic Name");
-define("_TOPICNAME1","(just a name without spaces - max: 20 characters)");
-define("_TOPICNAME2","(for example: gamesandhobbies)");
-define("_TOPICTEXT","Topic Text");
-define("_TOPICTEXT1","(the full topic text or description - max: 40 characters)");
-define("_TOPICTEXT2","(for example: Games and Hobbies)");
-define("_TOPICIMAGE","Topic Image");
-define("_ADDTOPIC","Add Topic");
-define("_EDITTOPIC","Edit Topic");
-define("_ADDRELATED","Add Related Links");
-define("_ACTIVERELATEDLINKS","Active Related Links");
-define("_SITENAME","Site Name");
-define("_NORELATED","There are no related links for this topic");
-define("_EDITRELATED","Edit Related Link");
-define("_YES","Ja");
-define("_NO","Nej");
-define("_TOPICSMANAGER","Ämneshanterare");
-define("_DELETETOPIC","Radera Ämne");
-define("_TOPICDELSURE","Är du säker på att du vill radera detta Ämne");
-define("_TOPICDELSURE1","Detta kommer att radera ALLA ämnets artiklar och kommentarer!");
+define_once("_CURRENTTOPICS","Current Active Topics");
+define_once("_CLICK2EDIT","Click on Topic to Edit");
+define_once("_ADDATOPIC","Add a New Topic");
+define_once("_TOPICNAME","Topic Name");
+define_once("_TOPICNAME1","(just a name without spaces - max: 20 characters)");
+define_once("_TOPICNAME2","(for example: gamesandhobbies)");
+define_once("_TOPICTEXT","Topic Text");
+define_once("_TOPICTEXT1","(the full topic text or description - max: 40 characters)");
+define_once("_TOPICTEXT2","(for example: Games and Hobbies)");
+define_once("_TOPICIMAGE","Topic Image");
+define_once("_ADDTOPIC","Add Topic");
+define_once("_EDITTOPIC","Edit Topic");
+define_once("_ADDRELATED","Add Related Links");
+define_once("_ACTIVERELATEDLINKS","Active Related Links");
+define_once("_SITENAME","Site Name");
+define_once("_NORELATED","There are no related links for this topic");
+define_once("_EDITRELATED","Edit Related Link");
+define_once("_YES","Ja");
+define_once("_NO","Nej");
+define_once("_TOPICSMANAGER","Ämneshanterare");
+define_once("_DELETETOPIC","Radera Ämne");
+define_once("_TOPICDELSURE","Är du säker på att du vill radera detta Ämne");
+define_once("_TOPICDELSURE1","Detta kommer att radera ALLA ämnets artiklar och kommentarer!");
 
 
-?>

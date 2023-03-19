@@ -10,7 +10,6 @@
 /* it under the terms of the GNU General Public License as published by */
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
-
 if (realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])) {
 exit('Access Denied');
 }
@@ -53,4 +52,3 @@ if ($check4 == 1){
    }
    
  }
-?>
