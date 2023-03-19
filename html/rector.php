@@ -157,7 +157,7 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/admin/modules/backup/backupdownload.php',
 		//__DIR__ . '/admin/modules/modules.php',
 		//__DIR__ . '/admin/modules/blocks.php',
-		__DIR__ . '/admin/modules/authors.php',
+		//__DIR__ . '/admin/modules/authors.php',
         //__DIR__ . '/blocks',
 		//__DIR__ . '/blocks/blocks-Modules.php',
         //__DIR__ . '/install/includes/database.php',
@@ -170,6 +170,7 @@ return static function (RectorConfig $rectorConfig): void {
         //__DIR__ . '/install',
         //__DIR__ . '/language',
         //__DIR__ . '/modules',
+		//__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 		//__DIR__ . '/modules/Private_Messages',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',

@@ -12,6 +12,11 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * TernaryToNullCoalescingRector
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -24,8 +29,19 @@ include("header.php");
 OpenTable();
 
 global $db, $prefix, $tipath;
+
 $ThemeSel = get_theme();
-$sql = "SELECT t.topicid, t.topicimage, t.topictext, count(s.sid) AS stories, SUM(s.counter) AS reads FROM ".$prefix."_topics t LEFT JOIN ".$prefix."_stories s ON (s.topic = t.topicid) GROUP BY t.topicid, t.topicimage, t.topictext ORDER BY t.topictext";
+/* changed reads to readcount - Franky whats up? */
+$sql = "SELECT t.topicid, t.topicimage, t.topictext, count(s.sid) AS stories, SUM(s.counter) AS readcount FROM ".$prefix."_topics t 
+
+LEFT JOIN ".$prefix."_stories s 
+
+ON (s.topic = t.topicid) 
+
+GROUP BY t.topicid, t.topicimage, t.topictext 
+
+ORDER BY t.topictext";
+
 $result = $db->sql_query($sql);
 if ($db->sql_numrows($result) > 0) {
     $output = "<center><font class=\"title\"><b>"._ACTIVETOPICS."</b></font><br>\n";
@@ -37,8 +53,8 @@ if ($db->sql_numrows($result) > 0) {
     echo $output;
     while ($row = $db->sql_fetchrow($result)) {
         $topicid = intval($row['topicid']);
-        $topicimage = stripslashes($row['topicimage']);
-        $topictext = stripslashes(check_html($row['topictext'], "nohtml"));
+        $topicimage = stripslashes((string) $row['topicimage']);
+        $topictext = stripslashes((string) check_html($row['topictext'], "nohtml"));
         if(file_exists("themes/".$ThemeSel."/images/topics/".$topicimage)) {
           $t_image = "themes/".$ThemeSel."/";
         } else {
@@ -52,7 +68,7 @@ if ($db->sql_numrows($result) > 0) {
         $output .= "<font class=\"content\">";
         $output .= "<big><strong>&middot;</strong></big> <b>"._TOPIC.":</b> $topictext<br>\n";
         $output .= "<big><strong>&middot;</strong></big> <b>"._TOTNEWS.":</b> ".$row['stories']."<br>\n";
-        $output .= "<big><strong>&middot;</strong></big> <b>"._TOTREADS.":</b> ".(isset($row['reads']) ? $row['reads'] : 0)."</font>";
+        $output .= "<big><strong>&middot;</strong></big> <b>"._TOTREADS.":</b> ".($row['reads'] ?? 0)."</font>";
         $output .= "</td><td valign=\"top\">";
         echo $output;
         
@@ -60,8 +76,8 @@ if ($db->sql_numrows($result) > 0) {
             $sql2 = "SELECT s.sid, s.catid, s.title, c.title AS cat_title FROM ".$prefix."_stories s LEFT JOIN ".$prefix."_stories_cat c ON s.catid=c.catid WHERE s.topic='$topicid' ORDER BY s.sid DESC LIMIT 0,10";
             $result2 = $db->sql_query($sql2);
             while ($row2 = $db->sql_fetchrow($result2)) {
-                $cat_link = (intval($row2['catid']) > 0) ? "<a href=\"modules.php?name=News&amp;file=categories&amp;op=newindex&amp;catid=".intval($row2['catid'])."\"><strong>".stripslashes(check_html($row2['cat_title'], "nohtml"))."</strong></a>: " : "";
-                echo "<img src=\"images/arrow.gif\" border=\"0\" alt=\"\" /> $cat_link<a href=\"modules.php?name=News&amp;file=article&amp;sid=".intval($row2['sid'])."\">".htmlentities($row2['title'])."</a><br>";
+                $cat_link = (intval($row2['catid']) > 0) ? "<a href=\"modules.php?name=News&amp;file=categories&amp;op=newindex&amp;catid=".intval($row2['catid'])."\"><strong>".stripslashes((string) check_html($row2['cat_title'], "nohtml"))."</strong></a>: " : "";
+                echo "<img src=\"images/arrow.gif\" border=\"0\" alt=\"\" /> $cat_link<a href=\"modules.php?name=News&amp;file=article&amp;sid=".intval($row2['sid'])."\">".htmlentities((string) $row2['title'])."</a><br>";
             }
             if ($row['stories'] > 10) {
                 echo "<div align=\"right\"><strong>&middot;</strong> <a href=\"modules.php?name=News&amp;new_topic=".$topicid."\"><strong>"._MORE." --&gt;</strong></a></div>";
