@@ -173,7 +173,9 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 		//__DIR__ . '/modules/Private_Messages/index.php',
 		//__DIR__ . '/modules/News/admin/index.php',
-		  __DIR__ . '/modules/News/index.php',
+		//__DIR__ . '/modules/News/index.php',
+		//__DIR__ . '/modules/News/comments.php',
+		  __DIR__ . '/modules/News/artical.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
