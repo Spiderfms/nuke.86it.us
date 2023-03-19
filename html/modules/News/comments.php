@@ -778,6 +778,7 @@ function reply($pid, $sid, $mode, $order, $thold) {
 		."<textarea wrap=\"virtual\" cols=\"70\" rows=\"15\" name=\"comment\"></textarea><br>";
 		if ($nuke_editor == 0) {
 	    	echo "<font class=\"content\">"._ALLOWEDHTML."<br>";
+			global $AllowableHTML;
 	    	foreach (array_keys($AllowableHTML) as $key) {
           echo " &lt;".$key."&gt;";
       }
