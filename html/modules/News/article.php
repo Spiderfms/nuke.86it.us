@@ -1,5 +1,5 @@
 <?php
-if(!strpos($_SERVER['PHP_SELF'], 'admin.php')) {
+if(!strpos((string) $_SERVER['PHP_SELF'], 'admin.php')) {
 	#show right panel:
 	define('INDEX_FILE', true);
 }
@@ -24,7 +24,7 @@ $module_name = basename(dirname(__FILE__));
 get_lang($module_name);
 
 if (isset($sid)) { $sid = intval($sid); } else { $sid = ""; }
-if (stristr($REQUEST_URI,"mainfile")) {
+if (stristr((string) $REQUEST_URI,"mainfile")) {
 	Header("Location: modules.php?name=$module_name&file=article&sid=$sid");
 } elseif (empty($sid) && !isset($tid)) {
 	Header("Location: index.php");
@@ -39,7 +39,7 @@ if ($save AND is_user()) {
 	$db->sql_query("UPDATE ".$user_prefix."_users SET umode='$mode', uorder='$order', thold='$thold' where uid='$cookie[0]'");
 	getusrinfo($user);
 	$info = base64_encode("$userinfo[user_id]:$userinfo[username]:$userinfo[user_password]:$userinfo[storynum]:$userinfo[umode]:$userinfo[uorder]:$userinfo[thold]:$userinfo[noscore]");
-	setcookie("user","$info",time()+$cookieusrtime);
+	setcookie("user","$info",['expires' => time()+$cookieusrtime]);
 }
 
 if ($op == "Reply") {
