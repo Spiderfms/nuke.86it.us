@@ -12,6 +12,11 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ */
+ 
 if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
@@ -24,9 +29,11 @@ if ($row['radminsuper'] == 1) {
 	/*********************************************************/
 	/* Modules Functions                                     */
 	/*********************************************************/
-
 	function modules() {
+		$who_view = null;
+        
 		global $prefix, $db, $multilingual, $bgcolor2, $admin_file;
+		
 		include ("header.php");
 		GraphicAdmin();
 		OpenTable();
@@ -35,7 +42,7 @@ if ($row['radminsuper'] == 1) {
 		$handle=opendir('modules');
 		$modlist = "";
 		while ($file = readdir($handle)) {
-			if ( (!ereg("[.]",$file)) ) {
+			if ( (!preg_match('#[\.]#m',$file)) ) {
 				$modlist .= "$file ";
 			}
 		}
@@ -73,10 +80,14 @@ if ($row['radminsuper'] == 1) {
 		."" . _MODULEHOMENOTE . "<br><br>" . _NOTINMENU . "<br><br>"
 		."<form action=\"".$admin_file.".php\" method=\"post\">"
 		."<table border=\"1\" align=\"center\" width=\"90%\"><tr><td align=\"center\" bgcolor=\"$bgcolor2\">"
-		."<b>"._TITLE."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._CUSTOMTITLE."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._STATUS."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._VIEW."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._GROUP."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._FUNCTIONS."</b></td></tr>";
+		
+		."<b>"._TITLE."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._CUSTOMTITLE."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._STATUS."</b></td><td 
+		align=\"center\" bgcolor=\"$bgcolor2\"><b>"._VIEW."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._GROUP."</b></td><td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._FUNCTIONS."</b></td></tr>";
+		
 		$main_m = $db->sql_fetchrow($db->sql_query("SELECT main_module from " . $prefix . "_main"));
 		$main_module = $main_m['main_module'];
 		$result3 = $db->sql_query("SELECT mid, title, custom_title, active, view, inmenu, mod_group from " . $prefix . "_modules order by title ASC");
+		
 		while ($row3 = $db->sql_fetchrow($result3)) {
 			$mid = intval($row3['mid']);
 			$title = filter($row3['title'], "nohtml");
@@ -85,8 +96,9 @@ if ($row['radminsuper'] == 1) {
 			$view = intval($row3['view']);
 			$inmenu = intval($row3['inmenu']);
 			$mod_group = intval($row3['mod_group']);
+		
 			if (empty($custom_title)) {
-				$custom_title = ereg_replace("_"," ",$title);
+				$custom_title = preg_replace('#_#m'," ",$title);
 				$db->sql_query("update " . $prefix . "_modules set custom_title='$custom_title' where mid='$mid'");
 			}
 			if ($active == 1) {
@@ -99,7 +111,7 @@ if ($row['radminsuper'] == 1) {
 				$act = 1;
 			}
 			if (empty($custom_title)) {
-				$custom_title = ereg_replace("_", " ", $title);
+				$custom_title = preg_replace('#_#m', " ", $title);
 			}
 			if ($view == 0) {
 				$who_view = _MVALL;
@@ -132,7 +144,9 @@ if ($row['radminsuper'] == 1) {
 			} else {
 				$mod_group = _NONE;
 			}
-			echo "<tr><td $background>&nbsp;$title</td><td align=\"center\" $background>$custom_title</td><td align=\"center\" $background>$active</td><td align=\"center\" $background>$who_view</td><td align=\"center\" $background>$mod_group</td><td align=\"center\" $background nowrap>&nbsp; <a href=\"".$admin_file.".php?op=module_edit&mid=$mid\"><img src=\"images/edit.gif\" alt=\""._EDIT."\" title=\""._EDIT."\" border=\"0\" width=\"17\" height=\"17\"></a>  $change_status  $puthome &nbsp;</td></tr>";
+			echo "<tr><td $background>&nbsp;$title</td><td align=\"center\" $background>$custom_title</td><td align=\"center\" $background>$active</td><td 
+			align=\"center\" $background>$who_view</td><td align=\"center\" $background>$mod_group</td><td align=\"center\" $background nowrap>&nbsp; <a 
+			href=\"".$admin_file.".php?op=module_edit&mid=$mid\"><img src=\"images/edit.gif\" alt=\""._EDIT."\" title=\""._EDIT."\" border=\"0\" width=\"17\" height=\"17\"></a>  $change_status  $puthome &nbsp;</td></tr>";
 		}
 		echo "</table></form></center>";
 		CloseTable();
@@ -176,7 +190,10 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function module_edit($mid) {
-		global $prefix, $db, $admin_file;
+		$dummy = null;
+  $insel1 = null;
+  $insel2 = null;
+  global $prefix, $db, $admin_file;
 		$main_m = $db->sql_fetchrow($db->sql_query("SELECT main_module from " . $prefix . "_main"));
 		$main_module = $main_m['main_module'];
 		$mid = intval($mid);

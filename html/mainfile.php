@@ -263,6 +263,7 @@ define('STATS_DIR', THEMES_DIR);
 define('NUKE_BASE_DIR', __DIR__ . '/');
 # Absolute Nuke directory + includes
 define('NUKE_VENDOR_DIR', NUKE_BASE_DIR . 'includes/vendor/');
+define('NUKE_RECTOR_DIR', NUKE_BASE_DIR . 'vendor/');
 define('NUKE_ZEND_DIR', NUKE_BASE_DIR . 'includes/Zend/');
 define('NUKE_BLOCKS_DIR', NUKE_BASE_DIR . 'blocks/');
 define('NUKE_CSS_DIR', 'includes/css/');
@@ -314,6 +315,14 @@ endif;
 if(CAN_MOD_INI):
     ini_set('zlib.output_compression', 0);
 endif;
+
+# add external Rector vendor library support so that we can use composer with Nuke
+# Rector Autoload - only if vendor directory exists with an autoload file! START
+if(file_exists(NUKE_RECTOR_DIR.'autoload.php')):
+  require_once(NUKE_RECTOR_DIR.'autoload.php');
+endif;  
+# Rector Autoload - only if vendor directory exists with an autoload file! END
+
 
 # add external vendor library support so that we can use composer with Nuke
 # Vendor Autoload - only if vendor directory exists with an autoload file! START
@@ -765,43 +774,6 @@ function is_group($user, $name) {
      return 0;
 }
 
-$postString = "";
-foreach ($_POST as $postkey => $postvalue) {
-    if ($postString > "") {
-     $postString .= "&".$postkey."=".$postvalue;
-    } else {
-     $postString .= $postkey."=".$postvalue;
-    }
-}
-str_replace("%09", "%20", $postString);
-$postString_64 = base64_decode($postString);
-if ((!isset($admin) OR (isset($admin) AND !is_admin())) AND (stristr($postString,'%20union%20')) OR (stristr($postString,'*/union/*')) OR (stristr($postString,' union ')) OR (stristr($postString_64,'%20union%20')) OR (stristr($postString_64,'*/union/*')) OR (stristr($postString_64,' union ')) OR (stristr($postString_64,'+union+')) OR (stristr($postString,'http-equiv')) OR (stristr($postString_64,'http-equiv')) OR (stristr($postString,'alert(')) OR (stristr($postString_64,'alert(')) OR (stristr($postString,'javascript:')) OR (stristr($postString_64,'javascript:')) OR (stristr($postString,'document.cookie')) OR (stristr($postString_64,'document.cookie')) OR (stristr($postString,'onmouseover=')) OR (stristr($postString_64,'onmouseover=')) OR (stristr($postString,'document.location')) OR (stristr($postString_64,'document.location'))) {
-header("Location: index.php");
-die();
-}
-
-// Additional security (Union, CLike, XSS)
-//Union Tap
-//Copyright Zhen-Xjell 2004 http://nukecops.com
-//Beta 3 Code to prevent UNION SQL Injections
-  unset($matches);
-  unset($loc);
-  if(isset($_SERVER['QUERY_STRING'])) {
-    if (preg_match("/([OdWo5NIbpuU4V2iJT0n]{5}) /", rawurldecode($loc=$_SERVER['QUERY_STRING']), $matches)) {
-      die('Illegal Operation');
-    }
-  }
-  if(!isset($admin) OR (isset($admin) AND !is_admin())) {
-    $queryString = $_SERVER['QUERY_STRING'];
-	if (($_SERVER['PHP_SELF'] != "/index.php") OR !isset($url))
-	{
-	   if (stristr($queryString,'http://')) die('Illegal Operation');
-	}
-    if ((stristr($queryString,'%20union%20')) OR (stristr($queryString,'/*')) OR (stristr($queryString,'*/union/*')) OR (stristr($queryString,'c2nyaxb0')) OR (stristr($queryString,'+union+'))  OR ((stristr($queryString,'cmd=')) AND (!stristr($queryString,'&cmd'))) OR ((stristr($queryString,'exec')) AND (!stristr($queryString,'execu'))) OR (stristr($queryString,'concat'))) {
-      die('Illegal Operation');
-    }
-  }
-
 function update_points($id) {
   global $user_prefix, $prefix, $db, $user;
   if (is_user()) {
@@ -1175,8 +1147,20 @@ function cookiedecode($trash=0)
   return false;
 }
 
+# Adds slashes to string and strips PHP+HTML for SQL insertion and hack prevention
+# $str: the string to modify
+# $nohtml: strip PHP+HTML tags, false=no, true=yes, default=false
+function Fix_Quotes($str, $nohtml=false) 
+{
+    if($nohtml): 
+	    $str = strip_tags($str);
+	  endif;
+    
+	return $str;
+}
+
 function FixQuotes ($what = "") {
-	while (stristr($what, "\\\\'")) {
+	while (stristr($what ?? '', "\\\\'")) {
 		$what = str_replace("\\\\'","'",$what);
 	}
 	return $what;
@@ -1217,6 +1201,13 @@ function check_words($Message) {
 		}
 	}
 	return ($EditedMessage);
+}
+
+function Remove_Slashes($str) 
+{
+    global $_GETVAR;
+    
+	return $_GETVAR->stripSlashes($str);
 }
 
 function delQuotes($string){
@@ -1274,7 +1265,7 @@ function check_html ($str, $strip="") {
 	include("config.php");
 	if ($strip == "nohtml")
 	$AllowableHTML=array('');
-	$str = stripslashes($str);
+	$str = stripslashes($str ?? ''); // maybe ghost
 	$str = preg_replace('#<[013\s]*([^>]*)[013\s]*>#mi','<\\1>', $str);
 	// Delete all spaces from html tags .
 	$str = preg_replace('#<a[^>]*href[013\s]*=[013\s]*"?[013\s]*([^" >]*)[013\s]*"?[^>]*>#mi','<a href="\\1">', $str);
@@ -1329,6 +1320,12 @@ function check_html ($str, $strip="") {
 	return $str;
 }
 
+function filter_text_other($Message, $strip='') {
+    $Message = check_words($Message);
+    $Message = check_html($Message, $strip);
+    return $Message;
+}
+
 function filter_text($Message, $strip="") {
 	global $EditedMessage;
 	check_words($Message);
@@ -1350,7 +1347,7 @@ function filter($what, $strip="", $save="", $type="") {
 		$what = check_html($what, $strip);
 		$what = addslashes($what);
 	} else {
-		$what = stripslashes(FixQuotes($what));
+		$what = stripslashes(FixQuotes($what ?? ''));
 		$what = check_words($what);
 		$what = check_html($what, $strip);
 	}

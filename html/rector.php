@@ -57,12 +57,14 @@ use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
 use Rector\Php74\Rector\Double\RealToFloatTypeCastRector;
 use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
 
+use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
+
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
 
-//use Rector\MysqlToMysqli\Rector\Assign\MysqlAssignToMysqliRector;
-//use Rector\MysqlToMysqli\Rector\FuncCall\MysqlFuncCallToMysqliRector;
-//use Rector\MysqlToMysqli\Rector\FuncCall\MysqlPConnectToMysqliConnectRector;
-//use Rector\MysqlToMysqli\Rector\FuncCall\MysqlQueryMysqlErrorWithLinkRector;
+use Rector\MysqlToMysqli\Rector\Assign\MysqlAssignToMysqliRector;
+use Rector\MysqlToMysqli\Rector\FuncCall\MysqlFuncCallToMysqliRector;
+use Rector\MysqlToMysqli\Rector\FuncCall\MysqlPConnectToMysqliConnectRector;
+use Rector\MysqlToMysqli\Rector\FuncCall\MysqlQueryMysqlErrorWithLinkRector;
 
 return static function (RectorConfig $rectorConfig): void {
     // A. run whole set
@@ -137,18 +139,25 @@ return static function (RectorConfig $rectorConfig): void {
 	//$rectorConfig->rule(::class);
 	//$rectorConfig->rule(::class);
 	//$rectorConfig->rule(::class);
-	//$rectorConfig->rule(::class);
+
+	// 81
+	$rectorConfig->rule(NullToStrictStringFuncCallArgRector::class);
 	
 	// 82
 	$rectorConfig->rule(Utf8DecodeEncodeToMbConvertEncodingRector::class);
 	
-	//$rectorConfig->rule(MysqlAssignToMysqliRector::class);
-	//$rectorConfig->rule(MysqlFuncCallToMysqliRector::class);
-	//$rectorConfig->rule(MysqlPConnectToMysqliConnectRector::class);
-	//$rectorConfig->rule(MysqlQueryMysqlErrorWithLinkRector::class);
+	$rectorConfig->rule(MysqlAssignToMysqliRector::class);
+	$rectorConfig->rule(MysqlFuncCallToMysqliRector::class);
+	$rectorConfig->rule(MysqlPConnectToMysqliConnectRector::class);
+	$rectorConfig->rule(MysqlQueryMysqlErrorWithLinkRector::class);
 		
     $rectorConfig->paths([
         //__DIR__ . '/admin',
+		//__DIR__ . '/admin/modules/backup/backup.php',
+		//__DIR__ . '/admin/modules/backup/backupdownload.php',
+		//__DIR__ . '/admin/modules/modules.php',
+		//__DIR__ . '/admin/modules/blocks.php',
+		__DIR__ . '/admin/modules/authors.php',
         //__DIR__ . '/blocks',
 		//__DIR__ . '/blocks/blocks-Modules.php',
         //__DIR__ . '/install/includes/database.php',
@@ -161,7 +170,7 @@ return static function (RectorConfig $rectorConfig): void {
         //__DIR__ . '/install',
         //__DIR__ . '/language',
         //__DIR__ . '/modules',
-		  __DIR__ . '/modules/Private_Messages',
+		//__DIR__ . '/modules/Private_Messages',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',

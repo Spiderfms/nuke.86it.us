@@ -12,6 +12,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * BinaryOpBetweenNumberAndStringRector (https://3v4l.org/XPEEl)
+ */
+ 
 if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
@@ -24,9 +30,15 @@ if ($row['radminsuper'] == 1) {
 	/*********************************************************/
 	/* Blocks Functions                                      */
 	/*********************************************************/
-
 	function BlocksAdmin() {
+		$type = null;
+        $who_view = null;
+        $change = null;
+        $blockslist = [];
+        $languageslist = [];
+        
 		global $bgcolor2, $bgcolor4, $prefix, $db, $currentlang, $multilingual, $admin_file;
+		
 		include("header.php");
 		GraphicAdmin();
 		OpenTable();
@@ -45,7 +57,7 @@ if ($row['radminsuper'] == 1) {
 			echo "<td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._LANGUAGE."</b></td>";
 		}
 		echo "<td align=\"center\" bgcolor=\"$bgcolor2\"><b>"._FUNCTIONS."</b></tr>";
-		$result = $db->sql_query("select bid, bkey, title, url, bposition, weight, active, blanguage, blockfile, view from ".$prefix."_blocks order by bposition, weight");
+		$result = $db->sql_query("SELECT bid, bkey, title, url, bposition, weight, active, blanguage, blockfile, view FROM ".$prefix."_blocks ORDER BY bposition, weight");
 		while ($row = $db->sql_fetchrow($result)) {
 			$bid = intval($row['bid']);
 			$bkey = filter($row['bkey'], "nohtml");
@@ -59,11 +71,11 @@ if ($row['radminsuper'] == 1) {
 			$view = intval($row['view']);
 			$weight1 = $weight - 1;
 			$weight3 = $weight + 1;
-			$row_res = $db->sql_fetchrow($db->sql_query("select bid from ".$prefix."_blocks where weight='$weight1' AND bposition='$bposition'"));
-			$bid1 = intval($row_res['bid']);
+			$row_res = $db->sql_fetchrow($db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE weight='$weight1' AND bposition='$bposition'"));
+			$bid1 = intval($row_res['bid'] ?? 0);
 			$con1 = "$bid1";
-			$row_res2 = $db->sql_fetchrow($db->sql_query("select bid from ".$prefix."_blocks where weight='$weight3' AND bposition='$bposition'"));
-			$bid2 = intval($row_res2['bid']);
+			$row_res2 = $db->sql_fetchrow($db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE weight='$weight3' AND bposition='$bposition'"));
+			$bid2 = intval($row_res2['bid'] ?? 0);
 			$con2 = "$bid2";
 			echo "<tr>"
 			."<td align=\"center\">$title</td>";
@@ -72,18 +84,22 @@ if ($row['radminsuper'] == 1) {
 			} elseif ($bposition == "r") {
 				$bposition = ""._RIGHT." <img src=\"images/center_l.gif\" border=\"0\" alt=\""._RIGHTBLOCK."\" title=\""._RIGHTBLOCK."\" hspace=\"5\">";
 			} elseif ($bposition == "c") {
-				$bposition = "<img src=\"images/center_l.gif\" border=\"0\" alt=\""._CENTERBLOCK."\" title=\""._CENTERBLOCK."\">&nbsp;"._CENTERUP."&nbsp;<img src=\"images/center_r.gif\" border=\"0\" alt=\""._CENTERBLOCK."\" title=\""._CENTERBLOCK."\">";
+				$bposition = "<img src=\"images/center_l.gif\" border=\"0\" alt=\""._CENTERBLOCK."\" title=\""._CENTERBLOCK."\">&nbsp;"._CENTERUP."&nbsp;<img 
+				src=\"images/center_r.gif\" border=\"0\" alt=\""._CENTERBLOCK."\" title=\""._CENTERBLOCK."\">";
 			} elseif ($bposition == "d") {
-				$bposition = "<img src=\"images/center_l.gif\" border=\"0\" alt=\""._CENTERBLOCK."\" title=\""._CENTERBLOCK."\">&nbsp;"._CENTERDOWN."&nbsp;<img src=\"images/center_r.gif\" border=\"0\" alt=\""._CENTERBLOCK."\" title=\""._CENTERBLOCK."\">";
+				$bposition = "<img src=\"images/center_l.gif\" border=\"0\" alt=\""._CENTERBLOCK."\" title=\""._CENTERBLOCK."\">&nbsp;"._CENTERDOWN."&nbsp;<img 
+				src=\"images/center_r.gif\" border=\"0\" alt=\""._CENTERBLOCK."\" title=\""._CENTERBLOCK."\">";
 			}
 			echo "<td align=\"center\">$bposition</td>"
 			."<td align=\"center\">"
 			."&nbsp;$weight&nbsp;</td><td align=\"center\">";
 			if ($con1) {
-				echo"<a href=\"".$admin_file.".php?op=BlockOrder&amp;weight=$weight&amp;bidori=$bid&amp;weightrep=$weight1&amp;bidrep=$con1\"><img src=\"images/up.gif\" alt=\""._BLOCKUP."\" title=\""._BLOCKUP."\" border=\"0\" hspace=\"3\"></a>";
+				echo"<a href=\"".$admin_file.".php?op=BlockOrder&amp;weight=$weight&amp;bidori=$bid&amp;weightrep=$weight1&amp;bidrep=$con1\"><img 
+				src=\"images/up.gif\" alt=\""._BLOCKUP."\" title=\""._BLOCKUP."\" border=\"0\" hspace=\"3\"></a>";
 			}
 			if ($con2) {
-				echo "<a href=\"".$admin_file.".php?op=BlockOrder&amp;weight=$weight&amp;bidori=$bid&amp;weightrep=$weight3&amp;bidrep=$con2\"><img src=\"images/down.gif\" alt=\""._BLOCKDOWN."\" title=\""._BLOCKDOWN."\" border=\"0\" hspace=\"3\"></a>";
+				echo "<a href=\"".$admin_file.".php?op=BlockOrder&amp;weight=$weight&amp;bidori=$bid&amp;weightrep=$weight3&amp;bidrep=$con2\"><img 
+				src=\"images/down.gif\" alt=\""._BLOCKDOWN."\" title=\""._BLOCKDOWN."\" border=\"0\" hspace=\"3\"></a>";
 			}
 			echo"</td>";
 			if (empty($bkey)) {
@@ -126,7 +142,8 @@ if ($row['radminsuper'] == 1) {
 				}
 				echo "<td align=\"center\">$blanguage</td>";
 			}
-			echo "<td align=\"center\"><font class=\"content\">&nbsp;<a href=\"".$admin_file.".php?op=BlocksEdit&amp;bid=$bid\"><img src=\"images/edit.gif\" alt=\""._EDIT."\" title=\""._EDIT."\" border=\"0\" width=\"17\" height=\"17\"></a>  <a href=\"".$admin_file.".php?op=ChangeStatus&amp;bid=$bid\">$change</a>  ";
+			echo "<td align=\"center\"><font class=\"content\">&nbsp;<a href=\"".$admin_file.".php?op=BlocksEdit&amp;bid=$bid\"><img src=\"images/edit.gif\" 
+			alt=\""._EDIT."\" title=\""._EDIT."\" border=\"0\" width=\"17\" height=\"17\"></a>  <a href=\"".$admin_file.".php?op=ChangeStatus&amp;bid=$bid\">$change</a>  ";
 			if ($bkey == "") {
 				echo "<a href=\"".$admin_file.".php?op=BlocksDelete&amp;bid=$bid\"><img src=\"images/delete.gif\" alt=\""._DELETE."\" title=\""._DELETE."\" border=\"0\" width=\"17\" height=\"17\"></a>  ";
 			} elseif (!empty($bkey)) {
@@ -147,7 +164,7 @@ if ($row['radminsuper'] == 1) {
 		."<tr><td>"._RSSFILE.":</td><td><input type=\"text\" name=\"url\" size=\"30\" maxlength=\"200\">&nbsp;&nbsp;"
 		."<select name=\"headline\">"
 		."<option name=\"headline\" value=\"0\" selected>"._CUSTOM."</option>";
-		$res3 = $db->sql_query("select hid, sitename from ".$prefix."_headlines");
+		$res3 = $db->sql_query("SELECT hid, sitename FROM ".$prefix."_headlines");
 		while ($row_res3 = $db->sql_fetchrow($res3)) {
 			$hid = intval($row_res3['hid']);
 			$htitle = filter($row_res3['sitename'], "nohtml");
@@ -169,10 +186,10 @@ if ($row['radminsuper'] == 1) {
 		sort($blockslist);
 		for ($i=0; $i < sizeof($blockslist); $i++) {
 			if(!empty($blockslist[$i])) {
-				$bl = ereg_replace("block-","",$blockslist[$i]);
-				$bl = ereg_replace(".php","",$bl);
-				$bl = ereg_replace("_"," ",$bl);
-				$result2 = $db->sql_query("select * from ".$prefix."_blocks where blockfile='$blockslist[$i]'");
+				$bl = preg_replace('#block\-#m',"",$blockslist[$i]);
+				$bl = preg_replace('#.php#m',"",$bl);
+				$bl = preg_replace('#_#m'," ",$bl);
+				$result2 = $db->sql_query("SELECT * FROM ".$prefix."_blocks WHERE blockfile='$blockslist[$i]'");
 				$numrows = $db->sql_numrows($result2);
 				if ($numrows == 0) {
 					echo "<option value=\"$blockslist[$i]\">$bl</option>\n";
@@ -236,14 +253,15 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function block_show($bid) {
-		global $prefix, $db, $admin_file;
+		$act_chg = null;
+        global $prefix, $db, $admin_file;
 		include("header.php");
 		GraphicAdmin();
 		title(""._BLOCKSADMIN."");
 		OpenTable();
 		echo "<br><center>";
 		$bid = intval($bid);
-		$row = $db->sql_fetchrow($db->sql_query("select bid, bkey, title, content, url, active, bposition, blockfile from ".$prefix."_blocks where bid='$bid'"));
+		$row = $db->sql_fetchrow($db->sql_query("SELECT bid, bkey, title, content, url, active, bposition, blockfile FROM ".$prefix."_blocks WHERE bid='$bid'"));
 		$bid = intval($row['bid']);
 		$bkey = filter($row['bkey'], "nohtml");
 		$title = filter($row['title'], "nohtml");
@@ -307,26 +325,26 @@ if ($row['radminsuper'] == 1) {
 		$leftpos = "l";
 		$rightpos = "r";
 		$centerpos = "c";
-		$result = $db->sql_query("select bid from ".$prefix."_blocks where bposition='$leftpos' order by weight ASC");
+		$result = $db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE bposition='$leftpos' ORDER BY weight ASC");
 		$weight = 0;
 		while ($row = $db->sql_fetchrow($result)) {
 			$bid = intval($row['bid']);
 			$weight++;
-			$db->sql_query("update ".$prefix."_blocks set weight='$weight' where bid='$bid'");
+			$db->sql_query("UPDATE ".$prefix."_blocks SET weight='$weight' WHERE bid='$bid'");
 		}
-		$result2 = $db->sql_query("select bid from ".$prefix."_blocks where bposition='$rightpos' order by weight ASC");
+		$result2 = $db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE bposition='$rightpos' ORDER BY weight ASC");
 		$weight = 0;
 		while ($row2 = $db->sql_fetchrow($result2)) {
 			$bid = intval($row2['bid']);
 			$weight++;
-			$db->sql_query("update ".$prefix."_blocks set weight='$weight' where bid='$bid'");
+			$db->sql_query("UPDATE ".$prefix."_blocks SET weight='$weight' WHERE bid='$bid'");
 		}
-		$result3 = $db->sql_query("select bid from ".$prefix."_blocks where bposition='$centerpos' order by weight ASC");
+		$result3 = $db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE bposition='$centerpos' ORDER BY weight ASC");
 		$weight = 0;
 		while ($row3 = $db->sql_fetchrow($result3)) {
 			$bid = intval($row3['bid']);
 			$weight++;
-			$db->sql_query("update ".$prefix."_blocks set weight='$weight' where bid='$bid'");
+			$db->sql_query("UPDATE ".$prefix."_blocks SET weight='$weight' WHERE bid='$bid'");
 		}
 		Header("Location: ".$admin_file.".php?op=BlocksAdmin");
 	}
@@ -335,8 +353,8 @@ if ($row['radminsuper'] == 1) {
 		global $prefix, $db, $admin_file;
 		$bidrep = intval($bidrep);
 		$bidori = intval($bidori);
-		$result = $db->sql_query("update ".$prefix."_blocks set weight='$weight' where bid='$bidrep'");
-		$result2 = $db->sql_query("update ".$prefix."_blocks set weight='$weightrep' where bid='$bidori'");
+		$result = $db->sql_query("UPDATE ".$prefix."_blocks SET weight='$weight' WHERE bid='$bidrep'");
+		$result2 = $db->sql_query("UPDATE ".$prefix."_blocks SET weight='$weightrep' WHERE bid='$bidori'");
 		Header("Location: ".$admin_file.".php?op=BlocksAdmin");
 	}
 
@@ -357,9 +375,10 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function BlocksAdd($title, $content, $url, $bposition, $active, $refresh, $headline, $blanguage, $blockfile, $view, $expire, $action, $subscription) {
-		global $prefix, $db, $admin_file;
+		$cont = null;
+        global $prefix, $db, $admin_file;
 		if ($headline != 0) {
-			$row = $db->sql_fetchrow($db->sql_query("select sitename, headlinesurl from ".$prefix."_headlines where hid='$headline'"));
+			$row = $db->sql_fetchrow($db->sql_query("SELECT sitename, headlinesurl FROM ".$prefix."_headlines WHERE hid='$headline'"));
 			$title = filter($row['sitename'], "nohtml", 1);
 			$url = filter($row['headlinesurl'], "nohtml", 1);
 		}
@@ -373,14 +392,14 @@ if ($row['radminsuper'] == 1) {
 		if (!empty($blockfile)) {
 			$url = "";
 			if (empty($title)) {
-				$title = ereg_replace("block-","",$blockfile);
-				$title = ereg_replace(".php","",$title);
-				$title = ereg_replace("_"," ",$title);
+				$title = preg_replace('#block\-#m',"",$blockfile);
+				$title = preg_replace('#.php#m',"",$title);
+				$title = preg_replace('#_#m'," ",$title);
 			}
 		}
 		if (!empty($url)) {
 			$btime = time();
-			if (!ereg("http://",$url)) {
+			if (!preg_match('#http:\/\/#m',$url)) {
 				$url = "http://$url";
 			}
 			$rdf = parse_url($url);
@@ -402,10 +421,10 @@ if ($row['radminsuper'] == 1) {
 				$items = explode("</item>",$string);
 				$content = "<font class=\"content\">";
 				for ($i=0;$i<10;$i++) {
-					$link = ereg_replace(".*<link>","",$items[$i]);
-					$link = ereg_replace("</link>.*","",$link);
-					$title2 = ereg_replace(".*<title>","",$items[$i]);
-					$title2 = ereg_replace("</title>.*","",$title2);
+					$link = preg_replace('#.*<link>#m',"",$items[$i]);
+					$link = preg_replace('#<\/link>.*#m',"",$link);
+					$title2 = preg_replace('#.*<title>#m',"",$items[$i]);
+					$title2 = preg_replace('#<\/title>.*#m',"",$title2);
 					if ($items[$i] == "" AND $cont != 1) {
 						$content = "";
 					} else {
@@ -427,24 +446,49 @@ if ($row['radminsuper'] == 1) {
 			if ($expire != 0) {
 				$expire = time() + ($expire * 86400);
 			}
-			$db->sql_query("insert into ".$prefix."_blocks values (NULL, '$bkey', '$title', '$content', '$url', '$bposition', '$weight', '$active', '$refresh', '$btime', '$blanguage', '$blockfile', '$view', '$expire', '$action', '$subscription')");
+			$db->sql_query("insert into ".$prefix."_blocks values (NULL, 
+			                                                    '$bkey', 
+															   '$title', 
+															 '$content', 
+															     '$url', 
+														   '$bposition', 
+														      '$weight', 
+															  '$active', 
+															 '$refresh', 
+															   '$btime', 
+														   '$blanguage', 
+														   '$blockfile', 
+														        '$view', 
+															  '$expire', 
+															  '$action', 
+														'$subscription')");
+														
 			Header("Location: ".$admin_file.".php?op=BlocksAdmin");
 		}
 	}
 
 	function BlocksEdit($bid) {
+	   
+	   $type = null;
+       $blockslist = [];
+       $languageslist = [];
+       $selact1 = null;
+       $selact2 = null;
+           
 		global $bgcolor2, $bgcolor4, $prefix, $db, $multilingual, $admin_file, $AllowableHTML;
+		
 		include("header.php");
 		GraphicAdmin();
 		OpenTable();
 		echo "<center><font class=\"title\"><b>"._EDITBLOCK."</b></font></center>";
 		CloseTable();
 		echo "<br>";
+		
 		$bid = intval($bid);
-		$row = $db->sql_fetchrow($db->sql_query("select bkey, title, content, url, bposition, weight, active, refresh, blanguage, blockfile, view, expire, action, subscription from ".$prefix."_blocks where bid='$bid'"));
+		$row = $db->sql_fetchrow($db->sql_query("SELECT bkey, title, content, url, bposition, weight, active, refresh, blanguage, blockfile, view, expire, action, subscription FROM ".$prefix."_blocks WHERE bid='$bid'"));
 		$bkey = filter($row['bkey'], "nohtml");
 		$title = filter($row['title'], "nohtml");
-		$content = filter($row[content]);
+		$content = filter($row['content']);
 		$url = filter($row['url'], "nohtml");
 		$bposition = filter($row['bposition'], "nohtml");
 		$weight = intval($row['weight']);
@@ -455,7 +499,8 @@ if ($row['radminsuper'] == 1) {
 		$view = intval($row['view']);
 		$expire = intval($row['expire']);
 		$action = intval($row['action']);
-		$subscription = intval($row['subscription']);
+		$subscription = intval($row['subscription']);  
+		
 		if ($url != "") {
 			$type = _RSSCONTENT;
 		} elseif ($blockfile != "") {
@@ -480,9 +525,9 @@ if ($row['radminsuper'] == 1) {
 			sort($blockslist);
 			for ($i=0; $i < sizeof($blockslist); $i++) {
 				if($blockslist[$i]!="") {
-					$bl = ereg_replace("block-","",$blockslist[$i]);
-					$bl = ereg_replace(".php","",$bl);
-					$bl = ereg_replace("_"," ",$bl);
+					$bl = preg_replace('#block\-#m',"",$blockslist[$i]);
+					$bl = preg_replace('#.php#m',"",$bl);
+					$bl = preg_replace('#_#m'," ",$bl);
 					echo "<option value=\"$blockslist[$i]\" ";
 					if ($blockfile == $blockslist[$i]) { echo "selected"; }
 					echo ">$bl</option>\n";
@@ -557,10 +602,10 @@ if ($row['radminsuper'] == 1) {
 		} else {
 			$expire = "<input type=\"text\" name=\"expire\" value=\"0\" size=\"4\" maxlength=\"3\"> "._DAYS."";
 		}
-		if ($action == "d") {
+		if ($action == 0) {
 			$selact1 = "selected";
 			$selact2 = "";
-		} elseif ($action == "r") {
+		} elseif ($action == 0) {
 			$selact1 = "";
 			$selact2 = "selected";
 		}
@@ -631,7 +676,7 @@ if ($row['radminsuper'] == 1) {
 		while ($row = $db->sql_fetchrow($result)) {
 			$bid = intval($row['bid']);
 			$weight = intval($row['weight']);
-			$result2 = $db->sql_query("update ".$prefix."_blocks set weight='$numbers' where bid='$bid'");
+			$result2 = $db->sql_query("update ".$prefix."_blocks SET weight='$numbers' WHERE bid='$bid'");
 			$numbers++;
 		}
 		if ($bposition == l) {
@@ -643,22 +688,31 @@ if ($row['radminsuper'] == 1) {
 		while ($row_two = $db->sql_fetchrow($result_two)) {
 			$bid2 = intval($row_two['bid']);
 			$weight = intval($row_two['weight']);
-			$result_two2 = $db->sql_query("update ".$prefix."_blocks set weight='$number_two' where bid='$bid2'");
+			$result_two2 = $db->sql_query("UPDATE ".$prefix."_blocks SET weight='$number_two' WHERE bid='$bid2'");
 			$number_two++;
 		}
 		return $numbers;
 	}
 
 	function BlocksEditSave($bid, $bkey, $title, $content, $url, $oldposition, $bposition, $active, $refresh, $weight, $blanguage, $blockfile, $view, $expire, $action, $subscription, $moretime) {
+		
+		$cont = null;
+        
 		global $prefix, $db, $admin_file;
+		
+		if(!isset($refresh))
+		$refresh = 0;
+		
 		if (!empty($moretime)) {
 			$moretime = $moretime * 86400;
 			$expire = $moretime + $expire;
 		}
+		else { $moretime = ''; } // maybe ghost
+		
 		if (!empty($url)) {
 			$bkey = "";
 			$btime = time();
-			if (!ereg("http://",$url)) {
+			if (!preg_match('#http:\/\/#m',$url)) {
 				$url = "http://$url";
 			}
 			$rdf = parse_url($url);
@@ -680,10 +734,10 @@ if ($row['radminsuper'] == 1) {
 				$items = explode("</item>",$string);
 				$content = "<font class=\"content\">";
 				for ($i=0;$i<10;$i++) {
-					$link = ereg_replace(".*<link>","",$items[$i]);
-					$link = ereg_replace("</link>.*","",$link);
-					$title2 = ereg_replace(".*<title>","",$items[$i]);
-					$title2 = ereg_replace("</title>.*","",$title2);
+					$link = preg_replace('#.*<link>#m',"",$items[$i]);
+					$link = preg_replace('#<\/link>.*#m',"",$link);
+					$title2 = preg_replace('#.*<title>#m',"",$items[$i]);
+					$title2 = preg_replace('#<\/title>.*#m',"",$title2);
 					if ($items[$i] == "" AND $cont != 1) {
 						$content = "";
 					} else {
@@ -694,58 +748,107 @@ if ($row['radminsuper'] == 1) {
 					}
 				}
 			}
+			else { $url = ''; } // maybe ghost
+			
 			if ($oldposition != $bposition) {
-				$result = $db->sql_query("select bid from ".$prefix."_blocks where weight>='$weight' AND bposition='$bposition'");
+				$result = $db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE weight>='$weight' AND bposition='$bposition'");
 				$fweight = $weight;
 				$oweight = $weight;
 				while ($row = $db->sql_fetchrow($result)) {
 					$nbid = intval($row['bid']);
 					$weight++;
-					$db->sql_query("update ".$prefix."_blocks set weight='$weight' where bid='$nbid'");
+					$db->sql_query("UPDATE ".$prefix."_blocks SET weight='$weight' WHERE bid='$nbid'");
 				}
-				$result2 = $db->sql_query("select bid from ".$prefix."_blocks where weight>'$oweight' AND bposition='$oldposition'");
+				$result2 = $db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE weight>'$oweight' AND bposition='$oldposition'");
 				while ($row2 = $db->sql_fetchrow($result2)) {
 					$obid = intval($row2['bid']);
-					$db->sql_query("update ".$prefix."_blocks set weight='$oweight' where bid='$obid'");
+					$db->sql_query("UPDATE ".$prefix."_blocks SET weight='$oweight' WHERE bid='$obid'");
 					$oweight++;
 				}
-				$row3 = $db->sql_fetchrow($db->sql_query("select weight from ".$prefix."_blocks where bposition='$bposition' order by weight DESC limit 0,1"));
+				$row3 = $db->sql_fetchrow($db->sql_query("SELECT weight FROM ".$prefix."_blocks WHERE bposition='$bposition' ORDER BY weight DESC limit 0,1"));
 				$lastw = $row3['weight'];
 				if ($lastw <= $fweight) {
 					$lastw++;
-					$db->sql_query("update ".$prefix."_blocks set title='$title', content='$content', bposition='$bposition', weight='$lastw', active='$active', refresh='$refresh', blanguage='$blanguage', blockfile='$blockfile', view='$view', subscription='$subscription' where bid='$bid'");
+					$db->sql_query("UPDATE ".$prefix."_blocks SET title='$title', 
+					                                          content='$content', 
+														  bposition='$bposition', 
+														         weight='$lastw', 
+																active='$active', 
+															  refresh='$refresh', 
+														  blanguage='$blanguage', 
+														  blockfile='$blockfile', 
+														            view='$view', 
+													subscription='$subscription' WHERE bid='$bid'");
 				} else {
-					$db->sql_query("update ".$prefix."_blocks set title='$title', content='$content', bposition='$bposition', weight='$fweight', active='$active', refresh='$refresh', blanguage='$blanguage', blockfile='$blockfile', view='$view', subscription='$subscription' where bid='$bid'");
+					$db->sql_query("UPDATE ".$prefix."_blocks SET title='$title', 
+					                                          content='$content', 
+														  bposition='$bposition', 
+														       weight='$fweight', 
+															    active='$active', 
+															  refresh='$refresh', 
+														  blanguage='$blanguage', 
+														  blockfile='$blockfile', 
+														            view='$view', 
+													subscription='$subscription' WHERE bid='$bid'");
 				}
 			} else {
-				$db->sql_query("update ".$prefix."_blocks set bkey='$bkey', title='$title', content='$content', url='$url', bposition='$bposition', weight='$weight', active='$active', refresh='$refresh', blanguage='$blanguage', blockfile='$blockfile', view='$view', subscription='$subscription' where bid='$bid'");
+				$db->sql_query("UPDATE ".$prefix."_blocks SET bkey='$bkey', 
+				                                            title='$title', 
+														content='$content', 
+														        url='$url', 
+													bposition='$bposition', 
+													      weight='$weight', 
+														  active='$active', 
+														refresh='$refresh', 
+													blanguage='$blanguage', 
+													blockfile='$blockfile', 
+													          view='$view', 
+											  subscription='$subscription' WHERE bid='$bid'");
 			}
 			Header("Location: ".$admin_file.".php?op=BlocksAdmin");
 		} else {
 			$title = filter($title, "nohtml", 1);
 			$content = filter($content, "", 1);
 			if ($oldposition != $bposition) {
-				$result5 = $db->sql_query("select bid from ".$prefix."_blocks where weight>='$weight' AND bposition='$bposition'");
+				$result5 = $db->sql_query("SELECT bid from ".$prefix."_blocks WHERE weight>='$weight' AND bposition='$bposition'");
 				$fweight = $weight;
 				$oweight = $weight;
 				while ($row5 = $db->sql_fetchrow($result5)) {
 					$nbid = intval($row5['bid']);
 					$weight++;
-					$db->sql_query("update ".$prefix."_blocks set weight='$weight' where bid='$nbid'");
+					$db->sql_query("UPDATE ".$prefix."_blocks SET weight='$weight' WHERE bid='$nbid'");
 				}
-				$result6 = $db->sql_query("select bid from ".$prefix."_blocks where weight>'$oweight' AND bposition='$oldposition'");
+				$result6 = $db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE weight>'$oweight' AND bposition='$oldposition'");
 				while ($row6 = $db->sql_fetchrow($result6)) {
 					$obid = intval($row6['bid']);
-					$db->sql_query("update ".$prefix."_blocks set weight='$oweight' where bid='$obid'");
+					$db->sql_query("UPDATE ".$prefix."_blocks SET weight='$oweight' WHERE bid='$obid'");
 					$oweight++;
 				}
-				$row7 = $db->sql_fetchrow($db->sql_query("select weight from ".$prefix."_blocks where bposition='$bposition' order by weight DESC limit 0,1"));
+				$row7 = $db->sql_fetchrow($db->sql_query("SELECT weight FROM ".$prefix."_blocks WHERE bposition='$bposition' ORDER BY weight DESC limit 0,1"));
 				$lastw = $row7['weight'];
 				if ($lastw <= $fweight) {
 					$lastw++;
-					$db->sql_query("update ".$prefix."_blocks set title='$title', content='$content', bposition='$bposition', weight='$lastw', active='$active', refresh='$refresh', blanguage='$blanguage', blockfile='$blockfile', view='$view', subscription='$subscription' where bid='$bid'");
+					$db->sql_query("UPDATE ".$prefix."_blocks SET title='$title', 
+					                                          content='$content', 
+														  bposition='$bposition', 
+														         weight='$lastw', 
+																active='$active', 
+															  refresh='$refresh', 
+														  blanguage='$blanguage', 
+														  blockfile='$blockfile', 
+														            view='$view', 
+													subscription='$subscription' WHERE bid='$bid'");
 				} else {
-					$db->sql_query("update ".$prefix."_blocks set title='$title', content='$content', bposition='$bposition', weight='$fweight', active='$active', refresh='$refresh', blanguage='$blanguage', blockfile='$blockfile', view='$view', subscription='$subscription' where bid='$bid'");
+					$db->sql_query("UPDATE ".$prefix."_blocks SET title='$title', 
+					                                          content='$content', 
+														  bposition='$bposition', 
+														       weight='$fweight', 
+															    active='$active', 
+															  refresh='$refresh', 
+														  blanguage='$blanguage', 
+														  blockfile='$blockfile', 
+														            view='$view', 
+													subscription='$subscription' WHERE bid='$bid'");
 				}
 			} else {
 				if (empty($expire)) {
@@ -754,7 +857,20 @@ if ($row['radminsuper'] == 1) {
 				if ($expire != 0 AND $expire <= 999) {
 					$expire = time() + ($expire * 86400);
 				}
-				$result8 = $db->sql_query("update ".$prefix."_blocks set bkey='$bkey', title='$title', content='$content', url='$url', bposition='$bposition', weight='$weight', active='$active', refresh='$refresh', blanguage='$blanguage', blockfile='$blockfile', view='$view', expire='$expire', action='$action', subscription='$subscription' where bid='$bid'");
+				$result8 = $db->sql_query("UPDATE ".$prefix."_blocks SET bkey='$bkey', 
+				                                                       title='$title', 
+																   content='$content', 
+																           url='$url', 
+															   bposition='$bposition', 
+															         weight='$weight', 
+																	 active='$active', 
+																   refresh='$refresh', 
+															   blanguage='$blanguage', 
+															   blockfile='$blockfile', 
+															             view='$view', 
+																	 expire='$expire', 
+																	 action='$action', 
+														 subscription='$subscription' WHERE bid='$bid'");
 			}
 			Header("Location: ".$admin_file.".php?op=BlocksAdmin");
 		}
@@ -763,7 +879,7 @@ if ($row['radminsuper'] == 1) {
 	function ChangeStatus($bid, $ok=0) {
 		global $prefix, $db, $admin_file;
 		$bid = intval($bid);
-		$row = $db->sql_fetchrow($db->sql_query("select active from ".$prefix."_blocks where bid='$bid'"));
+		$row = $db->sql_fetchrow($db->sql_query("SELECT active FROM ".$prefix."_blocks WHERE bid='$bid'"));
 		$active = intval($row['active']);
 		if (($ok) OR ($active == 1)) {
 			if ($active == 0) {
@@ -771,10 +887,10 @@ if ($row['radminsuper'] == 1) {
 			} elseif ($active == 1) {
 				$active = 0;
 			}
-			$result2 = $db->sql_query("update ".$prefix."_blocks set active='$active' where bid='$bid'");
+			$result2 = $db->sql_query("UPDATE ".$prefix."_blocks SET active='$active' WHERE bid='$bid'");
 			Header("Location: ".$admin_file.".php?op=BlocksAdmin");
 		} else {
-			$row3 = $db->sql_fetchrow($db->sql_query("select title, content from ".$prefix."_blocks where bid='$bid'"));
+			$row3 = $db->sql_fetchrow($db->sql_query("SELECT title, content FROM ".$prefix."_blocks WHERE bid='$bid'"));
 			$title = filter($row3['title'], "nohtml");
 			$content = filter($row3['content']);
 			include("header.php");
@@ -803,19 +919,19 @@ if ($row['radminsuper'] == 1) {
 		global $prefix, $db, $admin_file;
 		$bid = intval($bid);
 		if ($ok) {
-			$row = $db->sql_fetchrow($db->sql_query("select bposition, weight from ".$prefix."_blocks where bid='$bid'"));
+			$row = $db->sql_fetchrow($db->sql_query("SELECT bposition, weight FROM ".$prefix."_blocks WHERE bid='$bid'"));
 			$bposition = filter($row['bposition'], "nohtml");
 			$weight = intval($row['weight']);
-			$result2 = $db->sql_query("select bid from ".$prefix."_blocks where weight>'$weight' AND bposition='$bposition'");
+			$result2 = $db->sql_query("SELECT bid FROM ".$prefix."_blocks WHERE weight>'$weight' AND bposition='$bposition'");
 			while ($row2 = $db->sql_fetchrow($result2)) {
 				$nbid = intval($row2['bid']);
-				$db->sql_query("update ".$prefix."_blocks set weight='$weight' where bid='$nbid'");
+				$db->sql_query("UPDATE ".$prefix."_blocks SET weight='$weight' WHERE bid='$nbid'");
 				$weight++;
 			}
-			$db->sql_query("delete from ".$prefix."_blocks where bid='$bid'");
+			$db->sql_query("DELETE FROM ".$prefix."_blocks WHERE bid='$bid'");
 			Header("Location: ".$admin_file.".php?op=BlocksAdmin");
 		} else {
-			$row3 = $db->sql_fetchrow($db->sql_query("select title from ".$prefix."_blocks where bid='$bid'"));
+			$row3 = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_blocks WHERE bid='$bid'"));
 			$title = $row3['title'];
 			include("header.php");
 			GraphicAdmin();
@@ -845,14 +961,15 @@ if ($row['radminsuper'] == 1) {
 		."<td bgcolor=\"$bgcolor2\" align=\"center\"><b>"._SITENAME."</b></td>"
 		."<td bgcolor=\"$bgcolor2\" align=\"center\"><b>"._URL."</b></td>"
 		."<td bgcolor=\"$bgcolor2\" align=\"center\"><b>"._FUNCTIONS."</b></td><tr>";
-		$result = $db->sql_query("select hid, sitename, headlinesurl from ".$prefix."_headlines order by hid");
+		$result = $db->sql_query("SELECT hid, sitename, headlinesurl FROM ".$prefix."_headlines ORDER BY hid");
 		while ($row = $db->sql_fetchrow($result)) {
 			$hid = intval($row['hid']);
 			$sitename = filter($row['sitename'], "nohtml");
 			$headlinesurl = filter($row['headlinesurl'], "nohtml");
 			echo "<td bgcolor=\"$bgcolor1\" align=\"center\">$sitename</td>"
 			."<td bgcolor=\"$bgcolor1\" align=\"center\"><a href=\"$headlinesurl\" target=\"new\">$headlinesurl</a></td>"
-			."<td bgcolor=\"$bgcolor1\" align=\"center\">[ <a href=\"".$admin_file.".php?op=HeadlinesEdit&amp;hid=$hid\">"._EDIT."</a> | <a href=\"".$admin_file.".php?op=HeadlinesDel&amp;hid=$hid&amp;ok=0\">"._DELETE."</a> ]</td><tr>";
+			."<td bgcolor=\"$bgcolor1\" align=\"center\">[ <a href=\"".$admin_file.".php?op=HeadlinesEdit&amp;hid=$hid\">"._EDIT."</a> | <a 
+			href=\"".$admin_file.".php?op=HeadlinesDel&amp;hid=$hid&amp;ok=0\">"._DELETE."</a> ]</td><tr>";
 		}
 		echo "</form></td></tr></table>";
 		CloseTable();
@@ -880,20 +997,20 @@ if ($row['radminsuper'] == 1) {
 		echo "<center><font class=\"title\"><b>"._HEADLINESADMIN."</b></font></center>";
 		CloseTable();
 		echo "<br>";
-		$row = $db->sql_fetchrow($db->sql_query("select sitename, headlinesurl from ".$prefix."_headlines where hid='$hid'"));
+		$row = $db->sql_fetchrow($db->sql_query("SELECT sitename, headlinesurl FROM ".$prefix."_headlines WHERE hid='$hid'"));
 		$xsitename = filter($row['sitename'], "nohtml");
 		$headlinesurl = filter($row['headlinesurl'], "nohtml");
 		OpenTable();
 		echo "<center><font class=\"option\"><b>"._EDITHEADLINE."</b></font></center>
-	<form action=\"".$admin_file.".php\" method=\"post\">
-	<input type=\"hidden\" name=\"hid\" value=\"$hid\">
-	<table border=\"0\" width=\"100%\"><tr><td>
-	"._SITENAME.":</td><td><input type=\"text\" name=\"xsitename\" size=\"31\" maxlength=\"30\" value=\"$xsitename\"></td></tr><tr><td>
-	"._RSSFILE.":</td><td><input type=\"text\" name=\"headlinesurl\" size=\"50\" maxlength=\"200\" value=\"$headlinesurl\"></td></tr><tr><td>
-	</select></td></tr></table>
-	<input type=\"hidden\" name=\"op\" value=\"HeadlinesSave\">
-	<input type=\"submit\" value=\""._SAVECHANGES."\">
-	</form>";
+	    <form action=\"".$admin_file.".php\" method=\"post\">
+	    <input type=\"hidden\" name=\"hid\" value=\"$hid\">
+	    <table border=\"0\" width=\"100%\"><tr><td>
+	    "._SITENAME.":</td><td><input type=\"text\" name=\"xsitename\" size=\"31\" maxlength=\"30\" value=\"$xsitename\"></td></tr><tr><td>
+	    "._RSSFILE.":</td><td><input type=\"text\" name=\"headlinesurl\" size=\"50\" maxlength=\"200\" value=\"$headlinesurl\"></td></tr><tr><td>
+	    </select></td></tr></table>
+	    <input type=\"hidden\" name=\"op\" value=\"HeadlinesSave\">
+	    <input type=\"submit\" value=\""._SAVECHANGES."\">
+	    </form>";
 		CloseTable();
 		include("footer.php");
 	}
@@ -903,8 +1020,8 @@ if ($row['radminsuper'] == 1) {
 		$hid = intval($hid);
 		$xsitename = filter($xsitename, "nohtml", 1);
 		$headlinesurl = filter($headlinesurl, "nohtml", 1);
-		$xsitename = ereg_replace(" ", "", $xsitename);
-		$db->sql_query("update ".$prefix."_headlines set sitename='$xsitename', headlinesurl='$headlinesurl' where hid='$hid'");
+		$xsitename = preg_replace('# #m', "", $xsitename);
+		$db->sql_query("UPDATE ".$prefix."_headlines SET sitename='$xsitename', headlinesurl='$headlinesurl' WHERE hid='$hid'");
 		Header("Location: ".$admin_file.".php?op=HeadlinesAdmin");
 	}
 
@@ -912,8 +1029,8 @@ if ($row['radminsuper'] == 1) {
 		global $prefix, $db, $admin_file;
 		$xsitename = filter($xsitename, "nohtml", 1);
 		$headlinesurl = filter($headlinesurl, "nohtml", 1);
-		$xsitename = ereg_replace(" ", "", $xsitename);
-		$db->sql_query("insert into ".$prefix."_headlines values (NULL, '$xsitename', '$headlinesurl')");
+		$xsitename = preg_replace('# #m', "", $xsitename);
+		$db->sql_query("INSERT INTO ".$prefix."_headlines VALUES (NULL, '$xsitename', '$headlinesurl')");
 		Header("Location: ".$admin_file.".php?op=HeadlinesAdmin");
 	}
 
@@ -921,7 +1038,7 @@ if ($row['radminsuper'] == 1) {
 		global $prefix, $db, $admin_file;
 		$hid = intval($hid);
 		if($ok==1) {
-			$db->sql_query("delete from ".$prefix."_headlines where hid='$hid'");
+			$db->sql_query("DELETE FROM ".$prefix."_headlines WHERE hid='$hid'");
 			Header("Location: ".$admin_file.".php?op=HeadlinesAdmin");
 		} else {
 			include("header.php");

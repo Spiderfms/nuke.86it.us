@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 /************************************************************************/
 /* PHP-NUKE: Web Portal System                                          */
@@ -16,20 +16,16 @@ if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
 
-// this is the global that is used on the fly by the admin system
-// which is run through the /admin.php file.
-global $op;
-// list all the switches needede for admin/backup.php 
-// these will all be used to switch modes in the 
-// admin/backup.php file.
-switch($op) {
+global $dbhost,$dbuname,$dbpass,$dbname;
 
-	case "backup":
-	case "backupnow":
-	case "backupdone":
-	case "backupdownload":
-    include("admin/modules/backup.php");
-    break;
- 
+$servername = $dbhost;
+$username = $dbuname;
+$password = $dbpass;
+$db = $dbname;
+
+$conn = new mysqli($servername, $username, $password, $db);
+if($conn->connect_error){
+	echo "Connect Failed!<br>" . $conn->error;
 }
-
+//set your timezone , refer to php manual
+date_default_timezone_set("Asia/Kuala_Lumpur");

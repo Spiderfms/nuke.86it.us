@@ -431,3 +431,37 @@ define_once("_UNABRIDGED","Unabridged");
 define_once("_MAILCONFIG","Mailing Options Configuration");
 define_once("_OTHERCONFIG","Other Options Configuration");
 
+/*****[BEGIN]******************************************
+ [ Other:    Database Manager                  v2.0.0 ]
+ ******************************************************/
+define_once("_GO", "Go");
+define_once("_DATABASE_ADMIN_HEADER", "Database Backup Panel");
+define_once("_DATABASE_RETURNMAIN", "Return to Main Administration");
+define_once("_DATABASE", "Database");
+define_once("_ACTIONRESULTS", "Here are the results of your");
+define_once("_IMPORTSUCCESS","Importation of <em>%s</em> was successful");
+define_once("_CHECKALL","Check All");
+define_once("_UNCHECKALL","Uncheck All");
+define_once("_SAVEDATABASE","Backup DB");
+define_once("_ANALYZEDATABASE","Analyze");
+define_once("_CHECKDATABASE","Check");
+define_once("_OPTIMIZEDATABASE","Optimize");
+define_once("_REPAIRDATABASE","Repair");
+define_once("_STATUSDATABASE","Status");
+define_once("_BACKUPTASKS","Backup Tasks");
+define_once("_SAVEDATA","Save Data");
+define_once("_INCLUDESTATEMENT","Include %s statement");
+define_once("_GZIPCOMPRESS","Use GZIP Compression");
+define_once("_OPTIMIZETEXT",'<strong>OPTIMIZE</strong></div><br /><div align="justify">Should be used if you have deleted a large part of a table or if you have made many changes to a table with variable-length rows (tables that have VARCHAR, BLOB, or TEXT columns). Deleted records are maintained in a linked list and subsequent INSERT operations reuse old record positions. You can use OPTIMIZE to reclaim the unused space and to defragment the datafile.<br />
+In most setups you don\'t have to run OPTIMIZE at all. Even if you do a lot of updates to variable length rows it\'s not likely that you need to do this more than once a month/week and only on certain tables.</div><br />
+OPTIMIZE works in the following way:<ul>
+<li>If the table has deleted or split rows, repair the table.</li>
+<li>If the index pages are not sorted, sort them.</li>
+<li>If the statistics are not up to date (and the repair couldn\'t be done by sorting the index), update them.</li>
+</ul><strong>Note:</strong> the table is locked during the time in which OPTIMIZE is running!<br /><strong>Note:</strong> This admin backup module has been updated for PHP 7.xx');
+define_once("_IMPORTFILE","Import SQL File");
+define_once("_IMPORTSQL", "Import");
+define_once("_DBACTION", "Action");
+/*****[END]********************************************
+ [ Other:    Database Manager                  v2.0.0 ]
+ ******************************************************/

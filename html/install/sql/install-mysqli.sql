@@ -419,11 +419,11 @@ CREATE TABLE IF NOT EXISTS `#prefix#_blocks` (
   `bposition` char(1) NOT NULL DEFAULT '',
   `weight` int(10) NOT NULL DEFAULT 1,
   `active` int(1) NOT NULL DEFAULT 1,
-  `refresh` int(10) NOT NULL DEFAULT 0,
+  `refresh` int(11) NOT NULL DEFAULT 0,
   `time` varchar(14) NOT NULL DEFAULT '0',
   `blanguage` varchar(30) NOT NULL DEFAULT '',
   `blockfile` varchar(255) NOT NULL DEFAULT '',
-  `view` int(1) NOT NULL DEFAULT 0,
+  `view` varchar(50) NOT NULL DEFAULT '0',
   `expire` varchar(14) NOT NULL DEFAULT '0',
   `action` char(1) NOT NULL DEFAULT '',
   `subscription` int(1) NOT NULL DEFAULT 0
