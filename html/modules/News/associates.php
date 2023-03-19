@@ -1,7 +1,7 @@
 <?php
 if(!strpos((string) $_SERVER['PHP_SELF'], 'admin.php')) {
 	#show right panel:
-	define('INDEX_FILE', true);
+	define_once('INDEX_FILE', true);
 }
 /************************************************************************/
 /* PHP-NUKE: Web Portal System                                          */
