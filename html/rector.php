@@ -172,6 +172,8 @@ return static function (RectorConfig $rectorConfig): void {
         //__DIR__ . '/language',
         //__DIR__ . '/modules',
 
+		__DIR__ . '/modules/Advertising/index.php',
+
 		//__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 
 		//__DIR__ . '/modules/Private_Messages/index.php',

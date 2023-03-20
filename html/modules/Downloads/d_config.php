@@ -60,5 +60,3 @@ $mostpopdownloadspercentrigger = 0;
 $mostpopdownloads = 25;
 $downloadvotemin = 5;
 $show_links_num = 0;
-
-?>
