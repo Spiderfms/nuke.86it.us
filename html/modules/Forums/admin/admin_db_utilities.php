@@ -34,8 +34,9 @@
  * TernaryToNullCoalescingRector
  * CountOnNullRector (https://3v4l.org/Bndc9)
  * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
- * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each) ?? Rector Missed One #Bug 1
  * NullToStrictStringFuncCallArgRector
+ * StrStartsWithRector (https://wiki.php.net/rfc/add_str_starts_with_and_ends_with_functions)
  */
  
 define('IN_PHPBB', 1);
@@ -443,7 +444,8 @@ function get_table_def_mysql($table, $crlf)
                 $index[$kname][] = $row['Column_name'];
         }
 
-        while([$x, $columns] = each($index))
+        //while([$x, $columns] = each($index))
+		foreach ($index as $x => $columns)
         {
                 $schema_create .= ", $crlf";
 
@@ -451,7 +453,7 @@ function get_table_def_mysql($table, $crlf)
                 {
                         $schema_create .= '        PRIMARY KEY (' . implode($columns, ', ') . ')';
                 }
-                elseif (substr((string) $x,0,6) == 'UNIQUE')
+                elseif (str_starts_with((string) $x, 'UNIQUE'))
                 {
                         $schema_create .= '        UNIQUE ' . substr((string) $x,7) . ' (' . implode($columns, ', ') . ')';
                 }

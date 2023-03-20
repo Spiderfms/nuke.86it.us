@@ -57,6 +57,8 @@ use Rector\Php74\Rector\Ternary\ParenthesizeNestedTernaryRector;
 use Rector\Php74\Rector\Double\RealToFloatTypeCastRector;
 use Rector\Php74\Rector\Property\RestoreDefaultNullToNullableTypePropertyRector;
 
+use Rector\Php80\Rector\Identical\StrStartsWithRector;
+
 use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 
 use Rector\Php82\Rector\FuncCall\Utf8DecodeEncodeToMbConvertEncodingRector;
@@ -135,8 +137,8 @@ return static function (RectorConfig $rectorConfig): void {
 	$rectorConfig->rule(RealToFloatTypeCastRector::class);
 	$rectorConfig->rule(RestoreDefaultNullToNullableTypePropertyRector::class);
 	
-	// 80
-	//$rectorConfig->rule(::class);
+	// 80 
+	$rectorConfig->rule(StrStartsWithRector::class);
 	//$rectorConfig->rule(::class);
 	//$rectorConfig->rule(::class);
 
