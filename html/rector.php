@@ -171,58 +171,58 @@ return static function (RectorConfig $rectorConfig): void {
 	$rectorConfig->rule(MysqlQueryMysqlErrorWithLinkRector::class);
 		
     $rectorConfig->paths([
-        //__DIR__ . '/admin',
-		//__DIR__ . '/admin/modules/backup/backup.php',
-		//__DIR__ . '/admin/modules/backup/backupdownload.php',
-		//__DIR__ . '/admin/modules/modules.php',
-		//__DIR__ . '/admin/modules/blocks.php',
-		//__DIR__ . '/admin/modules/authors.php',
-		//__DIR__ . '/admin/modules/ipban.php',
-        //__DIR__ . '/blocks',
-		//__DIR__ . '/blocks/blocks-Modules.php',
-        //__DIR__ . '/install/includes/database.php',
-		//__DIR__ . '/install/install2.php',
-		//__DIR__ . '/install',
-        //__DIR__ . '/includes', BAD IDEA HAD TO REBOOT SERVER
-		//__DIR__ . '/includes/classes/class.debugger.php',
-		//__DIR__ . '/includes/counter.php',
-		//__DIR__ . '/includes/ipban.php',
-        //__DIR__ . '/install',
-        //__DIR__ . '/language',
-        //__DIR__ . '/modules',
+        #__DIR__ . '/admin',
+		///__DIR__ . '/admin/modules/backup/backup.php',
+		///__DIR__ . '/admin/modules/backup/backupdownload.php',
+		///__DIR__ . '/admin/modules/modules.php',
+		///__DIR__ . '/admin/modules/blocks.php',
+		///__DIR__ . '/admin/modules/authors.php',
+		///__DIR__ . '/admin/modules/ipban.php',
+        #__DIR__ . '/blocks',
+		///__DIR__ . '/blocks/blocks-Modules.php',
+        ///__DIR__ . '/install/includes/database.php',
+		///__DIR__ . '/install/install2.php',
+		///__DIR__ . '/install',
+        ///__DIR__ . '/includes', BAD IDEA HAD TO REBOOT SERVER
+		///__DIR__ . '/includes/classes/class.debugger.php',
+		///__DIR__ . '/includes/counter.php',
+		///__DIR__ . '/includes/ipban.php',
+        #__DIR__ . '/install',
+        #__DIR__ . '/language',
+        #__DIR__ . '/modules',
 
-		//__DIR__ . '/modules/Advertising/index.php',
-
-
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atCommands.php',
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atExtended.php',
-		//__DIR__ . '/modules/AutoTheme/includes/atAPI.php',
-		//__DIR__ . '/modules/AutoTheme/includes/atCommands.php',
-		//__DIR__ . '/modules/AutoTheme/includes/atExtended.php',
-		//__DIR__ . '/modules/AutoTheme/extras',
-		//__DIR__ . '/modules/AutoTheme/extras/php-nuke',
-
-		//__DIR__ . '/modules/Avantgo/index.php',
+		///__DIR__ . '/modules/Advertising/index.php',
 
 
-        //__DIR__ . '/modules/Content/index.php',
-		//__DIR__ . '/modules/Content/copyright.php',
+		///__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
+		///__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
+		///__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
+		///__DIR__ . '/modules/AutoTheme/includes/php-nuke/atCommands.php',
+		///__DIR__ . '/modules/AutoTheme/includes/php-nuke/atExtended.php',
+		///__DIR__ . '/modules/AutoTheme/includes/atAPI.php',
+		///__DIR__ . '/modules/AutoTheme/includes/atCommands.php',
+		///__DIR__ . '/modules/AutoTheme/includes/atExtended.php',
+		///__DIR__ . '/modules/AutoTheme/extras',
+		///__DIR__ . '/modules/AutoTheme/extras/php-nuke',
+
+		///__DIR__ . '/modules/Avantgo/index.php',
 
 
-		//__DIR__ . '/modules/Downloads/index.php',
-		//__DIR__ . '/modules/Downloads/voteinclude.php',
+        ///__DIR__ . '/modules/Content/index.php',
+		///__DIR__ . '/modules/Content/copyright.php',
 
-		//__DIR__ . '/modules/Encyclopedia/index.php',
-		//__DIR__ . '/modules/Encyclopedia/search.php',
-		//__DIR__ . '/modules/Encyclopedia/copyright.php',
 
-		//__DIR__ . '/modules/FAQ/index.php',
-		//__DIR__ . '/modules/FAQ/admin/index.php',
+		///__DIR__ . '/modules/Downloads/index.php',
+		///__DIR__ . '/modules/Downloads/voteinclude.php',
 
-		//__DIR__ . '/modules/Feedback/index.php',
+		///__DIR__ . '/modules/Encyclopedia/index.php',
+		///__DIR__ . '/modules/Encyclopedia/search.php',
+		///__DIR__ . '/modules/Encyclopedia/copyright.php',
+
+		///__DIR__ . '/modules/FAQ/index.php',
+		///__DIR__ . '/modules/FAQ/admin/index.php',
+
+		///__DIR__ . '/modules/Feedback/index.php',
 
 		///__DIR__ . '/modules/Forums/admin/admin_avatar.php',
 		///__DIR__ . '/modules/Forums/admin/admin_board.php',
@@ -231,7 +231,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/admin/admin_forum_prune.php',
 		///__DIR__ . '/modules/Forums/admin/admin_forumauth.php',
 		///__DIR__ . '/modules/Forums/admin/admin_forums.php',
-		__DIR__ . '/modules/Forums/admin/admin_groups.php',
+		//__DIR__ . '/modules/Forums/admin/admin_groups.php',
 		//__DIR__ . '/modules/Forums/admin/admin_mass_email.php',
 		//__DIR__ . '/modules/Forums/admin/admin_ranks.php',
 		//__DIR__ . '/modules/Forums/admin/admin_smilies.php',
@@ -296,41 +296,41 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/modules/Forums/viewonline.php',
 		//__DIR__ . '/modules/Forums/viewtopic.php',
 
-		//__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
+		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 
-		//__DIR__ . '/modules/Private_Messages/index.php',
+		///__DIR__ . '/modules/Private_Messages/index.php',
 
-		//__DIR__ . '/modules/News/index.php',
-		//__DIR__ . '/modules/News/admin/index.php',
-		//__DIR__ . '/modules/News/index.php',
-		//__DIR__ . '/modules/News/comments.php',
-		//__DIR__ . '/modules/News/article.php',
-		//__DIR__ . '/modules/News/associates.php',
-		//__DIR__ . '/modules/Submit_News/index.php',
-
-
-		//__DIR__ . '/modules/Stories_Archive/index.php',
-
-		//__DIR__ . '/modules/Surveys/comments.php',
+		///__DIR__ . '/modules/News/index.php',
+		///__DIR__ . '/modules/News/admin/index.php',
+		///__DIR__ . '/modules/News/index.php',
+		///__DIR__ . '/modules/News/comments.php',
+		///__DIR__ . '/modules/News/article.php',
+		///__DIR__ . '/modules/News/associates.php',
+		///__DIR__ . '/modules/Submit_News/index.php',
 
 
-		//__DIR__ . '/modules/Surveys/index.php',
+		///__DIR__ . '/modules/Stories_Archive/index.php',
 
-		//__DIR__ . '/modules/Your_Account/index.php',
-		//__DIR__ . '/modules/Your_Account/navbar.php',
+		///__DIR__ . '/modules/Surveys/comments.php',
 
-		//__DIR__ . '/modules/Feedback/index.php',
 
-		//__DIR__ . '/modules/Forums/common.php',
+		///__DIR__ . '/modules/Surveys/index.php',
 
-        //__DIR__ . '/themes',
-		//__DIR__ . '/admin.php',
-		//__DIR__ . '/backend.php',
-		//__DIR__ . '/footer.php',
-		//__DIR__ . '/header.php',
-		//__DIR__ . '/index.php',
-		//__DIR__ . '/mainfile.php',
-		//__DIR__ . '/modules.php',
+		///__DIR__ . '/modules/Your_Account/index.php',
+		///__DIR__ . '/modules/Your_Account/navbar.php',
+
+		///__DIR__ . '/modules/Feedback/index.php',
+
+		///__DIR__ . '/modules/Forums/common.php',
+
+        #__DIR__ . '/themes',
+		///__DIR__ . '/admin.php',
+		///__DIR__ . '/backend.php',
+		///__DIR__ . '/footer.php',
+		///__DIR__ . '/header.php',
+		///__DIR__ . '/index.php',
+		///__DIR__ . '/mainfile.php',
+		///__DIR__ . '/modules.php',
     ]);
 
 };
