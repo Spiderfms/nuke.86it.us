@@ -20,6 +20,11 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * WhileEachToForeachRector - rector Missed this #Bug 4
+ * WrapVariableVariableNameInCurlyBracesRector (https://www.php.net/manual/en/language.variables.variable.php)
+ */
+ 
 define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
@@ -42,7 +47,8 @@ require('./pagestart.' . $phpEx);
 
 $params = array('mode' => 'mode', 'user_id' => POST_USERS_URL, 'group_id' => POST_GROUPS_URL, 'adv' => 'adv');
 
-while( list($var, $param) = @each($params) )
+//while( list($var, $param) = each($params) ) maybe ghost
+foreach ($params as $var => $param)
 {
         if ( !empty($HTTP_POST_VARS[$param]) || !empty($HTTP_GET_VARS[$param]) )
         {
@@ -243,7 +249,8 @@ if ( isset($HTTP_POST_VARS['submit']) && ( ( $mode == 'user' && $user_id ) || ( 
                                 {
                                         $auth_field = $forum_auth_fields[$j];
 
-                                        while( list($forum_id, $value) = @each($HTTP_POST_VARS['private_' . $auth_field]) )
+                                        //while( list($forum_id, $value) = each($HTTP_POST_VARS['private_' . $auth_field]) ) maybe ghost
+										foreach ($HTTP_POST_VARS['private_' . $auth_field] as $forum_id => $value)
                                         {
                                                 $change_acl_list[$forum_id][$auth_field] = $value;
                                         }
@@ -347,7 +354,8 @@ if ( isset($HTTP_POST_VARS['submit']) && ( ( $mode == 'user' && $user_id ) || ( 
                         // Checks complete, make updates to DB
                         //
                         $delete_sql = '';
-                        while( list($forum_id, $action) = @each($forum_auth_action) )
+                        //while( list($forum_id, $action) = each($forum_auth_action) ) maybe ghost
+						foreach ($forum_auth_action as $forum_id => $action)
                         {
                                 if ( $action == 'delete' )
                                 {
@@ -359,7 +367,8 @@ if ( isset($HTTP_POST_VARS['submit']) && ( ( $mode == 'user' && $user_id ) || ( 
                                         {
                                                 $sql_field = '';
                                                 $sql_value = '';
-                                                while ( list($auth_type, $value) = @each($update_acl_status[$forum_id]) )
+                                                //while ( list($auth_type, $value) = each($update_acl_status[$forum_id]) ) maybe ghost
+												foreach ($update_acl_status[$forum_id] as $auth_type => $value)
                                                 {
                                                         $sql_field .= ( ( $sql_field != '' ) ? ', ' : '' ) . $auth_type;
                                                         $sql_value .= ( ( $sql_value != '' ) ? ', ' : '' ) . $value;
@@ -373,7 +382,8 @@ if ( isset($HTTP_POST_VARS['submit']) && ( ( $mode == 'user' && $user_id ) || ( 
                                         else
                                         {
                                                 $sql_values = '';
-                                                while ( list($auth_type, $value) = @each($update_acl_status[$forum_id]) )
+                                                //while ( list($auth_type, $value) = each($update_acl_status[$forum_id]) ) maybe ghost
+												foreach ($update_acl_status[$forum_id] as $auth_type => $value)
                                                 {
                                                         $sql_values .= ( ( $sql_values != '' ) ? ', ' : '' ) . $auth_type . ' = ' . $value;
                                                 }
@@ -723,8 +733,9 @@ else if ( ( $mode == 'user' && ( isset($HTTP_POST_VARS['username']) || $user_id 
         }
 
         $i = 0;
-        @reset($auth_ug);
-        while( list($forum_id, $user_ary) = @each($auth_ug) )
+        reset($auth_ug);
+        //while( list($forum_id, $user_ary) = each($auth_ug) ) maybe ghost
+		foreach ($auth_ug as $forum_id => $user_ary)
         {
                 if ( empty($adv) )
                 {
@@ -1029,4 +1040,3 @@ $template->pparse('body');
 
 include('./page_footer_admin.'.$phpEx);
 
-?>
