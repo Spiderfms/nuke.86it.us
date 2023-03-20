@@ -19,6 +19,11 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
@@ -354,4 +359,3 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	include("footer.php");
 }
 
-?>

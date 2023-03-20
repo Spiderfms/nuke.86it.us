@@ -198,7 +198,10 @@ return static function (RectorConfig $rectorConfig): void {
 
 		//__DIR__ . '/modules/Encyclopedia/index.php',
 		//__DIR__ . '/modules/Encyclopedia/search.php',
-		__DIR__ . '/modules/Encyclopedia/copyright.php',
+		//__DIR__ . '/modules/Encyclopedia/copyright.php',
+
+		//__DIR__ . '/modules/FAQ/index.php',
+		  __DIR__ . '/modules/FAQ/admin/index.php',
 
 		//__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 
