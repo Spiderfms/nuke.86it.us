@@ -5,6 +5,10 @@ use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector;
 
+use Rector\Php53\Rector\Variable\ReplaceHttpServerVarsByServerRector;
+
+//use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector; # I ONLY DO THIS FOR CERTAIN FILES #
+
 use Rector\Php55\Rector\FuncCall\PregReplaceEModifierRector;
 
 use Rector\Php56\Rector\FunctionLike\AddDefaultValueForUndefinedVariableRector;
@@ -78,6 +82,12 @@ return static function (RectorConfig $rectorConfig): void {
     // B. or single rule
     $rectorConfig->rule(TypedPropertyFromAssignsRector::class);
 
+    // 53
+	$rectorConfig->rule(ReplaceHttpServerVarsByServerRector::class);
+	
+	//54
+	//$rectorConfig->rule(LongArrayToShortArrayRector::class); # I ONLY DO THIS FOR CERTAIN FILES #
+
 	// 55
 	$rectorConfig->rule(PregReplaceEModifierRector::class);
 
@@ -139,6 +149,13 @@ return static function (RectorConfig $rectorConfig): void {
 	
 	// 80 
 	$rectorConfig->rule(StrStartsWithRector::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
+	//$rectorConfig->rule(::class);
 	//$rectorConfig->rule(::class);
 	//$rectorConfig->rule(::class);
 
