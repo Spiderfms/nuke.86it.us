@@ -48,8 +48,18 @@
         forum auth levels, this will prevent the auth function having to do its own
         lookup
 */
+
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * TernaryToNullCoalescingRector
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * NullCoalescingOperatorRector (https://wiki.php.net/rfc/null_coalesce_equal_operator)
+ */
+ 
 function auth($type, $forum_id, $userdata, $f_access = '')
 {
+        $a_sql = null;
+        $auth_fields = [];
         global $db, $lang;
 
         switch( $type )
@@ -230,11 +240,11 @@ function auth($type, $forum_id, $userdata, $f_access = '')
                 }
                 else
                 {
-                        for($k = 0; $k < count($f_access); $k++)
+                        for($k = 0; $k < (is_countable($f_access) ? count($f_access) : 0); $k++)
                         {
                                 $value = $f_access[$k][$key];
                                 $f_forum_id = $f_access[$k]['forum_id'];
-				$u_access[$f_forum_id] = isset($u_access[$f_forum_id]) ? $u_access[$f_forum_id] : array();
+				$u_access[$f_forum_id] ??= array();
 
                                 switch( $value )
                                 {
@@ -280,10 +290,10 @@ function auth($type, $forum_id, $userdata, $f_access = '')
         }
         else
         {
-                for($k = 0; $k < count($f_access); $k++)
+                for($k = 0; $k < (is_countable($f_access) ? count($f_access) : 0); $k++)
                 {
                         $f_forum_id = $f_access[$k]['forum_id'];
-			$u_access[$f_forum_id] = isset($u_access[$f_forum_id]) ? $u_access[$f_forum_id] : array();
+			$u_access[$f_forum_id] ??= array();
 
                         $auth_user[$f_forum_id]['auth_mod'] = ( $userdata['session_logged_in'] ) ? auth_check_user(AUTH_MOD, 'auth_mod', $u_access[$f_forum_id], $is_admin) : 0;
                 }
@@ -296,9 +306,9 @@ function auth_check_user($type, $key, $u_access, $is_admin)
 {
         $auth_user = 0;
 
-        if ( count($u_access) )
+        if ( is_countable($u_access) ? count($u_access) : 0 )
         {
-                for($j = 0; $j < count($u_access); $j++)
+                for($j = 0; $j < (is_countable($u_access) ? count($u_access) : 0); $j++)
                 {
                         $result = 0;
                         switch($type)
@@ -325,4 +335,3 @@ function auth_check_user($type, $key, $u_access, $is_admin)
         return $auth_user;
 }
 
-?>
