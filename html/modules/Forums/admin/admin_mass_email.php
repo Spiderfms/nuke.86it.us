@@ -19,6 +19,12 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
@@ -41,7 +47,7 @@ require('./pagestart.' . $phpEx);
 // Increase maximum execution time in case of a lot of users, but don't complain about it if it isn't
 // allowed.
 //
-@set_time_limit(1200);
+set_time_limit(1200);
 
 $message = '';
 $subject = '';
@@ -49,10 +55,10 @@ $subject = '';
 //
 // Do the job ...
 //
-if ( isset($HTTP_POST_VARS['submit']) )
+if ( isset($_POST['submit']) )
 {
-        $subject = stripslashes(trim($HTTP_POST_VARS['subject']));
-        $message = stripslashes(trim($HTTP_POST_VARS['message']));
+        $subject = stripslashes(trim((string) $_POST['subject']));
+        $message = stripslashes(trim((string) $_POST['message']));
 
         $error = FALSE;
         $error_msg = '';
@@ -69,7 +75,7 @@ if ( isset($HTTP_POST_VARS['submit']) )
                 $error_msg .= ( !empty($error_msg) ) ? '<br />' . $lang['Empty_message'] : $lang['Empty_message'];
         }
 
-        $group_id = intval($HTTP_POST_VARS[POST_GROUPS_URL]);
+        $group_id = intval($_POST[POST_GROUPS_URL]);
 
         $sql = ( $group_id != -1 ) ? "SELECT u.user_email FROM " . USERS_TABLE . " u, " . USER_GROUP_TABLE . " ug WHERE ug.group_id = $group_id AND ug.user_pending <> " . TRUE . " AND u.user_id = ug.user_id" : "SELECT user_email FROM " . USERS_TABLE;
         if ( !($result = $db->sql_query($sql)) )
@@ -106,12 +112,12 @@ if ( isset($HTTP_POST_VARS['submit']) )
                 //
                 if ( preg_match('/[c-z]:\\\.*/i', getenv('PATH')) && !$board_config['smtp_delivery'])
                 {
-                        $ini_val = ( @phpversion() >= '4.0.0' ) ? 'ini_get' : 'get_cfg_var';
+                        $ini_val = ( phpversion() >= '4.0.0' ) ? 'ini_get' : 'get_cfg_var';
 
                         // We are running on windows, force delivery to use our smtp functions
                         // since php's are broken by default
                         $board_config['smtp_delivery'] = 1;
-                        $board_config['smtp_host'] = @$ini_val('SMTP');
+                        $board_config['smtp_host'] = $ini_val('SMTP');
                 }
 
                 $emailer = new emailer($board_config['smtp_delivery']);
@@ -119,7 +125,7 @@ if ( isset($HTTP_POST_VARS['submit']) )
                 $emailer->from($board_config['board_email']);
                 $emailer->replyto($board_config['board_email']);
 
-                for ($i = 0; $i < count($bcc_list); $i++)
+                for ($i = 0; $i < (is_countable($bcc_list) ? count($bcc_list) : 0); $i++)
                 {
                         $emailer->bcc($bcc_list[$i]);
                 }
