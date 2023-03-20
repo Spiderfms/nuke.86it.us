@@ -21,6 +21,14 @@
 // Google Page Rank Calculator script, please go to: http://www.GoogleCommunity.com
 // and download the latest and stand alone release.
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
+ * CurlyToSquareBracketArrayStringRector (https://www.php.net/manual/en/migration74.deprecated.php)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('MODULE_FILE')) {
     die ("You can't access this file directly...");
 }
@@ -228,6 +236,9 @@ function zeroFill($a, $b) {
 }
 
 function mix($a,$b,$c) {
+
+// what to do with this who knows maybe ghost	
+/*	
   $a -= $b; $a -= $c; $a ^= (zeroFill($c,13));
   $b -= $c; $b -= $a; $b ^= ($a<<8);
   $c -= $a; $c -= $b; $c ^= (zeroFill($b,13));
@@ -237,6 +248,7 @@ function mix($a,$b,$c) {
   $a -= $b; $a -= $c; $a ^= (zeroFill($c,3));   
   $b -= $c; $b -= $a; $b ^= ($a<<10);
   $c -= $a; $c -= $b; $c ^= (zeroFill($b,15));
+*/  
   return array($a,$b,$c);
 }
 
@@ -284,13 +296,16 @@ function strord($string) {
 }
 
 function getrank($url) {
-	define('GOOGLE_MAGIC', 0xE6359A60);
+/*
+	define_once('GOOGLE_MAGIC', 0xE6359A60);
     $url = 'info:'.$url;
     $ch = GoogleCH(strord($url));
     $file = "http://www.google.com/search?client=navclient-auto&ch=6$ch&features=Rank&q=$url";
     $data = file($file);
     $rankarray = explode (':', $data[2]);
     $rank = $rankarray[2];
+*/	
+    $rank = 'Disabled';
     return $rank;
 }
 
@@ -699,4 +714,3 @@ switch ($op) {
 
 }
 
-?>
