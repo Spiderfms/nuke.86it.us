@@ -20,6 +20,15 @@
  *
  *
  ***************************************************************************/
+ 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * CurlyToSquareBracketArrayStringRector (https://www.php.net/manual/en/migration74.deprecated.php)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if ( !defined('IN_PHPBB') )
 {
         die("Hacking attempt");
@@ -28,7 +37,8 @@ if ( !defined('IN_PHPBB') )
 
 function get_db_stat($mode)
 {
-	global $db;
+	$sql = null;
+ global $db;
 
 	switch( $mode )
 	{
@@ -82,9 +92,9 @@ function get_db_stat($mode)
 // added at phpBB 2.0.11 to properly format the username
 function phpbb_clean_username($username)
 {
-	$username = substr(htmlspecialchars(str_replace("\'", "'", trim($username))), 0, 25);
+	$username = substr(htmlspecialchars(str_replace("\'", "'", trim((string) $username))), 0, 25);
 	$username = phpbb_rtrim($username, "\\");
-	$username = str_replace("'", "\'", $username);
+	$username = str_replace("'", "\'", (string) $username);
 
 	return $username;
 }
@@ -97,7 +107,7 @@ function phpbb_ltrim($str, $charlist = false)
 {
    if ($charlist === false)
    {
-      return ltrim($str);
+      return ltrim((string) $str);
    }
     
    $php_version = explode('.', PHP_VERSION);
@@ -105,14 +115,14 @@ function phpbb_ltrim($str, $charlist = false)
    // php version < 4.1.0
    if ((int) $php_version[0] < 4 || ((int) $php_version[0] == 4 && (int) $php_version[1] < 1))
    {
-      while ($str{0} == $charlist)
+      while ($str[0] == $charlist)
       {
-         $str = substr($str, 1);
+         $str = substr((string) $str, 1);
       }
    }
    else
    {
-      $str = ltrim($str, $charlist);
+      $str = ltrim((string) $str, $charlist);
    }
 
    return $str;
@@ -123,7 +133,7 @@ function phpbb_rtrim($str, $charlist = false)
 {
 	if ($charlist === false)
 	{
-		return rtrim($str);
+		return rtrim((string) $str);
 	}
 	
 	$php_version = explode('.', PHP_VERSION);
@@ -131,14 +141,14 @@ function phpbb_rtrim($str, $charlist = false)
 	// php version < 4.1.0
 	if ((int) $php_version[0] < 4 || ((int) $php_version[0] == 4 && (int) $php_version[1] < 1))
 	{
-		while ($str{strlen($str)-1} == $charlist)
+		while ($str[strlen((string) $str)-1] == $charlist)
 		{
-			$str = substr($str, 0, strlen($str)-1);
+			$str = substr((string) $str, 0, strlen((string) $str)-1);
 		}
 	}
 	else
 	{
-		$str = rtrim($str, $charlist);
+		$str = rtrim((string) $str, $charlist);
 	}
 
 	return $str;
@@ -194,7 +204,7 @@ function get_userdata($user, $force_str = false)
 	$sql = "SELECT *
                 FROM " . USERS_TABLE . "
 		WHERE ";
-	$sql .= ( ( is_integer($user) ) ? "user_id = $user" : "username = '" .  str_replace("\'", "''", $user) . "'" ) . " AND user_id <> " . ANONYMOUS;
+	$sql .= ( ( is_integer($user) ) ? "user_id = $user" : "username = '" .  str_replace("\'", "''", (string) $user) . "'" ) . " AND user_id <> " . ANONYMOUS;
 	if ( !($result = $db->sql_query($sql)) )
 	{
 		message_die(GENERAL_ERROR, 'Tried obtaining data for a non-existent user', '', __LINE__, __FILE__, $sql);
@@ -205,7 +215,8 @@ function get_userdata($user, $force_str = false)
 
 function make_jumpbox($action, $match_forum_id = 0)
 {
-	global $template, $userdata, $lang, $db, $nav_links, $phpEx, $SID;
+	$boxstring = null;
+ global $template, $userdata, $lang, $db, $nav_links, $phpEx, $SID;
 
 //	$is_auth = auth(AUTH_VIEW, AUTH_LIST_ALL, $userdata);
 
@@ -313,7 +324,8 @@ function make_jumpbox($action, $match_forum_id = 0)
 // Initialise user settings on page load
 function init_userprefs($userdata)
 {
-	global $board_config, $theme, $images;
+	$default_lang = null;
+ global $board_config, $theme, $images;
 	global $template, $lang, $phpEx, $phpbb_root_path, $db;
 	global $nav_links;
 
@@ -321,7 +333,7 @@ function init_userprefs($userdata)
 	{
 		if ( !empty($userdata['user_lang']))
 		{
-			$default_lang = phpbb_ltrim(basename(phpbb_rtrim($userdata['user_lang'])), "'");
+			$default_lang = phpbb_ltrim(basename((string) phpbb_rtrim($userdata['user_lang'])), "'");
 		}
 
 		if ( !empty($userdata['user_dateformat']) )
@@ -336,7 +348,7 @@ function init_userprefs($userdata)
 	}
 	else
 	{
-		$default_lang = phpbb_ltrim(basename(phpbb_rtrim($board_config['default_lang'])), "'");
+		$default_lang = phpbb_ltrim(basename((string) phpbb_rtrim($board_config['default_lang'])), "'");
 	}
 
 	if ( !file_exists(@phpbb_realpath($phpbb_root_path . 'language/lang_' . $default_lang . '/lang_main.'.$phpEx)) )
@@ -344,7 +356,7 @@ function init_userprefs($userdata)
 		if ( $userdata['user_id'] != ANONYMOUS )
 		{
 			// For logged in users, try the board default language next
-			$default_lang = phpbb_ltrim(basename(phpbb_rtrim($board_config['default_lang'])), "'");
+			$default_lang = phpbb_ltrim(basename((string) phpbb_rtrim($board_config['default_lang'])), "'");
 		}
 		else
 		{
@@ -446,7 +458,9 @@ function init_userprefs($userdata)
 
 function setup_style($style)
 {
-	global $db, $prefix, $board_config, $template, $images, $phpbb_root_path, $name;
+	$user = null;
+ $cookie = [];
+ global $db, $prefix, $board_config, $template, $images, $phpbb_root_path, $name;
         if($name == "Forums"){
                 cookiedecode($user);
             $info=$db->sql_query("select * from ".$prefix."_bbconfig where config_name='default_style'");
@@ -499,11 +513,11 @@ function setup_style($style)
 
 		$img_lang = ( file_exists(@phpbb_realpath($phpbb_root_path . $current_template_path . '/images/lang_' . $board_config['default_lang'])) ) ? $board_config['default_lang'] : 'english';
 
-		while( list($key, $value) = @each($images) )
+		while( [$key, $value] = @each($images) )
 		{
 			if ( !is_array($value) )
 			{
-				$images[$key] = str_replace('{LANG}', 'lang_' . $img_lang, $value);
+				$images[$key] = str_replace('{LANG}', 'lang_' . $img_lang, (string) $value);
 			}
 		}
 	}
@@ -513,13 +527,13 @@ function setup_style($style)
 
 function encode_ip($dotquad_ip)
 {
-	$ip_sep = explode('.', $dotquad_ip);
+	$ip_sep = explode('.', (string) $dotquad_ip);
 	return sprintf('%02x%02x%02x%02x', $ip_sep[0], $ip_sep[1], $ip_sep[2], $ip_sep[3]);
 }
 
 function decode_ip($int_ip)
 {
-	$hexipbang = explode('.', chunk_split($int_ip, 2, '.'));
+	$hexipbang = explode('.', chunk_split((string) $int_ip, 2, '.'));
 	return hexdec($hexipbang[0]). '.' . hexdec($hexipbang[1]) . '.' . hexdec($hexipbang[2]) . '.' . hexdec($hexipbang[3]);
 }
 
@@ -534,7 +548,7 @@ function create_date($format, $gmepoch, $tz)
 	if ( empty($translate) && $board_config['default_lang'] != 'english' )
 	{
 		@reset($lang['datetime']);
-		while ( list($match, $replace) = @each($lang['datetime']) )
+		while ( [$match, $replace] = @each($lang['datetime']) )
 		{
 			$translate[$match] = $replace;
 		}
@@ -646,7 +660,7 @@ function generate_pagination($base_url, $num_items, $per_page, $start_item, $add
 //
 function phpbb_preg_quote($str, $delimiter)
 {
-	$text = preg_quote($str);
+	$text = preg_quote((string) $str);
 	$text = str_replace($delimiter, '\\' . $delimiter, $text);
 
 	return $text;
@@ -675,7 +689,7 @@ function obtain_word_list(&$orig_word, &$replacement_word)
 	{
                 do
 		{
-			$orig_word[] = '#\b(' . str_replace('\*', '\w*?', preg_quote($row['word'], '#')) . ')\b#i';
+			$orig_word[] = '#\b(' . str_replace('\*', '\w*?', preg_quote((string) $row['word'], '#')) . ')\b#i';
 			$replacement_word[] = $row['replacement'];
 		}
 		while ( $row = $db->sql_fetchrow($result) );
@@ -705,7 +719,9 @@ function obtain_word_list(&$orig_word, &$replacement_word)
 //
 function message_die($msg_code, $msg_text = '', $msg_title = '', $err_line = '', $err_file = '', $sql = '')
 {
-	global $db, $template, $board_config, $theme, $lang, $phpEx, $phpbb_root_path, $nav_links, $gen_simple_header, $images;
+	$nukeuser = null;
+ $debug_text = null;
+ global $db, $template, $board_config, $theme, $lang, $phpEx, $phpbb_root_path, $nav_links, $gen_simple_header, $images;
 	global $userdata, $user_ip, $session_length;
 	global $starttime, $do_gzip_compress;
 
@@ -741,7 +757,7 @@ function message_die($msg_code, $msg_text = '', $msg_title = '', $err_line = '',
 
 		if ( $err_line != '' && $err_file != '' )
 		{
-			$debug_text .= '<br /><br />Line : ' . $err_line . '<br />File : ' . basename($err_file);
+			$debug_text .= '<br /><br />Line : ' . $err_line . '<br />File : ' . basename((string) $err_file);
 		}
 	}
 
@@ -920,16 +936,16 @@ function redirect($url)
 		$db->sql_close();
 	}
 
-	if (strstr(urldecode($url), "\n") || strstr(urldecode($url), "\r"))
+	if (strstr(urldecode((string) $url), "\n") || strstr(urldecode((string) $url), "\r"))
 	{
 		message_die(GENERAL_ERROR, 'Tried to redirect to potentially insecure url.');
 	}
 
 	$server_protocol = ($board_config['cookie_secure']) ? 'https://' : 'http://';
-	$server_name = preg_replace('#^\/?(.*?)\/?$#', '\1', trim($board_config['server_name']));
-	$server_port = ($board_config['server_port'] <> 80) ? ':' . trim($board_config['server_port']) : '';
+	$server_name = preg_replace('#^\/?(.*?)\/?$#', '\1', trim((string) $board_config['server_name']));
+	$server_port = ($board_config['server_port'] <> 80) ? ':' . trim((string) $board_config['server_port']) : '';
 	$script_name = "";
-	$url = preg_replace('#^\/?(.*?)\/?$#', '/\1', trim($url));
+	$url = preg_replace('#^\/?(.*?)\/?$#', '/\1', trim((string) $url));
 
 	// Redirect via an HTML form for PITA webservers
 	if (@preg_match('/Microsoft|WebSTAR|Xitami/', getenv('SERVER_SOFTWARE')))
@@ -944,9 +960,12 @@ function redirect($url)
 	exit;
 }
 function bblogin($nukeuser, $session_id) {
+        $board_config = [];
+        $lang = [];
+        $redirect = null;
         global $nukeuser, $userdata, $user_ip, $session_length, $session_id, $db, $nuke_file_path;
         define("IN_LOGIN", true);
-        $cookie = explode(":", $nukeuser);
+        $cookie = explode(":", (string) $nukeuser);
         $nuid = $cookie[0];
         $sql = "SELECT s.*
                 FROM " . SESSIONS_TABLE . " s
@@ -968,7 +987,7 @@ function bblogin($nukeuser, $session_id) {
             }
             $rowresult = $db->sql_fetchrow($result);
             $password = $cookie[2];
-            if(count($rowresult) ) {
+            if(is_countable($rowresult) ? count($rowresult) : 0 ) {
                 if( $rowresult['user_level'] != ADMIN && $board_config['board_disable'] ) {
                     header("Location: " . append_sid("index.php", true));
                 } else {
@@ -992,4 +1011,3 @@ function bblogin($nukeuser, $session_id) {
         }
 }
 
-?>
