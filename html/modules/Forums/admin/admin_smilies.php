@@ -23,6 +23,16 @@
 *	This file will be used for modifying the smiley settings for a board.
 **************************************************************************/
 
+/* Applied rules:
+ * WhileEachToForeachRector - Rector Missed this #Bug 2
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * TernaryToNullCoalescingRector
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 define('IN_PHPBB', 1);
 
 //
@@ -39,9 +49,9 @@ if( !empty($setmodules) )
 //
 // Load default header
 //
-if( isset($HTTP_GET_VARS['export_pack']) )
+if( isset($_GET['export_pack']) )
 {
-	if ( $HTTP_GET_VARS['export_pack'] == "send" )
+	if ( $_GET['export_pack'] == "send" )
 	{	
 		$no_page_header = true;
 	}
@@ -50,7 +60,7 @@ if( isset($HTTP_GET_VARS['export_pack']) )
 $phpbb_root_path = "./../";
 require($phpbb_root_path . 'extension.inc');
 
-$cancel = ( isset($HTTP_POST_VARS['cancel']) ) ? true : false;
+$cancel = ( isset($_POST['cancel']) ) ? true : false;
 $no_page_header = $cancel;
 
 require('./pagestart.' . $phpEx);
@@ -63,10 +73,10 @@ if ($cancel)
 //
 // Check to see what mode we should operate in.
 //
-if( isset($HTTP_POST_VARS['mode']) || isset($HTTP_GET_VARS['mode']) )
+if( isset($_POST['mode']) || isset($_GET['mode']) )
 {
-	$mode = ( isset($HTTP_POST_VARS['mode']) ) ? $HTTP_POST_VARS['mode'] : $HTTP_GET_VARS['mode'];
-	$mode = htmlspecialchars($mode);
+	$mode = $_POST['mode'] ?? $_GET['mode'];
+	$mode = htmlspecialchars((string) $mode);
 }
 else
 {
@@ -78,38 +88,38 @@ $delimeter  = '=+:';
 //
 // Read a listing of uploaded smilies for use in the add or edit smliey code...
 //
-$dir = @opendir($phpbb_root_path . $board_config['smilies_path']);
+$dir = opendir($phpbb_root_path . $board_config['smilies_path']);
 
-while($file = @readdir($dir))
+while($file = readdir($dir))
 {
-	if( !@is_dir(phpbb_realpath($phpbb_root_path . $board_config['smilies_path'] . '/' . $file)) )
+	if( !is_dir(phpbb_realpath($phpbb_root_path . $board_config['smilies_path'] . '/' . $file)) )
 	{
-		$img_size = @getimagesize($phpbb_root_path . $board_config['smilies_path'] . '/' . $file);
+		$img_size = getimagesize($phpbb_root_path . $board_config['smilies_path'] . '/' . $file);
 
 		if( $img_size[0] && $img_size[1] )
 		{
 			$smiley_images[] = $file;
 		}
-		else if( eregi('.pak$', $file) )
+		else if( preg_match('#.pak$#mi', $file) )
 		{	
 			$smiley_paks[] = $file;
 		}
 	}
 }
 
-@closedir($dir);
+closedir($dir);
 
 //
 // Select main mode
 //
-if( isset($HTTP_GET_VARS['import_pack']) || isset($HTTP_POST_VARS['import_pack']) )
+if( isset($_GET['import_pack']) || isset($_POST['import_pack']) )
 {
 	//
 	// Import a list a "Smiley Pack"
 	//
-	$smile_pak = ( isset($HTTP_POST_VARS['smile_pak']) ) ? $HTTP_POST_VARS['smile_pak'] : $HTTP_GET_VARS['smile_pak'];
-	$clear_current = ( isset($HTTP_POST_VARS['clear_current']) ) ? $HTTP_POST_VARS['clear_current'] : $HTTP_GET_VARS['clear_current'];
-	$replace_existing = ( isset($HTTP_POST_VARS['replace']) ) ? $HTTP_POST_VARS['replace'] : $HTTP_GET_VARS['replace'];
+	$smile_pak = $_POST['smile_pak'] ?? $_GET['smile_pak'];
+	$clear_current = $_POST['clear_current'] ?? $_GET['clear_current'];
+	$replace_existing = $_POST['replace'] ?? $_GET['replace'];
 
 	if ( !empty($smile_pak) )
 	{
@@ -136,21 +146,21 @@ if( isset($HTTP_GET_VARS['import_pack']) || isset($HTTP_POST_VARS['import_pack']
 
 			$cur_smilies = $db->sql_fetchrowset($result);
 
-			for( $i = 0; $i < count($cur_smilies); $i++ )
+			for( $i = 0; $i < (is_countable($cur_smilies) ? count($cur_smilies) : 0); $i++ )
 			{
 				$k = $cur_smilies[$i]['code'];
 				$smiles[$k] = 1;
 			}
 		}
 
-		$fcontents = @file($phpbb_root_path . $board_config['smilies_path'] . '/'. $smile_pak);
+		$fcontents = file($phpbb_root_path . $board_config['smilies_path'] . '/'. $smile_pak);
 
 		if( empty($fcontents) )
 		{
 			message_die(GENERAL_ERROR, "Couldn't read smiley pak file", "", __LINE__, __FILE__, $sql);
 		}
 
-		for( $i = 0; $i < count($fcontents); $i++ )
+		for( $i = 0; $i < (is_countable($fcontents) ? count($fcontents) : 0); $i++ )
 		{
 			$smile_data = explode($delimeter, trim(addslashes($fcontents[$i])));
 
@@ -204,7 +214,8 @@ if( isset($HTTP_GET_VARS['import_pack']) || isset($HTTP_POST_VARS['import_pack']
 		// Display the script to get the smile_pak cfg file...
 		//
 		$smile_paks_select = "<select name='smile_pak'><option value=''>" . $lang['Select_pak'] . "</option>";
-		while( list($key, $value) = @each($smiley_paks) )
+		 // while( [$key, $value] = each($smiley_paks) ) maybe ghost
+		foreach ($smiley_paks as $value => $value) 
 		{
 			if ( !empty($value) ) 
 			{
@@ -238,12 +249,12 @@ if( isset($HTTP_GET_VARS['import_pack']) || isset($HTTP_POST_VARS['import_pack']
 		$template->pparse("body");
 	}
 }
-else if( isset($HTTP_POST_VARS['export_pack']) || isset($HTTP_GET_VARS['export_pack']) )
+else if( isset($_POST['export_pack']) || isset($_GET['export_pack']) )
 {
 	//
 	// Export our smiley config as a smiley pak...
 	//
-	if ( $HTTP_GET_VARS['export_pack'] == "send" )
+	if ( $_GET['export_pack'] == "send" )
 	{	
 		$sql = "SELECT * 
 			FROM " . SMILIES_TABLE;
@@ -255,7 +266,7 @@ else if( isset($HTTP_POST_VARS['export_pack']) || isset($HTTP_GET_VARS['export_p
 		$resultset = $db->sql_fetchrowset($result);
 
 		$smile_pak = "";
-		for($i = 0; $i < count($resultset); $i++ )
+		for($i = 0; $i < (is_countable($resultset) ? count($resultset) : 0); $i++ )
 		{
 			$smile_pak .= $resultset[$i]['smile_url'] . $delimeter;
 			$smile_pak .= $resultset[$i]['emoticon'] . $delimeter;
@@ -275,7 +286,7 @@ else if( isset($HTTP_POST_VARS['export_pack']) || isset($HTTP_GET_VARS['export_p
 	message_die(GENERAL_MESSAGE, $message);
 
 }
-else if( isset($HTTP_POST_VARS['add']) || isset($HTTP_GET_VARS['add']) )
+else if( isset($_POST['add']) || isset($_GET['add']) )
 {
 	//
 	// Admin has selected to add a smiley.
@@ -286,7 +297,7 @@ else if( isset($HTTP_POST_VARS['add']) || isset($HTTP_GET_VARS['add']) )
 	);
 
 	$filename_list = "";
-	for( $i = 0; $i < count($smiley_images); $i++ )
+	for( $i = 0; $i < (is_countable($smiley_images) ? count($smiley_images) : 0); $i++ )
 	{
 		$filename_list .= '<option value="' . $smiley_images[$i] . '">' . $smiley_images[$i] . '</option>';
 	}
@@ -322,10 +333,10 @@ else if ( $mode != "" )
 			// Admin has selected to delete a smiley.
 			//
 
-			$smiley_id = ( !empty($HTTP_POST_VARS['id']) ) ? $HTTP_POST_VARS['id'] : $HTTP_GET_VARS['id'];
+			$smiley_id = ( !empty($_POST['id']) ) ? $_POST['id'] : $_GET['id'];
 			$smiley_id = intval($smiley_id);
 
-			$confirm = isset($HTTP_POST_VARS['confirm']);
+			$confirm = isset($_POST['confirm']);
 
 			if( $confirm )
 			{
@@ -369,7 +380,7 @@ else if ( $mode != "" )
 			// Admin has selected to edit a smiley.
 			//
 
-			$smiley_id = ( !empty($HTTP_POST_VARS['id']) ) ? $HTTP_POST_VARS['id'] : $HTTP_GET_VARS['id'];
+			$smiley_id = ( !empty($_POST['id']) ) ? $_POST['id'] : $_GET['id'];
 			$smiley_id = intval($smiley_id);
 
 			$sql = "SELECT *
@@ -383,7 +394,7 @@ else if ( $mode != "" )
 			$smile_data = $db->sql_fetchrow($result);
 
 			$filename_list = "";
-			for( $i = 0; $i < count($smiley_images); $i++ )
+			for( $i = 0; $i < (is_countable($smiley_images) ? count($smiley_images) : 0); $i++ )
 			{
 				if( $smiley_images[$i] == $smile_data['smile_url'] )
 				{
@@ -437,13 +448,13 @@ else if ( $mode != "" )
 			// Get the submitted data, being careful to ensure that we only
 			// accept the data we are looking for.
 			//
-			$smile_code = ( isset($HTTP_POST_VARS['smile_code']) ) ? trim($HTTP_POST_VARS['smile_code']) : '';
-			$smile_url = ( isset($HTTP_POST_VARS['smile_url']) ) ? trim($HTTP_POST_VARS['smile_url']) : '';
+			$smile_code = ( isset($_POST['smile_code']) ) ? trim((string) $_POST['smile_code']) : '';
+			$smile_url = ( isset($_POST['smile_url']) ) ? trim((string) $_POST['smile_url']) : '';
 			$smile_url = phpbb_ltrim(basename($smile_url), "'");
-			$smile_emotion = ( isset($HTTP_POST_VARS['smile_emotion']) ) ? htmlspecialchars(trim($HTTP_POST_VARS['smile_emotion'])) : '';
-			$smile_id = ( isset($HTTP_POST_VARS['smile_id']) ) ? intval($HTTP_POST_VARS['smile_id']) : 0;
+			$smile_emotion = ( isset($_POST['smile_emotion']) ) ? htmlspecialchars(trim((string) $_POST['smile_emotion'])) : '';
+			$smile_id = ( isset($_POST['smile_id']) ) ? intval($_POST['smile_id']) : 0;
 			$smile_code = trim($smile_code);
-			$smile_url = trim($smile_url);
+			$smile_url = trim((string) $smile_url);
 
 			// If no code was entered complain ...
 			if ($smile_code == '' || $smile_url == '')
@@ -482,12 +493,12 @@ else if ( $mode != "" )
 			// Get the submitted data being careful to ensure the the data
 			// we recieve and process is only the data we are looking for.
 			//
-			$smile_code = ( isset($HTTP_POST_VARS['smile_code']) ) ? $HTTP_POST_VARS['smile_code'] : '';
-			$smile_url = ( isset($HTTP_POST_VARS['smile_url']) ) ? $HTTP_POST_VARS['smile_url'] : '';
-			$smile_url = phpbb_ltrim(basename($smile_url), "'");
-			$smile_emotion = ( isset($HTTP_POST_VARS['smile_emotion']) ) ? htmlspecialchars(trim($HTTP_POST_VARS['smile_emotion'])) : '';
-			$smile_code = trim($smile_code);
-			$smile_url = trim($smile_url);
+			$smile_code = $_POST['smile_code'] ?? '';
+			$smile_url = $_POST['smile_url'] ?? '';
+			$smile_url = phpbb_ltrim(basename((string) $smile_url), "'");
+			$smile_emotion = ( isset($_POST['smile_emotion']) ) ? htmlspecialchars(trim((string) $_POST['smile_emotion'])) : '';
+			$smile_code = trim((string) $smile_code);
+			$smile_url = trim((string) $smile_url);
 
 			// If no code was entered complain ...
 			if ($smile_code == '' || $smile_url == '')
@@ -559,12 +570,12 @@ else
 	//
 	// Loop throuh the rows of smilies setting block vars for the template.
 	//
-	for($i = 0; $i < count($smilies); $i++)
+	for($i = 0; $i < (is_countable($smilies) ? count($smilies) : 0); $i++)
 	{
 		//
 		// Replace htmlentites for < and > with actual character.
 		//
-		$smilies[$i]['code'] = str_replace('&lt;', '<', $smilies[$i]['code']);
+		$smilies[$i]['code'] = str_replace('&lt;', '<', (string) $smilies[$i]['code']);
 		$smilies[$i]['code'] = str_replace('&gt;', '>', $smilies[$i]['code']);
 		
 		$row_color = ( !($i % 2) ) ? $theme['td_color1'] : $theme['td_color2'];
@@ -594,4 +605,3 @@ else
 //
 include('./page_footer_admin.'.$phpEx);
 
-?>
