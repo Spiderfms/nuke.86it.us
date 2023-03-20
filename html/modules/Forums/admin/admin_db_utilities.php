@@ -465,13 +465,10 @@ function get_table_def_mysql($table, $crlf)
 
         $schema_create .= "$crlf);";
 
-        if(get_magic_quotes_runtime())
-        {
-                return(stripslashes($schema_create));
-        }
-        else
-        {
-                return($schema_create);
+        if ((!function_exists("get_magic_quotes_runtime")) {
+		   return($schema_create);
+		} else {
+           return(stripslashes($schema_create));
         }
 
 } // End get_table_def_mysql
