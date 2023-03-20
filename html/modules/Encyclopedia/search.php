@@ -12,6 +12,10 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -24,7 +28,7 @@ global $db, $prefix;
 $query = filter($query);
 if ((isset($query) AND !isset($eid)) AND (!empty($query))) {
 	$query1 = filter($query, "nohtml", 1);
-	$result = $db->sql_query("SELECT tid, title FROM ".$prefix."_encyclopedia_text WHERE title LIKE '%".addslashes($query1)."%'");
+	$result = $db->sql_query("SELECT tid, title FROM ".$prefix."_encyclopedia_text WHERE title LIKE '%".addslashes((string) $query1)."%'");
 	$row = $db->sql_fetchrow($result);
 	$ency_title = filter($row['title'], "nohtml");
 	title("$ency_title: "._SEARCHRESULTS."");
@@ -41,7 +45,7 @@ if ((isset($query) AND !isset($eid)) AND (!empty($query))) {
 		}
 	}
 	$query2 = filter($query);
-	$result2 = $db->sql_query("SELECT tid, title FROM ".$prefix."_encyclopedia_text WHERE text LIKE '%".addslashes($query2)."%'");
+	$result2 = $db->sql_query("SELECT tid, title FROM ".$prefix."_encyclopedia_text WHERE text LIKE '%".addslashes((string) $query2)."%'");
 	$numrows = $db->sql_numrows($result2);
 	echo "<br><br><i><b>"._RESULTSINTERMTEXT."</b></i><br><br>";
 	if ($numrows == 0) {
@@ -64,7 +68,7 @@ if ((isset($query) AND !isset($eid)) AND (!empty($query))) {
 	CloseTable();
 } elseif ((isset($query) AND isset($eid)) AND (!empty($query))) {
 	$query1 = filter($query, "nohtml", 1);
-	$result3 = $db->sql_query("SELECT tid, title FROM ".$prefix."_encyclopedia_text WHERE eid='$eid' AND title LIKE '%".addslashes($query1)."%'");
+	$result3 = $db->sql_query("SELECT tid, title FROM ".$prefix."_encyclopedia_text WHERE eid='$eid' AND title LIKE '%".addslashes((string) $query1)."%'");
 	$row4 = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_encyclopedia WHERE eid='$eid'"));
 	$ency_title = filter($row4['title'], "nohtml");
 	title("$ency_title: "._SEARCHRESULTS."");
@@ -81,7 +85,7 @@ if ((isset($query) AND !isset($eid)) AND (!empty($query))) {
 		}
 	}
 	$query2 = filter($query, "", 1);
-	$result5 = $db->sql_query("SELECT tid, title FROM ".$prefix."_encyclopedia_text WHERE eid='$eid' AND text LIKE '%".addslashes($query2)."%'");
+	$result5 = $db->sql_query("SELECT tid, title FROM ".$prefix."_encyclopedia_text WHERE eid='$eid' AND text LIKE '%".addslashes((string) $query2)."%'");
 	$numrows = $db->sql_numrows($result5);
 	echo "<br><br><i><b>"._RESULTSINTERMTEXT."</b></i><br><br>";
 	if ($numrows == 0) {
@@ -116,4 +120,3 @@ if ((isset($query) AND !isset($eid)) AND (!empty($query))) {
 
 include("footer.php");
 
-?>

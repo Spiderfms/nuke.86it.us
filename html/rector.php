@@ -172,7 +172,33 @@ return static function (RectorConfig $rectorConfig): void {
         //__DIR__ . '/language',
         //__DIR__ . '/modules',
 
-		__DIR__ . '/modules/Advertising/index.php',
+		//__DIR__ . '/modules/Advertising/index.php',
+
+
+		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
+		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
+		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
+		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atCommands.php',
+		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atExtended.php',
+		//__DIR__ . '/modules/AutoTheme/includes/atAPI.php',
+		//__DIR__ . '/modules/AutoTheme/includes/atCommands.php',
+		//__DIR__ . '/modules/AutoTheme/includes/atExtended.php',
+		//__DIR__ . '/modules/AutoTheme/extras',
+		//__DIR__ . '/modules/AutoTheme/extras/php-nuke',
+
+		//__DIR__ . '/modules/Avantgo/index.php',
+
+
+        //__DIR__ . '/modules/Content/index.php',
+		//__DIR__ . '/modules/Content/copyright.php',
+
+
+		//__DIR__ . '/modules/Downloads/index.php',
+		//__DIR__ . '/modules/Downloads/voteinclude.php',
+
+		//__DIR__ . '/modules/Encyclopedia/index.php',
+		//__DIR__ . '/modules/Encyclopedia/search.php',
+		__DIR__ . '/modules/Encyclopedia/copyright.php',
 
 		//__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 
@@ -186,23 +212,11 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/modules/News/associates.php',
 		//__DIR__ . '/modules/Submit_News/index.php',
 
-        //__DIR__ . '/modules/Content/index.php',
-		//__DIR__ . '/modules/Content/copyright.php',
 
 		//__DIR__ . '/modules/Stories_Archive/index.php',
 
 		//__DIR__ . '/modules/Surveys/comments.php',
 
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atCommands.php',
-		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atExtended.php',
-		//__DIR__ . '/modules/AutoTheme/includes/atAPI.php',
-		//__DIR__ . '/modules/AutoTheme/includes/atCommands.php',
-		//__DIR__ . '/modules/AutoTheme/includes/atExtended.php',
-		//__DIR__ . '/modules/AutoTheme/extras',
-		//__DIR__ . '/modules/AutoTheme/extras/php-nuke',
 
 		//__DIR__ . '/modules/Surveys/index.php',
 

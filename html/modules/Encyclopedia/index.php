@@ -12,6 +12,13 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -41,21 +48,21 @@ function alpha($eid) {
 	echo "<center>[ ";
 	$counter = 0;
 	$eid = intval($eid);
-	while (list(, $ltr) = each($alphabet)) {
-		$ltr = substr("$ltr", 0,1);
-		$numrows = $db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_encyclopedia_text WHERE eid='$eid' AND UPPER(title) LIKE '$ltr%'"));
-		if ($numrows > 0) {
-			echo "<a href=\"modules.php?name=$module_name&amp;op=terms&amp;eid=$eid&amp;ltr=$ltr\">$ltr</a>";
-		} else {
-			echo "$ltr";
-		}
-		if ( $counter == round($num/2) ) {
-			echo " ]\n<br>\n[ ";
-		} elseif ( $counter != $num ) {
-			echo "&nbsp;|&nbsp;\n";
-		}
-		$counter++;
-	}
+	foreach ($alphabet as $ltr) {
+     $ltr = substr("$ltr", 0,1);
+     $numrows = $db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_encyclopedia_text WHERE eid='$eid' AND UPPER(title) LIKE '$ltr%'"));
+     if ($numrows > 0) {
+   			echo "<a href=\"modules.php?name=$module_name&amp;op=terms&amp;eid=$eid&amp;ltr=$ltr\">$ltr</a>";
+   		} else {
+   			echo "$ltr";
+   		}
+     if ( $counter == round($num/2) ) {
+   			echo " ]\n<br>\n[ ";
+   		} elseif ( $counter != $num ) {
+   			echo "&nbsp;|&nbsp;\n";
+   		}
+     $counter++;
+ }
 	echo " ]</center><br><br>\n\n\n";
 	encysearch($eid);
 	echo "<center>"._GOBACK."</center>";
@@ -87,8 +94,8 @@ function list_content($eid) {
 function terms($eid, $ltr) {
 	global $module_name, $prefix, $sitename, $db, $admin;
 	$eid = intval($eid);
-	$ltr = substr($ltr,0,1);
-	if (ereg("[^a-zA-Z0-9]",$ltr))
+	$ltr = substr((string) $ltr,0,1);
+	if (preg_match('#[^a-zA-Z0-9]#m',$ltr))
 	{
 	   die('Invalid letter/digit specified!');
 	}
@@ -126,7 +133,8 @@ function terms($eid, $ltr) {
 }
 
 function content($tid, $ltr, $page=0, $query="") {
-	global $prefix, $db, $sitename, $admin, $module_name, $admin_file;
+	$next_page = null;
+ global $prefix, $db, $sitename, $admin, $module_name, $admin_file;
 	$tid = intval($tid);
 	include("header.php");
 	OpenTable();
@@ -143,7 +151,7 @@ function content($tid, $ltr, $page=0, $query="") {
 		$row2 = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_encyclopedia WHERE eid='$eeid'"));
 		$enc_title = filter($row2['title'], "nohtml");
 		echo "<font class=\"title\">$etitle</font><br><br><br>";
-		$contentpages = explode( "[--pagebreak--]", $etext );
+		$contentpages = explode( "[--pagebreak--]", (string) $etext );
 		$pageno = count($contentpages);
 		if ( empty($page) || $page < 1 )
 		$page = 1;
@@ -155,13 +163,13 @@ function content($tid, $ltr, $page=0, $query="") {
 			echo ""._PAGE.": $page/$pageno<br>";
 		}
 		if (!empty($query)) {
-			$query = htmlentities($query);
-			$contentpages[$arrayelement] = eregi_replace($query,"<b>$query</b>",$contentpages[$arrayelement]);
+			$query = htmlentities((string) $query);
+			$contentpages[$arrayelement] = preg_replace('#' . preg_quote($query, '#') . '#mi',"<b>$query</b>",$contentpages[$arrayelement]);
 			$fromsearch = "&query=$query";
 		} else {
 			$fromsearch = "";
 		}
-		echo "<p align=\"justify\">".nl2br($contentpages[$arrayelement])."</p>";
+		echo "<p align=\"justify\">".nl2br((string) $contentpages[$arrayelement])."</p>";
 		if($page >= $pageno) {
 			$next_page = "";
 		} else {
@@ -278,4 +286,3 @@ switch($op) {
 
 }
 
-?>
