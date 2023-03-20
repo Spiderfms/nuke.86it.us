@@ -12,6 +12,11 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('MODULE_FILE')) {
     die ("You can't access this file directly...");
 }
@@ -23,6 +28,7 @@ get_lang($module_name);
 $pagetitle = "- $module_name";
 
 function showpage($pid, $page=0) {
+    $next_page = null;
     global $prefix, $db, $sitename, $admin, $module_name;
     include("header.php");
     OpenTable();
@@ -41,10 +47,10 @@ function showpage($pid, $page=0) {
 		echo "Sorry... This page doesn't exist.";
     } else {
 		$db->sql_query("UPDATE ".$prefix."_pages SET counter=counter+1 WHERE pid='$pid'");
-		$date = explode(" ", $mydate);
+		$date = explode(" ", (string) $mydate);
 		echo "<font class=\"title\">$mytitle</font><br>"
 			."<font class=\"content\">$mysubtitle<br><br><br><br>";
-		$contentpages = explode( "[--pagebreak--]", $mytext );
+		$contentpages = explode( "[--pagebreak--]", (string) $mytext );
 		$pageno = count($contentpages);
 		if ( empty($page) || $page < 1 )
 		    $page = 1;
@@ -56,7 +62,7 @@ function showpage($pid, $page=0) {
 		    echo ""._PAGE.": $page/$pageno<br>";
 		}
 		if ($page == 1) {
-		    echo "<p align=\"justify\">".nl2br($mypage_header)."</p><br>";
+		    echo "<p align=\"justify\">".nl2br((string) $mypage_header)."</p><br>";
 		}
 		echo "<p align=\"justify\">$contentpages[$arrayelement]</p>";
 		if($page >= $pageno) {
@@ -69,7 +75,7 @@ function showpage($pid, $page=0) {
 		    $next_page .= "<a href=\"modules.php?name=$module_name&amp;pa=showpage&amp;pid=$pid&amp;page=$next_pagenumber\">"._NEXT." ($next_pagenumber/$pageno)</a> <a href=\"modules.php?name=$module_name&amp;pa=showpage&amp;pid=$pid&amp;page=$next_pagenumber\"><img src=\"images/right.gif\" border=\"0\" alt=\""._NEXT."\" title=\""._NEXT."\"></a>";
 		}
 		if ($page == $pageno) {
-		    echo "<br><p align=\"justify\">".nl2br($mypage_footer)."</p><br><br>";
+		    echo "<br><p align=\"justify\">".nl2br((string) $mypage_footer)."</p><br><br>";
 		}
 		if($page <= 1) {
 		    $previous_page = "";
@@ -79,7 +85,7 @@ function showpage($pid, $page=0) {
 		}
 		echo "<br><br><br><center>$previous_page $next_page</center><br><br>";
 		if ($page == $pageno) {
-		    echo "<p align=\"right\">".nl2br($mysignature)."</p>"
+		    echo "<p align=\"right\">".nl2br((string) $mysignature)."</p>"
 			."<p align=\"right\">"._COPYRIGHT." $sitename "._COPYRIGHT2."</p>"
 			."<p align=\"right\"><font class=\"tiny\">"._PUBLISHEDON.": $date[0] ($mycounter "._READS.")</font></p>"
 			."<center>"._GOBACK."</center>";
@@ -243,4 +249,3 @@ switch($pa) {
 
 }
 
-?>

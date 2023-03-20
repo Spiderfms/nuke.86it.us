@@ -184,6 +184,9 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/modules/News/associates.php',
 		//__DIR__ . '/modules/Submit_News/index.php',
 
+        __DIR__ . '/modules/Content/index.php',
+		//__DIR__ . '/modules/Content/copyright.php',
+
 		//__DIR__ . '/modules/Stories_Archive/index.php',
 
 		//__DIR__ . '/modules/Surveys/comments.php',
