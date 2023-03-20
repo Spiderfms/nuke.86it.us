@@ -1359,15 +1359,33 @@ function filter($what, $strip="", $save="", $type="") {
 /*********************************************************/
 use function PHP81_BC\strftime;
 function formatTimestamp($time) {
-    global $datetime, $locale;
+    global $datetime, $locale, $userinfo, $board_config;
+	
+     if(isset($userinfo['user_dateformat']) && !empty($userinfo['user_dateformat'])): 
+          $format = $userinfo['user_dateformat'];
+		elseif (isset($board_config['default_dateformat']) && !empty($board_config['default_dateformat'])): 
+          $format = $board_config['default_dateformat'];
+		else: 
+          $format = 'D M d, Y g:i a';
+		endif;
+
+	if(!empty($dateonly)): 
+      $replaces = ['a', 'A', 'B', 'c', 'D', 'g', 'G', 'h', 'H', 'i', 'I', 'O', 'r', 's', 'U', 'Z', ':'];
+      $format = str_replace($replaces, '', (string) $format);
+    endif;
+		
     setlocale(LC_TIME, $locale);
     if (!is_numeric($time)) {
-        preg_match('/([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})/', $time, $datetime);
-        $time = gmmktime($datetime[4],$datetime[5],$datetime[6],$datetime[2],$datetime[3],$datetime[1]);
+	  $adate= date_create($time); //date format that you don't want
+      $mysqldate = $adate->format($format);//date format that you do want
+	  $datetime = $mysqldate;
     }
-    $time -= date("Z");
-    $datetime = strftime(_DATESTRING, $time);
-    $datetime = ucfirst($datetime);
+	else
+	{
+      $time -= date("Z");
+      $datetime = strftime(_DATESTRING, $time);
+      $datetime = ucfirst($datetime);
+	}
     return $datetime;
 }
 

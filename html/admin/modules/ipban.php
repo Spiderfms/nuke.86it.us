@@ -12,6 +12,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
@@ -22,7 +28,8 @@ $row = $db->sql_fetchrow($db->sql_query("SELECT radminsuper FROM " . $prefix . "
 if ($row['radminsuper'] == 1) {
 
 	function main_ban($ip=0) {
-		global $prefix, $db, $bgcolor2, $admin_file;
+		$bgcolor1 = null;
+  global $prefix, $db, $bgcolor2, $admin_file;
 		include ("header.php");
 		GraphicAdmin();
 		OpenTable();
@@ -33,7 +40,7 @@ if ($row['radminsuper'] == 1) {
 		echo "<center><b>"._BANNEWIP."</b><br><br>";
 		echo "<form action='".$admin_file.".php' method='post'>";
 		if ($ip != 0) {
-			$ip = explode(".", $ip);
+			$ip = explode(".", (string) $ip);
 			echo "<input type='text' name='ip1' size='4' maxlength='3' value='$ip[0]'> . <input type='text' name='ip2' size='4' maxlength='3' value='$ip[1]'> . <input type='text' name='ip3' size='4' maxlength='3' value='$ip[2]'> . <input type='text' name='ip4' size='4' maxlength='3' value='$ip[3]'>";
 		} else {
 			echo "<input type='text' name='ip1' size='4' maxlength='3'> . <input type='text' name='ip2' size='4' maxlength='3'> . <input type='text' name='ip3' size='4' maxlength='3'> . <input type='text' name='ip4' size='4' maxlength='3'>";
@@ -52,8 +59,9 @@ if ($row['radminsuper'] == 1) {
 				."<td bgcolor=\"$bgcolor2\" align='center'><font class=\"content\">&nbsp;<b>"._BANDATE."</b>&nbsp;</td>"
 				."<td bgcolor=\"$bgcolor2\" align='center'><font class=\"content\">&nbsp;<b>"._FUNCTIONS."</b>&nbsp;</td></tr>";
 			$result = $db->sql_query("SELECT * from ".$prefix."_banned_ip ORDER by date DESC");
+
 			while ($row = $db->sql_fetchrow($result)) {
-				$row[reason] = filter($row[reason], "nohtml");
+				$row['reason'] = filter($row['reason'] ?? 'No Ban IP Reason Given', "nohtml");
 				echo "<tr><td bgcolor=\"$bgcolor1\" align='left'>&nbsp;<font class=\"content\">$row[ip_address]</td>"
 					."<td bgcolor=\"$bgcolor1\" align='center'><font class=\"content\">&nbsp;$row[reason]&nbsp;</td>"
 					."<td bgcolor=\"$bgcolor1\" align='center' nowrap><font class=\"content\">&nbsp;$row[date]&nbsp;</td>"
@@ -74,9 +82,9 @@ if ($row['radminsuper'] == 1) {
 		CloseTable();
 		echo "<br>";
 		OpenTable();
-		if (substr($ip2, 0, 2) == 00) { $ip2 = ereg_replace("00", "", $ip2); }
-		if (substr($ip3, 0, 2) == 00) { $ip3 = ereg_replace("00", "", $ip3); }
-		if (substr($ip4, 0, 2) == 00) { $ip4 = ereg_replace("00", "", $ip4); }
+		if (substr((string) $ip2, 0, 2) == 00) { $ip2 = preg_replace('#00#m', "", (string) $ip2); }
+		if (substr((string) $ip3, 0, 2) == 00) { $ip3 = preg_replace('#00#m', "", (string) $ip3); }
+		if (substr((string) $ip4, 0, 2) == 00) { $ip4 = preg_replace('#00#m', "", (string) $ip4); }
 		$ip = "$ip1.$ip2.$ip3.$ip4";
 		if (empty($ip1) OR empty($ip2) OR empty($ip3) OR empty($ip4)) {
 			echo "<center><b>"._ERROR."</b> "._IPOUTRANGE."<br><br>"._IPENTERED." <b>".$ip."</b><br><br>"._GOBACK."</center>";
@@ -157,8 +165,8 @@ if ($row['radminsuper'] == 1) {
 		OpenTable();
 		echo "<center><b>"._BANNEDIPEDIT."</b><br><br>";
 		echo "<form action='".$admin_file.".php' method='post'>";
-		$ip = explode(".", $row[ip_address]);
-		$reason = filter($row[reason], "nohtml");
+		$ip = explode(".", (string) $row['ip_address']);
+		$reason = filter($row['reason'] ?? 'No Ban IP Reason Given', "nohtml");
 		echo "<input type='text' name='ip1' size='4' maxlength='3' value='$ip[0]'> . <input type='text' name='ip2' size='4' maxlength='3' value='$ip[1]'> . <input type='text' name='ip3' size='4' maxlength='3' value='$ip[2]'> . <input type='text' name='ip4' size='4' maxlength='3' value='$ip[3]'>";
 		echo "<br><br><b>"._REASON."</b><br><input type='text' name='reason' size='50' maxlength='255' value='$reason'><br><br>";
 		echo "<input type='hidden' name='id' value='$id'><input type='hidden' name='op' value='ipban_save'>";
@@ -177,9 +185,9 @@ if ($row['radminsuper'] == 1) {
 		CloseTable();
 		echo "<br>";
 		OpenTable();
-		if (substr($ip2, 0, 2) == 00) { $ip2 = ereg_replace("00", "", $ip2); }
-		if (substr($ip3, 0, 2) == 00) { $ip3 = ereg_replace("00", "", $ip3); }
-		if (substr($ip4, 0, 2) == 00) { $ip4 = ereg_replace("00", "", $ip4); }
+		if (substr((string) $ip2, 0, 2) == 00) { $ip2 = preg_replace('#00#m', "", (string) $ip2); }
+		if (substr((string) $ip3, 0, 2) == 00) { $ip3 = preg_replace('#00#m', "", (string) $ip3); }
+		if (substr((string) $ip4, 0, 2) == 00) { $ip4 = preg_replace('#00#m', "", (string) $ip4); }
 		$ip = "$ip1.$ip2.$ip3.$ip4";
 		if ($ip1 == "" OR $ip2 == "" OR $ip3 == "" OR $ip4 == "") {
 			echo "<center><b>"._ERROR."</b> "._IPOUTRANGE."<br><br>"._IPENTERED." <b>$ip1.$ip2.$ip3.$ip4</b><br><br>"._GOBACK."</center>";
@@ -229,7 +237,7 @@ if ($row['radminsuper'] == 1) {
 	switch($op) {
 
 		case "ipban":
-		main_ban($ip);
+		main_ban($ip ?? 0);
 		break;
 
 		case "save_banned":

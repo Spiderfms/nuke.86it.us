@@ -44,7 +44,7 @@ if ($row['radminsuper'] == 1) {
 		$db->sql_query("delete from " . $prefix . "_comments where tid='$tid'");
 	}
 
-	function removeComment ($tid, $sid, $ok=0) {
+	function removeComment($tid, $sid, $ok = 0) {
 		global $ultramode, $prefix, $db, $admin_file;
 		if($ok) {
 			$tid = intval($tid);
@@ -110,11 +110,14 @@ if ($row['radminsuper'] == 1) {
 			include("footer.php");
 		}
 	}
-
+    
+	if(!isset($op))
+	$op = '';
+	
 	switch ($op) {
 
 		case "RemoveComment":
-		removeComment ($tid, $sid, $ok);
+		removeComment($tid, $sid, $ok ?? 0);
 		break;
 
 		case "removeSubComments":

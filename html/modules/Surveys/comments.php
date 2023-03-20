@@ -12,6 +12,14 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -21,20 +29,22 @@ get_lang($module_name);
 $pagetitle = "- "._SURVEYS."";
 
 function format_url($comment) {
-	global $nukeurl;
+	$linkpos = null;
+ $regs = [];
+ global $nukeurl;
 	unset($location);
 	$comment = filter($comment);
 	$links = array();
 	$hrefs = array();
 	$pos = 0;
-	while (!(($pos = strpos($comment,"<",$pos)) === false)) {
+	while (!(($pos = strpos((string) $comment,"<",$pos)) === false)) {
 		$pos++;
-		$endpos = strpos($comment,">",$pos);
-		$tag = substr($comment,$pos,$endpos-$pos);
+		$endpos = strpos((string) $comment,">",$pos);
+		$tag = substr((string) $comment,$pos,$endpos-$pos);
 		$tag = trim($tag);
 		if (isset($location)) {
 			if (!strcasecmp(strtok($tag," "),"/A")) {
-				$link = substr($comment,$linkpos,$pos-1-$linkpos);
+				$link = substr((string) $comment,$linkpos,$pos-1-$linkpos);
 				$links[] = $link;
 				$hrefs[] = $location;
 				unset($location);
@@ -42,8 +52,18 @@ function format_url($comment) {
 			$pos = $endpos+1;
 		} else {
 			if (!strcasecmp(strtok($tag," "),"A")) {
-				if (eregi("HREF[ \t\n\r\v]*=[ \t\n\r\v]*\"([^\"]*)\"",$tag,$regs));
-				else if (eregi("HREF[ \t\n\r\v]*=[ \t\n\r\v]*([^ \t\n\r\v]*)",$tag,$regs));
+				if (preg_match('#HREF[ 	
+
+]*=[ 	
+
+]*"([^"]*)"#mi',$tag,$regs));
+				else if (preg_match('#HREF[ 	
+
+]*=[ 	
+
+]*([^ 	
+
+]*)#mi',$tag,$regs));
 				else $regs[1] = "";
 				if ($regs[1]) {
 					$location = $regs[1];
@@ -59,9 +79,9 @@ function format_url($comment) {
 		if (!stripos_clone($hrefs[$i], "http://")) {
 			$hrefs[$i] = $nukeurl;
 		} elseif (!stripos_clone($hrefs[$i], "mailto://")) {
-			$href = explode("/",$hrefs[$i]);
+			$href = explode("/",(string) $hrefs[$i]);
 			$href = " [$href[2]]";
-			$comment = str_replace(">$links[$i]</a>", "title='$hrefs[$i]'> $links[$i]</a>$href", $comment);
+			$comment = str_replace(">$links[$i]</a>", "title='$hrefs[$i]'> $links[$i]</a>$href", (string) $comment);
 		}
 	}
 	return($comment);
@@ -85,7 +105,7 @@ function modtwo($tid, $score, $reason) {
 		$whoisath = $db->sql_fetchrow($db->sql_query("SELECT name FROM ".$prefix."_pollcomments WHERE tid='$tid'"));
 		cookiedecode($user);
 		if((((isset($admin)) && ($moderate == 1)) || ($moderate == 2)) && ($user)) {
-			if (strtolower($cookie[1]) == strtolower($whoisath['name'])) {
+			if (strtolower((string) $cookie[1]) == strtolower((string) $whoisath['name'])) {
 				echo " | <select name=dkn$tid>";
 				echo "<option value=\"$score:0\">$reasons[0]</option>\n";
 				echo "</select>";
@@ -217,6 +237,7 @@ function navbar($pollID, $title, $thold, $mode, $order) {
 }
 
 function DisplayKids ($tid, $mode, $order=0, $thold=0, $level=0, $dummy=0, $tblwidth=99) {
+   $bgcolor2 = null;
    global $datetime, $user, $cookie, $bgcolor1, $reasons, $anonymous, $anonpost, $commentlimit, $prefix, $module_name, $db, $userinfo, $user_prefix;
 	$comments = 0;
                   cookiedecode($user);
@@ -269,8 +290,8 @@ function DisplayKids ($tid, $mode, $order=0, $thold=0, $level=0, $dummy=0, $tblw
 					}
 				}
 				$comments++;
-				if (!eregi("[a-z0-9]",$r_name)) $r_name = $anonymous;
-				if (!eregi("[a-z0-9]",$r_subject)) $r_subject = "["._NOSUBJECT."]";
+				if (!preg_match('#[a-z0-9]#mi',(string) $r_name)) $r_name = $anonymous;
+				if (!preg_match('#[a-z0-9]#mi',(string) $r_subject)) $r_subject = "["._NOSUBJECT."]";
 				// enter hex color between first two appostrophe for second alt bgcolor
 				$r_bgcolor = ($dummy%2)?"":"#E6E6D2";
 				echo "<a name=\"$r_tid\">";
@@ -307,8 +328,8 @@ function DisplayKids ($tid, $mode, $order=0, $thold=0, $level=0, $dummy=0, $tblw
 				if ($url != "http://" AND !empty($url) AND stripos_clone($url, "http://")) { echo "<a href=\"$url\" target=\"new\">$url</a> "; }
 				echo "</font></td></tr><tr><td>";
 
-				if((isset($userinfo['commentmax'])) && (strlen($r_comment) > $userinfo['commentmax'])) echo substr($r_comment, 0, $userinfo['commentmax'])."<br><br><b><a href=\"modules.php?name=$module_name&file=comments&pollID=$r_pollID&tid=$r_tid&mode=$mode&order=$order&thold=$thold\">"._READREST."</a></b>";
-				elseif(strlen($r_comment) > $commentlimit) echo substr("$r_comment", 0, $commentlimit)."<br><br><b><a href=\"modules.php?name=$module_name&amp;file=comments&amp;pollID=$r_pollID&amp;tid=$r_tid&amp;mode=$mode&amp;order=$order&amp;thold=$thold\">"._READREST."</a></b>";
+				if((isset($userinfo['commentmax'])) && (strlen((string) $r_comment) > $userinfo['commentmax'])) echo substr((string) $r_comment, 0, $userinfo['commentmax'])."<br><br><b><a href=\"modules.php?name=$module_name&file=comments&pollID=$r_pollID&tid=$r_tid&mode=$mode&order=$order&thold=$thold\">"._READREST."</a></b>";
+				elseif(strlen((string) $r_comment) > $commentlimit) echo substr("$r_comment", 0, $commentlimit)."<br><br><b><a href=\"modules.php?name=$module_name&amp;file=comments&amp;pollID=$r_pollID&amp;tid=$r_tid&amp;mode=$mode&amp;order=$order&amp;thold=$thold\">"._READREST."</a></b>";
 				else echo $r_comment;
 				echo "</td></tr></table><br><p>";
 				if ($anonpost==1 OR is_admin() OR is_user()) {
@@ -333,8 +354,8 @@ function DisplayKids ($tid, $mode, $order=0, $thold=0, $level=0, $dummy=0, $tblw
 			$r_score = intval($row['score']);
 			$r_reason = intval($row['reason']);
 			if($r_score >= $thold) {
-				if (!eregi("[a-z0-9]",$r_name)) $r_name = $anonymous;
-				if (!eregi("[a-z0-9]",$r_subject)) $r_subject = "["._NOSUBJECT."]";
+				if (!preg_match('#[a-z0-9]#mi',(string) $r_name)) $r_name = $anonymous;
+				if (!preg_match('#[a-z0-9]#mi',(string) $r_subject)) $r_subject = "["._NOSUBJECT."]";
 				echo "<a name=\"$r_tid\">";
 				echo "<hr><table width=99% border=0><tr bgcolor=\"$bgcolor1\"><td>";
 				formatTimestamp($r_date);
@@ -362,10 +383,10 @@ function DisplayKids ($tid, $mode, $order=0, $thold=0, $level=0, $dummy=0, $tblw
 				}
 				$row_url2 = $db->sql_fetchrow($db->sql_query("SELECT user_website FROM ".$prefix."_users WHERE username='$r_name'"));
 				$url = filter($row_url2['user_website'], "nohtml");
-				if ($url != "http://" AND !empty($url) AND eregi("http://", $url)) { echo "<a href=\"$url\" target=\"new\">$url</a> "; }
+				if ($url != "http://" AND !empty($url) AND preg_match('#http:\/\/#mi', (string) $url)) { echo "<a href=\"$url\" target=\"new\">$url</a> "; }
 				echo "</font></td></tr><tr><td>";
-				if((isset($userinfo['commentmax'])) && (strlen($r_comment) > $userinfo['commentmax'])) echo substr($r_comment, 0, $userinfo['commentmax'])."<br><br><b><a href=\"modules.php?name=$module_name&file=comments&pollID=$r_pollID&tid=$r_tid&mode=$mode&order=$order&thold=$thold\">"._READREST."</a></b>";
-				elseif(strlen($r_comment) > $commentlimit) echo substr("$r_comment", 0, $commentlimit)."<br><br><b><a href=\"modules.php?name=$module_name&amp;file=comments&amp;pollID=$r_pollID&amp;tid=$r_tid&amp;mode=$mode&amp;order=$order&amp;thold=$thold\">"._READREST."</a></b>";
+				if((isset($userinfo['commentmax'])) && (strlen((string) $r_comment) > $userinfo['commentmax'])) echo substr((string) $r_comment, 0, $userinfo['commentmax'])."<br><br><b><a href=\"modules.php?name=$module_name&file=comments&pollID=$r_pollID&tid=$r_tid&mode=$mode&order=$order&thold=$thold\">"._READREST."</a></b>";
+				elseif(strlen((string) $r_comment) > $commentlimit) echo substr("$r_comment", 0, $commentlimit)."<br><br><b><a href=\"modules.php?name=$module_name&amp;file=comments&amp;pollID=$r_pollID&amp;tid=$r_tid&amp;mode=$mode&amp;order=$order&amp;thold=$thold\">"._READREST."</a></b>";
 				else echo $r_comment;
 				echo "</td></tr></table><br><p><font class=content color=\"$bgcolor2\"> [ <a href=\"modules.php?name=$module_name&amp;file=comments&amp;op=Reply&amp;pid=$r_tid&amp;pollID=$r_pollID&amp;mode=$mode&amp;order=$order&amp;thold=$thold\">"._REPLY."</a>";
 				modtwo($r_tid, $r_score, $r_reason);
@@ -391,8 +412,8 @@ function DisplayKids ($tid, $mode, $order=0, $thold=0, $level=0, $dummy=0, $tblw
 				  echo "<ul>";
 				}
 				$comments++;
-				if (!eregi("[a-z0-9]",$r_name)) $r_name = $anonymous;
-				if (!eregi("[a-z0-9]",$r_subject)) $r_subject = "["._NOSUBJECT."]";
+				if (!preg_match('#[a-z0-9]#mi',(string) $r_name)) $r_name = $anonymous;
+				if (!preg_match('#[a-z0-9]#mi',(string) $r_subject)) $r_subject = "["._NOSUBJECT."]";
 				formatTimestamp($r_date);
 				echo "<li><font class=\"content\"><a href=\"modules.php?name=$module_name&amp;file=comments&amp;op=showreply&amp;tid=$r_tid&amp;pollID=$r_pollID&amp;pid=$r_pid&amp;mode=$mode&amp;order=$order&amp;thold=$thold#$r_tid\">$r_subject</a> "._BY." $r_name "._ON." $datetime</font><br>";
 				DisplayKids($r_tid, $mode, $order, $thold, $level+1, $dummy+1);
@@ -406,7 +427,10 @@ function DisplayKids ($tid, $mode, $order=0, $thold=0, $level=0, $dummy=0, $tblw
 }
 
 function DisplayBabies ($tid, $level=0, $dummy=0) {
-	global $userinfo, $datetime, $anonymous, $prefix, $db, $module_name;
+	$mode = null;
+ $order = null;
+ $thold = null;
+ global $userinfo, $datetime, $anonymous, $prefix, $db, $module_name;
 	$comments = 0;
 	$tid = intval($tid);
 	$result = $db->sql_query("SELECT tid, pid, pollID, date, name, email, host_name, subject, comment, score, reason from ".$prefix."_pollcomments where pid = '$tid' order by date, tid");
@@ -429,8 +453,8 @@ function DisplayBabies ($tid, $level=0, $dummy=0) {
 			}
 		}
 		$comments++;
-		if (!eregi("[a-z0-9]",$r_name)) { $r_name = $anonymous; }
-		if (!eregi("[a-z0-9]",$r_subject)) { $r_subject = "["._NOSUBJECT."]"; }
+		if (!preg_match('#[a-z0-9]#mi',(string) $r_name)) { $r_name = $anonymous; }
+		if (!preg_match('#[a-z0-9]#mi',(string) $r_subject)) { $r_subject = "["._NOSUBJECT."]"; }
 		formatTimestamp($r_date);
 		echo "<a href=\"modules.php?name=$module_name&amp;file=comments&amp;op=showreply&amp;tid=$r_tid&amp;mode=$mode&amp;order=$order&amp;thold=$thold\">$r_subject</a><font class=\"content\"> "._BY." $r_name "._ON." $datetime<br>";
 		DisplayBabies($r_tid, $level+1, $dummy+1);
@@ -441,7 +465,9 @@ function DisplayBabies ($tid, $level=0, $dummy=0) {
 }
 
 function DisplayTopic ($pollID, $pid=0, $tid=0, $mode="thread", $order=0, $thold=0, $level=0, $nokids=0) {
-	global $hr, $user, $datetime, $cookie, $userinfo, $admin, $commentlimit, $anonymous, $reasons, $anonpost, $foot1, $foot2, $foot3, $foot4, $prefix, $module_name, $db, $admin_file, $user_prefix;
+	$r_pollID = null;
+ $r_tid = null;
+ global $hr, $user, $datetime, $cookie, $userinfo, $admin, $commentlimit, $anonymous, $reasons, $anonpost, $foot1, $foot2, $foot3, $foot4, $prefix, $module_name, $db, $admin_file, $user_prefix;
 	if (defined('NUKE_FILE')) {
 		global $title, $bgcolor1, $bgcolor2, $bgcolor3;
 	} else {
@@ -577,8 +603,8 @@ function DisplayTopic ($pollID, $pid=0, $tid=0, $mode="thread", $order=0, $thold
 		}
 
 		echo "</font></td></tr><tr><td>";
-		if((isset($userinfo['commentmax'])) && (strlen($comment) > $userinfo['commentmax'])) echo substr("$comment", 0, $userinfo['commentmax'])."<br><br><b><a href=\"modules.php?name=$module_name&file=comments&pollID=$r_pollID&tid=$r_tid&mode=$mode&order=$order&thold=$thold\">"._READREST."</a></b>";
-		elseif(strlen($comment) > $commentlimit) echo substr("$comment", 0, $commentlimit)."<br><br><b><a href=\"modules.php?name=$module_name&amp;file=comments&amp;pollID=$pollID&tid=$tid&mode=$mode&order=$order&thold=$thold\">"._READREST."</a></b>";
+		if((isset($userinfo['commentmax'])) && (strlen((string) $comment) > $userinfo['commentmax'])) echo substr("$comment", 0, $userinfo['commentmax'])."<br><br><b><a href=\"modules.php?name=$module_name&file=comments&pollID=$r_pollID&tid=$r_tid&mode=$mode&order=$order&thold=$thold\">"._READREST."</a></b>";
+		elseif(strlen((string) $comment) > $commentlimit) echo substr("$comment", 0, $commentlimit)."<br><br><b><a href=\"modules.php?name=$module_name&amp;file=comments&amp;pollID=$pollID&tid=$tid&mode=$mode&order=$order&thold=$thold\">"._READREST."</a></b>";
 		else echo $comment;
 		echo "</td></tr></table><br><p>";
 		if ($anonpost==1 OR is_admin() OR is_user()) {
@@ -666,7 +692,8 @@ function singlecomment($tid, $pollID, $mode, $order, $thold) {
 }
 
 function reply ($pid, $pollID, $mode, $order, $thold) {
-	include_once("header.php");
+	$date = null;
+ include_once("header.php");
 	global $userinfo, $user, $cookie, $datetime, $bgcolor1, $bgcolor2, $bgcolor3, $AllowableHTML, $anonymous, $prefix, $anonpost, $module_name, $db, $nuke_editor;
                   cookiedecode($user);
                   getusrinfo($user);
@@ -693,9 +720,9 @@ function reply ($pid, $pollID, $mode, $order, $thold) {
                   }
 	$pid = intval($pid);
 	$pollID = intval($pollID);
-	$order = htmlentities($order);
-	$thold = htmlentities($thold);
-	$mode = htmlentities($mode);
+	$order = htmlentities((string) $order);
+	$thold = htmlentities((string) $thold);
+	$mode = htmlentities((string) $mode);
 	if ($anonpost == 0 AND !is_user()) {
 		OpenTable();
 		echo "<center><font class=title><b>"._SURVEYCOM."</b></font></center>";
@@ -706,18 +733,18 @@ function reply ($pid, $pollID, $mode, $order, $thold) {
 		CloseTable();
 	} else {
 		if($pid!=0) {
-			list($date, $name, $email, $subject, $comment, $score) = $db->sql_fetchrow($db->sql_query("select date, name, email, subject, comment, score from ".$prefix."_pollcomments where tid='$pid'"));
+			[$date, $name, $email, $subject, $comment, $score] = $db->sql_fetchrow($db->sql_query("select date, name, email, subject, comment, score from ".$prefix."_pollcomments where tid='$pid'"));
 			$name = filter($name, "nohtml");
 			$email = filter($email, "nohtml");
 			$subject = filter($subject, "nohtml");
 			$comment = filter($comment);
 			$score = intval($score);
 		} else {
-			list($subject) = $db->sql_fetchrow($db->sql_query("select pollTitle FROM ".$prefix."_poll_desc where pollID='$pollID'"));
+			[$subject] = $db->sql_fetchrow($db->sql_query("select pollTitle FROM ".$prefix."_poll_desc where pollID='$pollID'"));
 			$subject = filter($subject, "nohtml");
 		}
 		if(empty($comment)) {
-			$comment = $temp_comment;
+			$comment = $temp_comment ?? '';
 		}
 		$titlebar = "<b>$subject</b>";
 		if(empty($name)) $name = $anonymous;
@@ -737,9 +764,9 @@ function reply ($pid, $pollID, $mode, $order, $thold) {
 		CloseTable();
 		if(!isset($pid) || !isset($pollID)) { echo "Something is not right. This message is just to keep things from messing up down the road"; exit(); }
 		if($pid == 0) {
-			list($subject) = $db->sql_fetchrow($db->sql_query("select pollTitle from ".$prefix."_poll_desc where pollID='$pollID'"));
+			[$subject] = $db->sql_fetchrow($db->sql_query("select pollTitle from ".$prefix."_poll_desc where pollID='$pollID'"));
 		} else {
-			list($subject) = $db->sql_fetchrow($db->sql_query("select subject from ".$prefix."_pollcomments where tid='$pid'"));
+			[$subject] = $db->sql_fetchrow($db->sql_query("select subject from ".$prefix."_pollcomments where tid='$pid'"));
 		}
 		$subject = filter($subject, "nohtml");
 		echo "<br>";
@@ -754,13 +781,15 @@ function reply ($pid, $pollID, $mode, $order, $thold) {
 			$xanonpost=1;
 		}
 		echo "<br><br><font class=\"content\"><B>"._SUBJECT.":</B></FONT><BR>";
-		if (!stripos_clone($subject,"Re:")) $subject = "Re: ".substr($subject,0,81)."";
+		if (!stripos_clone($subject,"Re:")) $subject = "Re: ".substr((string) $subject,0,81)."";
 		echo "<INPUT TYPE=\"text\" NAME=\"subject\" SIZE=50 maxlength=85 value=\"$subject\"><BR>";
 		echo "<br><br><font class=\"content\"><B>"._UCOMMENT.":</B></FONT><BR>"
 		."<TEXTAREA wrap=virtual cols=70 rows=15 name=comment></TEXTAREA><br>";
 		if ($nuke_editor == 0) {
 	    	echo "<font class=\"content\">"._ALLOWEDHTML."<br>";
-	    	while (list($key,) = each($AllowableHTML)) echo " &lt;".$key."&gt;";
+	    	foreach (array_keys($AllowableHTML) as $key) {
+          echo " &lt;".$key."&gt;";
+      }
 	    	echo "</font><br><br>";
 		} else {
 			echo ""._HTMLNOTALLOWED."</font><br><br>";
@@ -779,7 +808,8 @@ function reply ($pid, $pollID, $mode, $order, $thold) {
 }
 
 function replyPreview ($pid, $pollID, $subject, $comment, $xanonpost, $mode, $order, $thold) {
-	include_once("header.php");
+	$anonpost = null;
+ include_once("header.php");
 	global $userinfo, $user, $cookie, $AllowableHTML, $anonymous, $module_name, $nuke_editor;
 	cookiedecode($user);
                   getusrinfo($user);
@@ -841,7 +871,9 @@ function replyPreview ($pid, $pollID, $subject, $comment, $xanonpost, $mode, $or
 	."<TEXTAREA wrap=\"virtual\" cols=\"70\" rows=\"15\" name=\"comment\">$comment</TEXTAREA><br>";
 	if ($nuke_editor == 0) {
     	echo "<font class=\"content\">"._ALLOWEDHTML."<br>";
-    	while (list($key,) = each($AllowableHTML)) echo " &lt;".$key."&gt;";
+    	foreach (array_keys($AllowableHTML) as $key) {
+         echo " &lt;".$key."&gt;";
+     }
     	echo "</font><br><br>";
 	} else {
 		echo ""._HTMLNOTALLOWED."</font><br><br>";
@@ -861,7 +893,8 @@ function replyPreview ($pid, $pollID, $subject, $comment, $xanonpost, $mode, $or
 }
 
 function CreateTopic ($xanonpost, $subject, $comment, $pid, $pollID, $host_name, $mode, $order, $thold) {
-	global $userinfo, $user, $userinfo, $EditedMessage, $cookie, $prefix, $pollcomm, $anonpost, $db, $module_name, $user_prefix;
+	$author = null;
+ global $userinfo, $user, $userinfo, $EditedMessage, $cookie, $prefix, $pollcomm, $anonpost, $db, $module_name, $user_prefix;
 	if (!isset($mode) OR empty($mode)) {
   if(isset($userinfo['umode'])) {
     $mode = $userinfo['umode'];
@@ -994,36 +1027,36 @@ switch($op) {
 		global $module_name;
 	}
 	if(($admintest==1) || ($moderate==2)) {
-		while(list($tdw, $emp) = each($_POST)) {
-                                $tdw = intval($tdw);
-			if (stripos_clone($tdw,"dkn")) {
-				$emp = explode(":", $emp);
-				if($emp[1] != 0) {
-					$tdw = str_replace("dkn", "", $tdw);
-					$emp[0] = intval($emp[0]); 
-					$emp[1] = intval($emp[1]); 
-					$tdw = intval($tdw); 
-					$q = "UPDATE ".$prefix."_pollcomments SET";
-					if(($emp[1] == 9) && ($emp[0]>=0)) { # Overrated
-						$q .= " score=score-1 where tid='$tdw'";
-					} elseif (($emp[1] == 10) && ($emp[0]<=4)) { # Underrated
-						$q .= " score=score+1 where tid='$tdw'";
-					} elseif (($emp[1] > 4) && ($emp[0]<=4)) {
-						$q .= " score=score+1, reason='$emp[1]' where tid='$tdw'";
-					} elseif (($emp[1] < 5) && ($emp[0] > -1)) {
-						$q .= " score=score-1, reason='$emp[1]' where tid='$tdw'";
-					} elseif (($emp[0] == -1) || ($emp[0] == 5)) {
-						$q .= " reason='$emp[1]' where tid='$tdw'";
-					}
-					$row = $db->sql_fetchrow($db->sql_query("SELECT last_moderation_ip FROM ".$prefix."_pollcomments WHERE tid='$tdw'"));
-					$ip = $_SERVER['REMOTE_ADDR'];
-					if(strlen($q) > 20 && $row['last_moderation_ip'] != $ip) {
-						$db->sql_query($q);
-						$db->sql_query("UPDATE ".$prefix."_pollcomments SET last_moderation_ip='$ip' WHERE tid='$tdw'");
-					}
-				}
-			}
-		}
+		foreach ($_POST as $tdw => $emp) {
+      $tdw = intval($tdw);
+      if (stripos_clone($tdw,"dkn")) {
+   				$emp = explode(":", (string) $emp);
+   				if($emp[1] != 0) {
+   					$tdw = str_replace("dkn", "", $tdw);
+   					$emp[0] = intval($emp[0]); 
+   					$emp[1] = intval($emp[1]); 
+   					$tdw = intval($tdw); 
+   					$q = "UPDATE ".$prefix."_pollcomments SET";
+   					if(($emp[1] == 9) && ($emp[0]>=0)) { # Overrated
+   						$q .= " score=score-1 where tid='$tdw'";
+   					} elseif (($emp[1] == 10) && ($emp[0]<=4)) { # Underrated
+   						$q .= " score=score+1 where tid='$tdw'";
+   					} elseif (($emp[1] > 4) && ($emp[0]<=4)) {
+   						$q .= " score=score+1, reason='$emp[1]' where tid='$tdw'";
+   					} elseif (($emp[1] < 5) && ($emp[0] > -1)) {
+   						$q .= " score=score-1, reason='$emp[1]' where tid='$tdw'";
+   					} elseif (($emp[0] == -1) || ($emp[0] == 5)) {
+   						$q .= " reason='$emp[1]' where tid='$tdw'";
+   					}
+   					$row = $db->sql_fetchrow($db->sql_query("SELECT last_moderation_ip FROM ".$prefix."_pollcomments WHERE tid='$tdw'"));
+   					$ip = $_SERVER['REMOTE_ADDR'];
+   					if(strlen($q) > 20 && $row['last_moderation_ip'] != $ip) {
+   						$db->sql_query($q);
+   						$db->sql_query("UPDATE ".$prefix."_pollcomments SET last_moderation_ip='$ip' WHERE tid='$tdw'");
+   					}
+   				}
+   			}
+  }
 	}
 	Header("Location: modules.php?name=$module_name&op=results&pollID=$pollID");
 	break;
@@ -1046,4 +1079,3 @@ switch($op) {
 	break;
 }
 
-?>
