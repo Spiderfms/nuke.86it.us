@@ -12,6 +12,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -21,7 +27,11 @@ get_lang($module_name);
 $pagetitle = "- "._SUBMITNEWS."";
 
 function defaultDisplay() {
-	global $AllowableHTML, $prefix, $user, $cookie, $anonymous, $currentlang, $multilingual, $db, $module_name, $nuke_editor;
+	$topic = null;
+ $sel = null;
+ $languageslist = [];
+ $language = null;
+ global $AllowableHTML, $prefix, $user, $cookie, $anonymous, $currentlang, $multilingual, $db, $module_name, $nuke_editor;
 	include ("header.php");
 	OpenTable();
 	echo "<center><font class=\"title\"><b>"._SUBMITNEWS."</b></font>";
@@ -73,7 +83,7 @@ function defaultDisplay() {
 			}
 		}
 		closedir($handle);
-		$languageslist = explode(" ", $languageslist);
+		$languageslist = explode(" ", (string) $languageslist);
 		sort($languageslist);
 		for ($i=0; $i < sizeof($languageslist); $i++) {
 			if(!empty($languageslist[$i])) {
@@ -95,7 +105,9 @@ function defaultDisplay() {
 	."<font class=\"content\">("._AREYOUSURE.")<br>";
 	if ($nuke_editor == 0) {
     	echo "<font class=\"content\">"._ALLOWEDHTML."<br>";
-    	while (list($key,) = each($AllowableHTML)) echo " &lt;".$key."&gt;";
+    	foreach (array_keys($AllowableHTML) as $key) {
+         echo " &lt;".$key."&gt;";
+     }
     	echo "</font>";
 	} else {
 		echo ""._HTMLNOTALLOWED."</font>";
@@ -111,7 +123,10 @@ function defaultDisplay() {
 }
 
 function PreviewStory($name, $address, $subject, $story, $storyext, $topic, $alanguage) {
-	global $user, $cookie, $bgcolor1, $bgcolor2, $anonymous, $prefix, $multilingual, $AllowableHTML, $db, $module_name, $nuke_editor;
+	$row = [];
+ $sel = null;
+ $languageslist = [];
+ global $user, $cookie, $bgcolor1, $bgcolor2, $anonymous, $prefix, $multilingual, $AllowableHTML, $db, $module_name, $nuke_editor;
 	include ("header.php");
 	$f_story = filter($story);
 	$f_storyext = filter($storyext);
@@ -180,7 +195,7 @@ function PreviewStory($name, $address, $subject, $story, $storyext, $topic, $ala
 			}
 		}
 		closedir($handle);
-		$languageslist = explode(" ", $languageslist);
+		$languageslist = explode(" ", (string) $languageslist);
 		sort($languageslist);
 		for ($i=0; $i < sizeof($languageslist); $i++) {
 			if(!empty($languageslist[$i])) {
@@ -200,7 +215,9 @@ function PreviewStory($name, $address, $subject, $story, $storyext, $topic, $ala
 		."<font class=\"content\">("._AREYOUSURE.")</font><br>";
 	if ($nuke_editor == 0) {
     	echo "<font class=\"content\">"._ALLOWEDHTML."";
-    	while (list($key,) = each($AllowableHTML)) echo " &lt;".$key."&gt;";
+    	foreach (array_keys($AllowableHTML) as $key) {
+         echo " &lt;".$key."&gt;";
+     }
     	echo "</font></td></tr>";
 	} else {
 		echo ""._HTMLNOTALLOWED."</font></td></tr>";
@@ -238,7 +255,7 @@ function submitStory($name, $address, $subject, $story, $storyext, $topic, $alan
 	}
 	if($notify) {
 		$notify_message = "$notify_message\n\n\n========================================================\n$subject\n\n\n$story\n\n$storyext\n\n$name";
-		mail($notify_email, $notify_subject, $notify_message, "From: $notify_from\nX-Mailer: PHP/" . phpversion());
+		mail((string) $notify_email, (string) $notify_subject, $notify_message, "From: $notify_from\nX-Mailer: PHP/" . phpversion());
 	}
 	include ("header.php");
 	OpenTable();
@@ -270,4 +287,3 @@ switch($op) {
 
 }
 
-?>

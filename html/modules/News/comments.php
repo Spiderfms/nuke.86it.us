@@ -581,7 +581,7 @@ function DisplayTopic ($sid, $pid=0, $tid=0, $mode="thread", $order=0, $thold=0,
 		$journal = "";
 		if (is_active("Journal")) {
 			$row = $db->sql_fetchrow($db->sql_query("SELECT jid FROM ".$prefix."_journal WHERE aid='$c_name' AND status='yes' ORDER BY pdate,jid DESC LIMIT 0,1"));
-			$jid = intval($row['jid']);
+			$jid = intval($row['jid'] ?? 0);
 			if (!empty($jid) AND isset($jid)) {
 				$journal = " | <a href=\"modules.php?name=Journal&amp;file=display&amp;jid=$jid\">"._JOURNAL."</a>";
 			} else {

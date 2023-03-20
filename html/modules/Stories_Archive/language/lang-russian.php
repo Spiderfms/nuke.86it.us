@@ -27,18 +27,18 @@
 /*         15.03.2004                                                     */
 /**************************************************************************/
 
-define("_PRINTER","Страница, готовая для печати");
-define("_FRIEND","Отправить эту статью другу");
-define("_ARTICLES","Статьи");
-define("_USCORE","Баллы");
-define("_DATE","Дата");
-define("_SELECTMONTH2VIEW","Пожалуйста, выберите месяц для просмотра:");
-define("_SHOWALLSTORIES","Показать все статьи");
-define("_STORIESARCHIVE","Архив статей");
-define("_ACTIONS","Действия");
-define("_ARCHIVESINDEX","Индекс архива статей");
-define("_ALLSTORIESARCH","Все статьи");
-define("_NEXTPAGE","Следующая страница");
-define("_PREVIOUSPAGE","Предыдущая страница");
+define_once("_PRINTER","Страница, готовая для печати");
+define_once("_FRIEND","Отправить эту статью другу");
+define_once("_ARTICLES","Статьи");
+define_once("_USCORE","Баллы");
+define_once("_DATE","Дата");
+define_once("_SELECTMONTH2VIEW","Пожалуйста, выберите месяц для просмотра:");
+define_once("_SHOWALLSTORIES","Показать все статьи");
+define_once("_STORIESARCHIVE","Архив статей");
+define_once("_ACTIONS","Действия");
+define_once("_ARCHIVESINDEX","Индекс архива статей");
+define_once("_ALLSTORIESARCH","Все статьи");
+define_once("_NEXTPAGE","Следующая страница");
+define_once("_PREVIOUSPAGE","Предыдущая страница");
 
-?>
+

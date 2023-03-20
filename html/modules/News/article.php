@@ -38,7 +38,7 @@ if(isset($REQUEST_URI)){
   }
 }
 
-if ($save AND is_user()) {
+if (isset($save) && $save AND is_user()) {
 	cookiedecode($user);
 	getusrinfo($user);
 	if(!isset($mode)) { $mode = $userinfo['umode']; }
