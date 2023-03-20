@@ -35,6 +35,7 @@ if ($row['radminsuper'] == 1) {
 	$tot_data = 0;
 	$tot_idx = 0;
 	$tot_all = 0;
+	$total_gain = 0;
 	$local_query = 'SHOW TABLE STATUS FROM '.$dbname;
 	$result = $db->sql_query($local_query);
 	if ($db->sql_numrows($result)) {
@@ -67,11 +68,16 @@ if ($row['radminsuper'] == 1) {
 	."" . _TOTALSPACESAVED . " "."$total_gain"." Kb<br>";
 	$sql_query = "CREATE TABLE IF NOT EXISTS ".$prefix."_optimize_gain(gain decimal(10,3))";
 	$result = $db->sql_query($sql_query);
+
 	$sql_query = "INSERT INTO ".$prefix."_optimize_gain (gain) VALUES ('$total_gain')";
 	$result = $db->sql_query($sql_query);
+
 	$sql_query = "SELECT * FROM ".$prefix."_optimize_gain";
 	$result = $db->sql_query ($sql_query);
+
 	while ($row = $db->sql_fetchrow($result)) {
+		if(!isset($cpt)) { $cpt = 0; }
+		if(!isset($histo)) { $histo = 0; }
 		$histo += $row[0];
 		$cpt += 1;
 	}
