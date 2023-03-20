@@ -20,6 +20,14 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * StringifyStrNeedlesRector (https://wiki.php.net/rfc/deprecations_php_7_3#string_search_functions_with_integer_needle)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 define('IN_PHPBB', 1);
 
 //
@@ -51,12 +59,12 @@ function inarray($needle, $haystack)
 //
 // Generate relevant output
 //
-if( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'left' )
+if( isset($_GET['pane']) && $_GET['pane'] == 'left' )
 {
-        $dir = @opendir(".");
+        $dir = opendir(".");
 
         $setmodules = 1;
-        while( $file = @readdir($dir) )
+        while( $file = readdir($dir) )
         {
                 if( preg_match("/^admin_.*?\." . $phpEx . "$/", $file) )
                 {
@@ -64,7 +72,7 @@ if( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'left' )
                 }
         }
 
-        @closedir($dir);
+        closedir($dir);
 
         unset($setmodules);
 
@@ -86,40 +94,33 @@ if( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'left' )
 
         ksort($module);
 
-        while( list($cat, $action_array) = each($module) )
-        {
-                $cat = ( !empty($lang[$cat]) ) ? $lang[$cat] : preg_replace("/_/", " ", $cat);
+        foreach ($module as $cat => $action_array) {
+            $cat = ( !empty($lang[$cat]) ) ? $lang[$cat] : preg_replace("/_/", " ", (string) $cat);
+            $template->assign_block_vars("catrow", array(
+                    "ADMIN_CATEGORY" => $cat)
+            );
+            ksort($action_array);
+            $row_count = 0;
+            foreach ($action_array as $action => $file) {
+                $row_color = ( !($row_count%2) ) ? $theme['td_color1'] : $theme['td_color2'];
+                $row_class = ( !($row_count%2) ) ? $theme['td_class1'] : $theme['td_class2'];
+                $action = ( !empty($lang[$action]) ) ? $lang[$action] : preg_replace("/_/", " ", (string) $action);
+                $template->assign_block_vars("catrow.modulerow", array(
+                        "ROW_COLOR" => "#" . $row_color,
+                        "ROW_CLASS" => $row_class,
 
-                $template->assign_block_vars("catrow", array(
-                        "ADMIN_CATEGORY" => $cat)
+                        "ADMIN_MODULE" => $action,
+                        "U_ADMIN_MODULE" => append_sid($file))
                 );
-
-                ksort($action_array);
-
-                $row_count = 0;
-                while( list($action, $file)        = each($action_array) )
-                {
-                        $row_color = ( !($row_count%2) ) ? $theme['td_color1'] : $theme['td_color2'];
-                        $row_class = ( !($row_count%2) ) ? $theme['td_class1'] : $theme['td_class2'];
-
-                        $action = ( !empty($lang[$action]) ) ? $lang[$action] : preg_replace("/_/", " ", $action);
-
-                        $template->assign_block_vars("catrow.modulerow", array(
-                                "ROW_COLOR" => "#" . $row_color,
-                                "ROW_CLASS" => $row_class,
-
-                                "ADMIN_MODULE" => $action,
-                                "U_ADMIN_MODULE" => append_sid($file))
-                        );
-                        $row_count++;
-                }
+                $row_count++;
+            }
         }
 
         $template->pparse("body");
 
         include('./page_footer_admin.'.$phpEx);
 }
-elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
+elseif( isset($_GET['pane']) && $_GET['pane'] == 'right' )
 {
 
         include('./page_header_admin.'.$phpEx);
@@ -170,16 +171,16 @@ elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
 
         $avatar_dir_size = 0;
 
-        if ($avatar_dir = @opendir($phpbb_root_path . $board_config['avatar_path']))
+        if ($avatar_dir = opendir($phpbb_root_path . $board_config['avatar_path']))
         {
-                while( $file = @readdir($avatar_dir) )
+                while( $file = readdir($avatar_dir) )
                 {
                         if( $file != "." && $file != ".." )
                         {
-                                $avatar_dir_size += @filesize($phpbb_root_path . $board_config['avatar_path'] . "/" . $file);
+                                $avatar_dir_size += filesize($phpbb_root_path . $board_config['avatar_path'] . "/" . $file);
                         }
                 }
-                @closedir($avatar_dir);
+                closedir($avatar_dir);
 
                 //
                 // This bit of code translates the avatar directory size into human readable format
@@ -227,7 +228,7 @@ elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
         // This code is heavily influenced by a similar routine
         // in phpMyAdmin 2.2.0
         //
-        if( preg_match("/^mysql/", SQL_LAYER) )
+        if( preg_match("/^mysql/", (string) SQL_LAYER) )
         {
                 $sql = "SELECT VERSION() AS mysql_version";
                 if($result = $db->sql_query($sql))
@@ -235,9 +236,9 @@ elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
                         $row = $db->sql_fetchrow($result);
                         $version = $row['mysql_version'];
 
-                        if( preg_match("/^(3\.23|4\.)/", $version) )
+                        if( preg_match("/^(3\.23|4\.)/", (string) $version) )
                         {
-                                $db_name = ( preg_match("/^(3\.23\.[6-9])|(3\.23\.[1-9][1-9])|(4\.)/", $version) ) ? "`$dbname`" : $dbname;
+                                $db_name = ( preg_match("/^(3\.23\.[6-9])|(3\.23\.[1-9][1-9])|(4\.)/", (string) $version) ) ? "`$dbname`" : $dbname;
 
                                 $sql = "SHOW TABLE STATUS
                                         FROM " . $db_name;
@@ -246,13 +247,13 @@ elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
                                         $tabledata_ary = $db->sql_fetchrowset($result);
 
                                         $dbsize = 0;
-                                        for($i = 0; $i < count($tabledata_ary); $i++)
+                                        for($i = 0; $i < (is_countable($tabledata_ary) ? count($tabledata_ary) : 0); $i++)
                                         {
                                                 if( $tabledata_ary[$i]['Type'] != "MRG_MyISAM" )
                                                 {
                                                         if( $table_prefix != "" )
                                                         {
-                                                                if( strstr($tabledata_ary[$i]['Name'], $table_prefix) )
+                                                                if( strstr((string) $tabledata_ary[$i]['Name'], (string) $table_prefix) )
                                                                 {
                                                                         $dbsize += $tabledata_ary[$i]['Data_length'] + $tabledata_ary[$i]['Index_length'];
                                                                 }
@@ -275,7 +276,7 @@ elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
                         $dbsize = $lang['Not_available'];
                 }
         }
-        else if( preg_match("/^mssql/", SQL_LAYER) )
+        else if( preg_match("/^mssql/", (string) SQL_LAYER) )
         {
                 $sql = "SELECT ((SUM(size) * 8.0) * 1024.0) as dbsize
                         FROM sysfiles";
@@ -368,11 +369,11 @@ elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
 
         $reg_userid_ary = array();
 
-        if( count($onlinerow_reg) )
+        if( is_countable($onlinerow_reg) ? count($onlinerow_reg) : 0 )
         {
                 $registered_users = 0;
 
-                for($i = 0; $i < count($onlinerow_reg); $i++)
+                for($i = 0; $i < (is_countable($onlinerow_reg) ? count($onlinerow_reg) : 0); $i++)
                 {
                         if( !inarray($onlinerow_reg[$i]['user_id'], $reg_userid_ary) )
                         {
@@ -474,11 +475,11 @@ elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
         //
         // Guest users
         //
-        if( count($onlinerow_guest) )
+        if( is_countable($onlinerow_guest) ? count($onlinerow_guest) : 0 )
         {
                 $guest_users = 0;
 
-                for($i = 0; $i < count($onlinerow_guest); $i++)
+                for($i = 0; $i < (is_countable($onlinerow_guest) ? count($onlinerow_guest) : 0); $i++)
                 {
                         $guest_userip_ary[] = $onlinerow_guest[$i]['session_ip'];
                         $guest_users++;
@@ -567,28 +568,28 @@ elseif( isset($HTTP_GET_VARS['pane']) && $HTTP_GET_VARS['pane'] == 'right' )
 	$errno = 0;
 	$errstr = $version_info = '';
 
-	if ($fsock = @fsockopen('www.phpbb.com', 80, $errno, $errstr))
+	if ($fsock = fsockopen('www.phpbb.com', 80, $errno, $errstr))
 	{
-		@fputs($fsock, "GET /updatecheck/20x.txt HTTP/1.1\r\n");
-		@fputs($fsock, "HOST: www.phpbb.com\r\n");
-		@fputs($fsock, "Connection: close\r\n\r\n");
+		fputs($fsock, "GET /updatecheck/20x.txt HTTP/1.1\r\n");
+		fputs($fsock, "HOST: www.phpbb.com\r\n");
+		fputs($fsock, "Connection: close\r\n\r\n");
 
 		$get_info = false;
-		while (!@feof($fsock))
+		while (!feof($fsock))
 		{
 			if ($get_info)
 			{
-				$version_info .= @fread($fsock, 1024);
+				$version_info .= fread($fsock, 1024);
 			}
 			else
 			{
-				if (@fgets($fsock, 1024) == "\r\n")
+				if (fgets($fsock, 1024) == "\r\n")
 				{
 					$get_info = true;
 				}
 			}
 		}
-		@fclose($fsock);
+		fclose($fsock);
 
 		$version_info = explode("\n", $version_info);
 		$latest_head_revision = (int) $version_info[0];
@@ -654,4 +655,3 @@ else
 
 }
 
-?>
