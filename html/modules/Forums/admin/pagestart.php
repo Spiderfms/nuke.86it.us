@@ -20,6 +20,10 @@
  *   (at your option) any later version.
  *
  ***************************************************************************/
+ 
+/* Applied rules:
+ * NullToStrictStringFuncCallArgRector
+ */
 
 if (!defined('IN_PHPBB'))
 {
@@ -39,12 +43,12 @@ include($phpbb_root_path.'common.'.$phpEx);
 //
 
 global $admin, $prefix, $db, $cookie, $nukeuser, $user;
-$admin = base64_decode($admin);
+$admin = base64_decode((string) $admin);
 $admin = explode(":", $admin);
 $aid = "$admin[0]";
 $row = $db->sql_fetchrow($db->sql_query("SELECT title, admins FROM ".$prefix."_modules WHERE title='Forums'"));
 $row2 = $db->sql_fetchrow($db->sql_query("SELECT name, pwd, radminsuper FROM ".$prefix."_authors WHERE aid='$aid'"));
-$admins = explode(",", $row['admins']);
+$admins = explode(",", (string) $row['admins']);
 $auth_user = 0;
 for ($i=0; $i < sizeof($admins); $i++) {
     if ($row2['name'] == "$admins[$i]" AND $row['admins'] != "") {
@@ -52,7 +56,7 @@ for ($i=0; $i < sizeof($admins); $i++) {
     }
 }
 
-$user = addslashes(base64_decode($user));
+$user = addslashes(base64_decode((string) $user));
 $cookie = explode(":", $user);
 $sql3 = "SELECT user_id, user_password, user_level FROM " . USERS_TABLE . "
         WHERE username='$cookie[1]'";
@@ -105,4 +109,3 @@ if ( empty($no_page_header) )
         include('./page_header_admin.'.$phpEx);
 }
 
-?>

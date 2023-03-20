@@ -246,8 +246,8 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/admin/index.php',
 		///__DIR__ . '/modules/Forums/admin/links.php',
 		///__DIR__ . '/modules/Forums/admin/page_footer_admin.php',
-		__DIR__ . '/modules/Forums/admin/page_header_admin.php',
-		//__DIR__ . '/modules/Forums/admin/pagestart.php',
+		//__DIR__ . '/modules/Forums/admin/page_header_admin.php',
+		__DIR__ . '/modules/Forums/admin/pagestart.php',
 		
 		//__DIR__ . '/modules/Forums/includes/auth.php',
 		//__DIR__ . '/modules/Forums/includes/bbcode.php',
