@@ -11,7 +11,7 @@
 /* Copyright (c) 2002 by Tom Nitzschner (tom@toms-home.com)             */
 /* http://bbtonuke.sourceforge.net                                      */
 /* http://www.toms-home.com                                             */
-/*									*/
+/*									                                    */
 /*   As always, make a backup before messing with anything. All code    */
 /*   release by me is considered sample code only. It may be fully      */
 /*   functual, but you use it at your own risk, if you break it,        */
@@ -29,6 +29,10 @@
 /* Forum admin files for PHP-Nuke 7.5 by chatserv                       */
 /************************************************************************/
 
+/* Applied rules:
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if ( !defined('ADMIN_FILE') )
 {
 	die("Illegal File Access");
@@ -38,7 +42,7 @@ global $prefix, $db;
 $aid = substr("$aid", 0,25);
 $row = $db->sql_fetchrow($db->sql_query("SELECT title, admins FROM ".$prefix."_modules WHERE title='Forums'"));
 $row2 = $db->sql_fetchrow($db->sql_query("SELECT name, radminsuper FROM ".$prefix."_authors WHERE aid='$aid'"));
-$admins = explode(",", $row['admins']);
+$admins = explode(",", (string) $row['admins']);
 $auth_user = 0;
 for ($i=0; $i < sizeof($admins); $i++) {
     if ($row2['name'] == "$admins[$i]" AND $row['admins'] != "") {
@@ -49,12 +53,12 @@ for ($i=0; $i < sizeof($admins); $i++) {
 if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 
 	switch($op) {
-	
+
 		case "forums":
 		Header("Location: modules/Forums/admin/index.php");
 	}
 
-			
+
 } else {
     echo "Access Denied";
 }
@@ -63,4 +67,3 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 # Initial CVS Addition
 #
 
-?>
