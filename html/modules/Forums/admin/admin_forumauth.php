@@ -20,6 +20,12 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ */
+ 
 define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
@@ -71,9 +77,9 @@ $field_names = array(
 $forum_auth_levels = array('ALL', 'REG', 'PRIVATE', 'MOD', 'ADMIN');
 $forum_auth_const = array(AUTH_ALL, AUTH_REG, AUTH_ACL, AUTH_MOD, AUTH_ADMIN);
 
-if(isset($HTTP_GET_VARS[POST_FORUM_URL]) || isset($HTTP_POST_VARS[POST_FORUM_URL]))
+if(isset($_GET[POST_FORUM_URL]) || isset($_POST[POST_FORUM_URL]))
 {
-        $forum_id = (isset($HTTP_POST_VARS[POST_FORUM_URL])) ? intval($HTTP_POST_VARS[POST_FORUM_URL]) : intval($HTTP_GET_VARS[POST_FORUM_URL]);
+        $forum_id = (isset($_POST[POST_FORUM_URL])) ? intval($_POST[POST_FORUM_URL]) : intval($_GET[POST_FORUM_URL]);
         $forum_sql = "AND forum_id = $forum_id";
 }
 else
@@ -82,9 +88,9 @@ else
         $forum_sql = '';
 }
 
-if( isset($HTTP_GET_VARS['adv']) )
+if( isset($_GET['adv']) )
 {
-        $adv = intval($HTTP_GET_VARS['adv']);
+        $adv = intval($_GET['adv']);
 }
 else
 {
@@ -94,15 +100,15 @@ else
 //
 // Start program proper
 //
-if( isset($HTTP_POST_VARS['submit']) )
+if( isset($_POST['submit']) )
 {
         $sql = '';
 
         if(!empty($forum_id))
         {
-                if(isset($HTTP_POST_VARS['simpleauth']))
+                if(isset($_POST['simpleauth']))
                 {
-         $simple_ary = $simple_auth_ary[intval($HTTP_POST_VARS['simpleauth'])]; 
+         $simple_ary = $simple_auth_ary[intval($_POST['simpleauth'])]; 
 
          for($i = 0; $i < count($simple_ary); $i++) 
          { 
@@ -118,11 +124,11 @@ if( isset($HTTP_POST_VARS['submit']) )
       { 
          for($i = 0; $i < count($forum_auth_fields); $i++) 
          { 
-            $value = intval($HTTP_POST_VARS[$forum_auth_fields[$i]]);
+            $value = intval($_POST[$forum_auth_fields[$i]]);
 
                                 if ( $forum_auth_fields[$i] == 'auth_vote' )
                                 {
-                                        if ( $HTTP_POST_VARS['auth_vote'] == AUTH_ALL )
+                                        if ( $_POST['auth_vote'] == AUTH_ALL )
                                         {
                                                 $value = AUTH_REG;
                                         }
@@ -183,7 +189,7 @@ if( empty($forum_id) )
         );
 
         $select_list = '<select name="' . POST_FORUM_URL . '">';
-        for($i = 0; $i < count($forum_rows); $i++)
+        for($i = 0; $i < (is_countable($forum_rows) ? count($forum_rows) : 0); $i++)
         {
                 $select_list .= '<option value="' . $forum_rows[$i]['forum_id'] . '">' . $forum_rows[$i]['forum_name'] . '</option>';
         }
@@ -212,24 +218,22 @@ else
 
         $forum_name = $forum_rows[0]['forum_name'];
 
-        @reset($simple_auth_ary);
-        while( list($key, $auth_levels) = each($simple_auth_ary))
-        {
-                $matched = 1;
-                for($k = 0; $k < count($auth_levels); $k++)
-                {
-                        $matched_type = $key;
+        reset($simple_auth_ary);
+        foreach ($simple_auth_ary as $key => $auth_levels) {
+            $matched = 1;
+            for($k = 0; $k < (is_countable($auth_levels) ? count($auth_levels) : 0); $k++)
+            {
+                    $matched_type = $key;
 
-                        if ( $forum_rows[0][$forum_auth_fields[$k]] != $auth_levels[$k] )
-                        {
-                                $matched = 0;
-                        }
-                }
-
-                if ( $matched )
-                {
-                        break;
-                }
+                    if ( $forum_rows[0][$forum_auth_fields[$k]] != $auth_levels[$k] )
+                    {
+                            $matched = 0;
+                    }
+            }
+            if ( $matched )
+            {
+                    break;
+            }
         }
 
         //
@@ -325,4 +329,3 @@ $template->pparse('body');
 
 include('./page_footer_admin.'.$phpEx);
 
-?>
