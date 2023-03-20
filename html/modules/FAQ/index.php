@@ -83,8 +83,9 @@ if (!isset($myfaq)) {
 	$result2 = $db->sql_query("SELECT id_cat, categories FROM ".$prefix."_faqcategories $querylang");
 	while ($row2 = $db->sql_fetchrow($result2)) {
 		$id_cat = intval($row2['id_cat']);
-		$categories = filter($row2['categories'], "nohtml");
-		echo"<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=$module_name&amp;myfaq=yes&amp;id_cat=$id_cat&amp;categories=$catname\">$categories</a><br>";
+		$categories = filter($row2['categories'] ?? '', "nohtml");
+		if(!isset($catname)) { $catname = ''; }
+		echo"<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=$module_name&amp;myfaq=yes&amp;id_cat=$id_cat&amp;categories=$catname#$id_cat\">$categories</a><br>";
 	}
 	echo "</td></tr></table>";
 	CloseTable();
@@ -97,4 +98,3 @@ if (!isset($myfaq)) {
 	include("footer.php");
 }
 
-?>
