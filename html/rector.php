@@ -158,7 +158,7 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/admin/modules/modules.php',
 		//__DIR__ . '/admin/modules/blocks.php',
 		//__DIR__ . '/admin/modules/authors.php',
-		  __DIR__ . '/admin/modules/ipban.php',
+		//__DIR__ . '/admin/modules/ipban.php',
         //__DIR__ . '/blocks',
 		//__DIR__ . '/blocks/blocks-Modules.php',
         //__DIR__ . '/install/includes/database.php',
@@ -171,16 +171,23 @@ return static function (RectorConfig $rectorConfig): void {
         //__DIR__ . '/install',
         //__DIR__ . '/language',
         //__DIR__ . '/modules',
+
 		//__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
+
 		//__DIR__ . '/modules/Private_Messages/index.php',
+
+		//__DIR__ . '/modules/News/index.php',
 		//__DIR__ . '/modules/News/admin/index.php',
 		//__DIR__ . '/modules/News/index.php',
 		//__DIR__ . '/modules/News/comments.php',
 		//__DIR__ . '/modules/News/article.php',
-		//__DIR__ . '/modules/Stories_Archive/index.php',
-		//__DIR__ . '/modules/Submit_News/index.php',
-		//__DIR__ . '/modules/Surveys/comments.php',
 		//__DIR__ . '/modules/News/associates.php',
+		//__DIR__ . '/modules/Submit_News/index.php',
+
+		//__DIR__ . '/modules/Stories_Archive/index.php',
+
+		//__DIR__ . '/modules/Surveys/comments.php',
+
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
 		//__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
@@ -191,12 +198,16 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/modules/AutoTheme/includes/atExtended.php',
 		//__DIR__ . '/modules/AutoTheme/extras',
 		//__DIR__ . '/modules/AutoTheme/extras/php-nuke',
-		//__DIR__ . '/modules/News/index.php',
+
 		//__DIR__ . '/modules/Surveys/index.php',
+
 		//__DIR__ . '/modules/Your_Account/index.php',
 		//__DIR__ . '/modules/Your_Account/navbar.php',
+
 		//__DIR__ . '/modules/Feedback/index.php',
+
 		//__DIR__ . '/modules/Forums/common.php',
+
         //__DIR__ . '/themes',
 		//__DIR__ . '/admin.php',
 		//__DIR__ . '/backend.php',
