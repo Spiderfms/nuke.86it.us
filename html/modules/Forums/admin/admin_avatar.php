@@ -57,6 +57,12 @@
  *   (at your option) any later version.
  *
  ***************************************************************************/
+ 
+/* Applied rules:
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * TernaryToNullCoalescingRector
+ */
+ 
 define('IN_PHPBB', 1);
 if( !empty($setmodules) )
 {
@@ -79,8 +85,8 @@ require('pagestart.' . $phpEx);
 // Any mode passed?
 if( isset($HTTP_GET_VARS['mode']) || isset($HTTP_POST_VARS['mode']) )
 {
-        $mode = ( isset($HTTP_GET_VARS['mode']) ) ? $HTTP_GET_VARS['mode'] : $HTTP_POST_VARS['mode'];
-	$target = ( isset($HTTP_GET_VARS['target']) ) ? $HTTP_GET_VARS['target'] : $HTTP_POST_VARS['target'];
+        $mode = $HTTP_GET_VARS['mode'] ?? $HTTP_POST_VARS['mode'];
+	$target = $HTTP_GET_VARS['target'] ?? $HTTP_POST_VARS['target'];
 }
 else
 {
@@ -164,7 +170,7 @@ switch( $mode )
 			while( $file = @readdir($avatar_dir) )
 			{
 				// This is where the script will filter out any file that doesn't match the patterns
-				if( $file != "." && $file != ".." && ereg("\.(gif|jpg|jpeg|png)$",$file) )
+				if( $file != "." && $file != ".." && preg_match('#\.(gif|jpg|jpeg|png)$#m',$file) )
 				{
 					$stats = stat($real_avatar_dir.'/'.$file);
 

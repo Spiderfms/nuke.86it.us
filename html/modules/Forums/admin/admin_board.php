@@ -11,6 +11,11 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * TernaryToNullCoalescingRector
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
@@ -44,26 +49,26 @@ else
 	{
 		$config_name = $row['config_name'];
 		$config_value = $row['config_value'];
-		$default_config[$config_name] = isset($HTTP_POST_VARS['submit']) ? str_replace("'", "\'", $config_value) : $config_value;
+		$default_config[$config_name] = isset($HTTP_POST_VARS['submit']) ? str_replace("'", "\'", (string) $config_value) : $config_value;
 
-		$new[$config_name] = ( isset($HTTP_POST_VARS[$config_name]) ) ? $HTTP_POST_VARS[$config_name] : $default_config[$config_name];
+		$new[$config_name] = $HTTP_POST_VARS[$config_name] ?? $default_config[$config_name];
 
 		if ($config_name == 'cookie_name')
 		{
-			$new['cookie_name'] = str_replace('.', '_', $new['cookie_name']);
+			$new['cookie_name'] = str_replace('.', '_', (string) $new['cookie_name']);
 		}
 
 		// Attempt to prevent a common mistake with this value,
 		// http:// is the protocol and not part of the server name
 		if ($config_name == 'server_name')
 		{
-			$new['server_name'] = str_replace('http://', '', $new['server_name']);
+			$new['server_name'] = str_replace('http://', '', (string) $new['server_name']);
 		}
 
 		if( isset($HTTP_POST_VARS['submit']) )
 		{
 			$sql = "UPDATE " . CONFIG_TABLE . " SET
-				config_value = '" . str_replace("\'", "''", $new[$config_name]) . "'
+				config_value = '" . str_replace("\'", "''", (string) $new[$config_name]) . "'
 				WHERE config_name = '$config_name'";
 			if( !$db->sql_query($sql) )
 			{
@@ -150,8 +155,8 @@ $template->set_filenames(array(
 // Escape any quotes in the site description for proper display in the text
 // box on the admin page
 //
-$new['site_desc'] = str_replace('"', '&quot;', $new['site_desc']);
-$new['sitename'] = str_replace('"', '&quot;', strip_tags($new['sitename']));
+$new['site_desc'] = str_replace('"', '&quot;', (string) $new['site_desc']);
+$new['sitename'] = str_replace('"', '&quot;', strip_tags((string) $new['sitename']));
 $template->assign_vars(array(
 	"S_CONFIG_ACTION" => append_sid("admin_board.$phpEx"),
 
@@ -354,4 +359,4 @@ $template->pparse("body");
 
 include('./page_footer_admin.'.$phpEx);
 
-?>
+
