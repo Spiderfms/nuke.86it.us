@@ -237,8 +237,8 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/admin/admin_smilies.php',
 		///__DIR__ . '/modules/Forums/admin/admin_styles.php',
 		///__DIR__ . '/modules/Forums/admin/admin_ug_auth.php', HAD PROBLEMS
-		__DIR__ . '/modules/Forums/admin/admin_user_ban.php',
-		//__DIR__ . '/modules/Forums/admin/admin_users.php',
+		///__DIR__ . '/modules/Forums/admin/admin_user_ban.php',
+		__DIR__ . '/modules/Forums/admin/admin_users.php',
 		//__DIR__ . '/modules/Forums/admin/admin_words.php',
 		//__DIR__ . '/modules/Forums/admin/case.php',
 		//__DIR__ . '/modules/Forums/admin/common.php',

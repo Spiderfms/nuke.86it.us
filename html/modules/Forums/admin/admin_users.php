@@ -21,6 +21,17 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * TernaryToNullCoalescingRector
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * ListEachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
@@ -45,10 +56,10 @@ $html_entities_replace = array('&lt;', '&gt;');
 //
 // Set mode
 //
-if( isset( $HTTP_POST_VARS['mode'] ) || isset( $HTTP_GET_VARS['mode'] ) )
+if( isset( $_POST['mode'] ) || isset( $_GET['mode'] ) )
 {
-        $mode = ( isset( $HTTP_POST_VARS['mode']) ) ? $HTTP_POST_VARS['mode'] : $HTTP_GET_VARS['mode'];
-        $mode = htmlspecialchars($mode);
+        $mode = $_POST['mode'] ?? $_GET['mode'];
+        $mode = htmlspecialchars((string) $mode);
 }
 else
 {
@@ -58,21 +69,21 @@ else
 //
 // Begin program
 //
-if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) || isset($HTTP_GET_VARS[POST_USERS_URL]) || isset( $HTTP_POST_VARS[POST_USERS_URL]) ) )
+if ( $mode == 'edit' || $mode == 'save' && ( isset($_POST['username']) || isset($_GET[POST_USERS_URL]) || isset( $_POST[POST_USERS_URL]) ) )
 {
         //
         // Ok, the profile has been modified and submitted, let's update
         //
-        if ( ( $mode == 'save' && isset( $HTTP_POST_VARS['submit'] ) ) || isset( $HTTP_POST_VARS['avatargallery'] ) || isset( $HTTP_POST_VARS['submitavatar'] ) || isset( $HTTP_POST_VARS['cancelavatar'] ) )
+        if ( ( $mode == 'save' && isset( $_POST['submit'] ) ) || isset( $_POST['avatargallery'] ) || isset( $_POST['submitavatar'] ) || isset( $_POST['cancelavatar'] ) )
         {
-                $user_id = intval($HTTP_POST_VARS['id']);
+                $user_id = intval($_POST['id']);
 
                 if (!($this_userdata = get_userdata($user_id)))
                 {
                         message_die(GENERAL_MESSAGE, $lang['No_user_id_specified'] );
                 }
 
-                if( $HTTP_POST_VARS['deleteuser'] && ( $userdata['user_id'] != $user_id ) )
+                if( $_POST['deleteuser'] && ( $userdata['user_id'] != $user_id ) )
                 {
                         $sql = "SELECT g.group_id
                                 FROM " . USER_GROUP_TABLE . " ug, " . GROUPS_TABLE . " g
@@ -87,7 +98,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                         $row = $db->sql_fetchrow($result);
 
                         $sql = "UPDATE " . POSTS_TABLE . "
-				SET poster_id = " . DELETED . ", post_username = '" . str_replace("\\'", "''", addslashes($this_userdata['username'])) . "' 
+				SET poster_id = " . DELETED . ", post_username = '" . str_replace("\\'", "''", addslashes((string) $this_userdata['username'])) . "' 
 				WHERE poster_id = $user_id";
                         if( !$db->sql_query($sql) )
                         {
@@ -123,7 +134,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                                 $group_moderator[] = $row_group['group_id'];
                         }
 
-                        if ( count($group_moderator) )
+                        if ( is_countable($group_moderator) ? count($group_moderator) : 0 )
                         {
                                 $update_moderator_id = implode(', ', $group_moderator);
 
@@ -207,7 +218,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                                 $mark_list[] = $row_privmsgs['privmsgs_id'];
                         }
 
-                        if ( count($mark_list) )
+                        if ( is_countable($mark_list) ? count($mark_list) : 0 )
                         {
                                 $delete_sql_id = implode(', ', $mark_list);
 
@@ -232,62 +243,62 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                         message_die(GENERAL_MESSAGE, $message);
                 }
 
-		$username = ( !empty($HTTP_POST_VARS['username']) ) ? phpbb_clean_username($HTTP_POST_VARS['username']) : '';
-                $email = ( !empty($HTTP_POST_VARS['email']) ) ? trim(strip_tags(htmlspecialchars( $HTTP_POST_VARS['email'] ) )) : '';
+		$username = ( !empty($_POST['username']) ) ? phpbb_clean_username($_POST['username']) : '';
+                $email = ( !empty($_POST['email']) ) ? trim(strip_tags(htmlspecialchars( (string) $_POST['email'] ) )) : '';
 
-                $password = ( !empty($HTTP_POST_VARS['password']) ) ? trim(strip_tags(htmlspecialchars( $HTTP_POST_VARS['password'] ) )) : '';
-                $password_confirm = ( !empty($HTTP_POST_VARS['password_confirm']) ) ? trim(strip_tags(htmlspecialchars( $HTTP_POST_VARS['password_confirm'] ) )) : '';
+                $password = ( !empty($_POST['password']) ) ? trim(strip_tags(htmlspecialchars( (string) $_POST['password'] ) )) : '';
+                $password_confirm = ( !empty($_POST['password_confirm']) ) ? trim(strip_tags(htmlspecialchars( (string) $_POST['password_confirm'] ) )) : '';
 
-                $icq = ( !empty($HTTP_POST_VARS['icq']) ) ? trim(strip_tags( $HTTP_POST_VARS['icq'] ) ) : '';
-                $aim = ( !empty($HTTP_POST_VARS['aim']) ) ? trim(strip_tags( $HTTP_POST_VARS['aim'] ) ) : '';
-                $msn = ( !empty($HTTP_POST_VARS['msn']) ) ? trim(strip_tags( $HTTP_POST_VARS['msn'] ) ) : '';
-                $yim = ( !empty($HTTP_POST_VARS['yim']) ) ? trim(strip_tags( $HTTP_POST_VARS['yim'] ) ) : '';
+                $icq = ( !empty($_POST['icq']) ) ? trim(strip_tags( (string) $_POST['icq'] ) ) : '';
+                $aim = ( !empty($_POST['aim']) ) ? trim(strip_tags( (string) $_POST['aim'] ) ) : '';
+                $msn = ( !empty($_POST['msn']) ) ? trim(strip_tags( (string) $_POST['msn'] ) ) : '';
+                $yim = ( !empty($_POST['yim']) ) ? trim(strip_tags( (string) $_POST['yim'] ) ) : '';
 
-                $website = ( !empty($HTTP_POST_VARS['website']) ) ? trim(strip_tags( $HTTP_POST_VARS['website'] ) ) : '';
-                $location = ( !empty($HTTP_POST_VARS['location']) ) ? trim(strip_tags( $HTTP_POST_VARS['location'] ) ) : '';
-                $occupation = ( !empty($HTTP_POST_VARS['occupation']) ) ? trim(strip_tags( $HTTP_POST_VARS['occupation'] ) ) : '';
-                $interests = ( !empty($HTTP_POST_VARS['interests']) ) ? trim(strip_tags( $HTTP_POST_VARS['interests'] ) ) : '';
-                $signature = ( !empty($HTTP_POST_VARS['signature']) ) ? trim(str_replace('<br />', "\n", $HTTP_POST_VARS['signature'] ) ) : '';
+                $website = ( !empty($_POST['website']) ) ? trim(strip_tags( (string) $_POST['website'] ) ) : '';
+                $location = ( !empty($_POST['location']) ) ? trim(strip_tags( (string) $_POST['location'] ) ) : '';
+                $occupation = ( !empty($_POST['occupation']) ) ? trim(strip_tags( (string) $_POST['occupation'] ) ) : '';
+                $interests = ( !empty($_POST['interests']) ) ? trim(strip_tags( (string) $_POST['interests'] ) ) : '';
+                $signature = ( !empty($_POST['signature']) ) ? trim(str_replace('<br />', "\n", (string) $_POST['signature'] ) ) : '';
 
                 validate_optional_fields($icq, $aim, $msn, $yim, $website, $location, $occupation, $interests, $signature);
 
-                $viewemail = ( isset( $HTTP_POST_VARS['viewemail']) ) ? ( ( $HTTP_POST_VARS['viewemail'] ) ? TRUE : 0 ) : 0;
-                $allowviewonline = ( isset( $HTTP_POST_VARS['hideonline']) ) ? ( ( $HTTP_POST_VARS['hideonline'] ) ? 0 : TRUE ) : TRUE;
-                $notifyreply = ( isset( $HTTP_POST_VARS['notifyreply']) ) ? ( ( $HTTP_POST_VARS['notifyreply'] ) ? TRUE : 0 ) : 0;
-                $notifypm = ( isset( $HTTP_POST_VARS['notifypm']) ) ? ( ( $HTTP_POST_VARS['notifypm'] ) ? TRUE : 0 ) : TRUE;
-                $popuppm = ( isset( $HTTP_POST_VARS['popup_pm']) ) ? ( ( $HTTP_POST_VARS['popup_pm'] ) ? TRUE : 0 ) : TRUE;
-                $attachsig = ( isset( $HTTP_POST_VARS['attachsig']) ) ? ( ( $HTTP_POST_VARS['attachsig'] ) ? TRUE : 0 ) : 0;
+                $viewemail = ( isset( $_POST['viewemail']) ) ? ( ( $_POST['viewemail'] ) ? TRUE : 0 ) : 0;
+                $allowviewonline = ( isset( $_POST['hideonline']) ) ? ( ( $_POST['hideonline'] ) ? 0 : TRUE ) : TRUE;
+                $notifyreply = ( isset( $_POST['notifyreply']) ) ? ( ( $_POST['notifyreply'] ) ? TRUE : 0 ) : 0;
+                $notifypm = ( isset( $_POST['notifypm']) ) ? ( ( $_POST['notifypm'] ) ? TRUE : 0 ) : TRUE;
+                $popuppm = ( isset( $_POST['popup_pm']) ) ? ( ( $_POST['popup_pm'] ) ? TRUE : 0 ) : TRUE;
+                $attachsig = ( isset( $_POST['attachsig']) ) ? ( ( $_POST['attachsig'] ) ? TRUE : 0 ) : 0;
 
-                $allowhtml = ( isset( $HTTP_POST_VARS['allowhtml']) ) ? intval( $HTTP_POST_VARS['allowhtml'] ) : $board_config['allow_html'];
-                $allowbbcode = ( isset( $HTTP_POST_VARS['allowbbcode']) ) ? intval( $HTTP_POST_VARS['allowbbcode'] ) : $board_config['allow_bbcode'];
-                $allowsmilies = ( isset( $HTTP_POST_VARS['allowsmilies']) ) ? intval( $HTTP_POST_VARS['allowsmilies'] ) : $board_config['allow_smilies'];
+                $allowhtml = ( isset( $_POST['allowhtml']) ) ? intval( $_POST['allowhtml'] ) : $board_config['allow_html'];
+                $allowbbcode = ( isset( $_POST['allowbbcode']) ) ? intval( $_POST['allowbbcode'] ) : $board_config['allow_bbcode'];
+                $allowsmilies = ( isset( $_POST['allowsmilies']) ) ? intval( $_POST['allowsmilies'] ) : $board_config['allow_smilies'];
 
-		$user_style = ( isset( $HTTP_POST_VARS['style'] ) ) ? intval( $HTTP_POST_VARS['style'] ) : $board_config['default_style'];
-                $user_lang = ( $HTTP_POST_VARS['language'] ) ? $HTTP_POST_VARS['language'] : $board_config['default_lang'];
-                $user_timezone = ( isset( $HTTP_POST_VARS['timezone']) ) ? doubleval( $HTTP_POST_VARS['timezone'] ) : $board_config['board_timezone'];
-                $user_dateformat = ( $HTTP_POST_VARS['dateformat'] ) ? trim( $HTTP_POST_VARS['dateformat'] ) : $board_config['default_dateformat'];
+		$user_style = ( isset( $_POST['style'] ) ) ? intval( $_POST['style'] ) : $board_config['default_style'];
+                $user_lang = ( $_POST['language'] ) ? $_POST['language'] : $board_config['default_lang'];
+                $user_timezone = ( isset( $_POST['timezone']) ) ? doubleval( $_POST['timezone'] ) : $board_config['board_timezone'];
+                $user_dateformat = ( $_POST['dateformat'] ) ? trim( (string) $_POST['dateformat'] ) : $board_config['default_dateformat'];
 
-                $user_avatar_local = ( isset( $HTTP_POST_VARS['avatarselect'] ) && !empty($HTTP_POST_VARS['submitavatar'] ) && $board_config['allow_avatar_local'] ) ? $HTTP_POST_VARS['avatarselect'] : ( ( isset( $HTTP_POST_VARS['avatarlocal'] )  ) ? $HTTP_POST_VARS['avatarlocal'] : '' );
-                $user_avatar_category = ( isset($HTTP_POST_VARS['avatarcatname']) && $board_config['allow_avatar_local'] ) ? htmlspecialchars($HTTP_POST_VARS['avatarcatname']) : '' ;
+                $user_avatar_local = ( isset( $_POST['avatarselect'] ) && !empty($_POST['submitavatar'] ) && $board_config['allow_avatar_local'] ) ? $_POST['avatarselect'] : ( $_POST['avatarlocal'] ?? '' );
+                $user_avatar_category = ( isset($_POST['avatarcatname']) && $board_config['allow_avatar_local'] ) ? htmlspecialchars((string) $_POST['avatarcatname']) : '' ;
 
-                $user_avatar_remoteurl = ( !empty($HTTP_POST_VARS['avatarremoteurl']) ) ? trim( $HTTP_POST_VARS['avatarremoteurl'] ) : '';
-                $user_avatar_url = ( !empty($HTTP_POST_VARS['avatarurl']) ) ? trim( $HTTP_POST_VARS['avatarurl'] ) : '';
-                $user_avatar_loc = ( $HTTP_POST_FILES['avatar']['tmp_name'] != "none") ? $HTTP_POST_FILES['avatar']['tmp_name'] : '';
-                $user_avatar_name = ( !empty($HTTP_POST_FILES['avatar']['name']) ) ? $HTTP_POST_FILES['avatar']['name'] : '';
-                $user_avatar_size = ( !empty($HTTP_POST_FILES['avatar']['size']) ) ? $HTTP_POST_FILES['avatar']['size'] : 0;
-                $user_avatar_filetype = ( !empty($HTTP_POST_FILES['avatar']['type']) ) ? $HTTP_POST_FILES['avatar']['type'] : '';
+                $user_avatar_remoteurl = ( !empty($_POST['avatarremoteurl']) ) ? trim( (string) $_POST['avatarremoteurl'] ) : '';
+                $user_avatar_url = ( !empty($_POST['avatarurl']) ) ? trim( (string) $_POST['avatarurl'] ) : '';
+                $user_avatar_loc = ( $_FILES['avatar']['tmp_name'] != "none") ? $_FILES['avatar']['tmp_name'] : '';
+                $user_avatar_name = ( !empty($_FILES['avatar']['name']) ) ? $_FILES['avatar']['name'] : '';
+                $user_avatar_size = ( !empty($_FILES['avatar']['size']) ) ? $_FILES['avatar']['size'] : 0;
+                $user_avatar_filetype = ( !empty($_FILES['avatar']['type']) ) ? $_FILES['avatar']['type'] : '';
 
                 $user_avatar = ( empty($user_avatar_loc) ) ? $this_userdata['user_avatar'] : '';
                 $user_avatar_type = ( empty($user_avatar_loc) ) ? $this_userdata['user_avatar_type'] : '';
 
-                $user_status = ( !empty($HTTP_POST_VARS['user_status']) ) ? intval( $HTTP_POST_VARS['user_status'] ) : 0;
-                $user_allowpm = ( !empty($HTTP_POST_VARS['user_allowpm']) ) ? intval( $HTTP_POST_VARS['user_allowpm'] ) : 0;
-                $user_rank = ( !empty($HTTP_POST_VARS['user_rank']) ) ? intval( $HTTP_POST_VARS['user_rank'] ) : 0;
-                $user_allowavatar = ( !empty($HTTP_POST_VARS['user_allowavatar']) ) ? intval( $HTTP_POST_VARS['user_allowavatar'] ) : 0;
+                $user_status = ( !empty($_POST['user_status']) ) ? intval( $_POST['user_status'] ) : 0;
+                $user_allowpm = ( !empty($_POST['user_allowpm']) ) ? intval( $_POST['user_allowpm'] ) : 0;
+                $user_rank = ( !empty($_POST['user_rank']) ) ? intval( $_POST['user_rank'] ) : 0;
+                $user_allowavatar = ( !empty($_POST['user_allowavatar']) ) ? intval( $_POST['user_allowavatar'] ) : 0;
 
-                if( isset( $HTTP_POST_VARS['avatargallery'] ) || isset( $HTTP_POST_VARS['submitavatar'] ) || isset( $HTTP_POST_VARS['cancelavatar'] ) )
+                if( isset( $_POST['avatargallery'] ) || isset( $_POST['submitavatar'] ) || isset( $_POST['cancelavatar'] ) )
                 {
-                        $username = stripslashes($username);
+                        $username = stripslashes((string) $username);
                         $email = stripslashes($email);
                         $password = '';
                         $password_confirm = '';
@@ -303,10 +314,10 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                         $interests = htmlspecialchars(stripslashes($interests));
                         $signature = htmlspecialchars(stripslashes($signature));
 
-                        $user_lang = stripslashes($user_lang);
-                        $user_dateformat = htmlspecialchars(stripslashes($user_dateformat));
+                        $user_lang = stripslashes((string) $user_lang);
+                        $user_dateformat = htmlspecialchars(stripslashes((string) $user_dateformat));
 
-                        if ( !isset($HTTP_POST_VARS['cancelavatar']))
+                        if ( !isset($_POST['cancelavatar']))
                         {
                                 $user_avatar = $user_avatar_category . '/' . $user_avatar_local;
                                 $user_avatar_type = USER_AVATAR_GALLERY;
@@ -314,17 +325,17 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 }
         }
 
-        if( isset( $HTTP_POST_VARS['submit'] ) )
+        if( isset( $_POST['submit'] ) )
         {
                 include("../includes/usercp_avatar.php");
 
                 $error = FALSE;
 
-                if (stripslashes($username) != $this_userdata['username'])
+                if (stripslashes((string) $username) != $this_userdata['username'])
                 {
                         unset($rename_user);
 
-                        if ( stripslashes(strtolower($username)) != strtolower($this_userdata['username']) )
+                        if ( stripslashes(strtolower((string) $username)) != strtolower((string) $this_userdata['username']) )
                         {
                                 $result = validate_username($username);
                                 if ( $result['error'] )
@@ -332,7 +343,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                                         $error = TRUE;
                                         $error_msg .= ( ( isset($error_msg) ) ? '<br />' : '' ) . $result['error_msg'];
                                 }
-                                else if ( strtolower(str_replace("\\'", "''", $username)) == strtolower($userdata['username']) )
+                                else if ( strtolower(str_replace("\\'", "''", (string) $username)) == strtolower((string) $userdata['username']) )
                                 {
                                         $error = TRUE;
                                         $error_msg .= ( ( isset($error_msg) ) ? '<br />' : '' ) . $lang['Username_taken'];
@@ -341,7 +352,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
 
                         if (!$error)
                         {
-                                $username_sql = "username = '" . str_replace("\\'", "''", $username) . "', ";
+                                $username_sql = "username = '" . str_replace("\\'", "''", (string) $username) . "', ";
                                 $rename_user = $username; // Used for renaming usergroup
                         }
                 }
@@ -359,7 +370,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                         }
                         else
                         {
-                                $password = md5($password);
+                                $password = md5((string) $password);
                                 $passwd_sql = "user_password = '$password', ";
                         }
                 }
@@ -376,7 +387,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
 
                 if ($signature != '')
                 {
-                        $sig_length_check = preg_replace('/(\[.*?)(=.*?)\]/is', '\\1]', stripslashes($signature));
+                        $sig_length_check = preg_replace('/(\[.*?)(=.*?)\]/is', '\\1]', stripslashes((string) $signature));
                         if ( $allowhtml )
                         {
                                 $sig_length_check = preg_replace('/(\<.*?)(=.*?)( .*?=.*?)?([ \/]?\>)/is', '\\1\\3\\4', $sig_length_check);
@@ -400,7 +411,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 // Avatar stuff
                 //
                 $avatar_sql = "";
-                if( isset($HTTP_POST_VARS['avatardel']) )
+                if( isset($_POST['avatardel']) )
                 {
                         if( $this_userdata['user_avatar_type'] == USER_AVATAR_UPLOAD && $this_userdata['user_avatar'] != "" )
                         {
@@ -429,7 +440,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
 
                         if( $user_avatar_loc != "" )
                         {
-                                if( file_exists(@phpbb_realpath($user_avatar_loc)) && ereg(".jpg$|.gif$|.png$", $user_avatar_name) )
+                                if( file_exists(@phpbb_realpath($user_avatar_loc)) && preg_match('#.jpg$|.gif$|.png$#m', (string) $user_avatar_name) )
                                 {
                                         if( $user_avatar_size <= $board_config['avatar_filesize'] && $user_avatar_size > 0)
                                         {
@@ -438,7 +449,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                                                 //
                                                 // Opera appends the image name after the type, not big, not clever!
                                                 //
-                                                preg_match("'image\/[x\-]*([a-z]+)'", $user_avatar_filetype, $user_avatar_filetype);
+                                                preg_match("'image\/[x\-]*([a-z]+)'", (string) $user_avatar_filetype, $user_avatar_filetype);
                                                 $user_avatar_filetype = $user_avatar_filetype[1];
 
                                                 switch( $user_avatar_filetype )
@@ -462,7 +473,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
 
                                                 if( !$error )
                                                 {
-                                                        list($width, $height) = @getimagesize($user_avatar_loc);
+                                                        [$width, $height] = @getimagesize($user_avatar_loc);
 
                                                         if( $width <= $board_config['avatar_max_width'] && $height <= $board_config['avatar_max_height'] )
                                                         {
@@ -511,7 +522,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                                 // to, look for a :[xxxx]/ or, if that doesn't
                                 // exist assume port 80 (http)
                                 //
-                                preg_match("/^(http:\/\/)?([\w\-\.]+)\:?([0-9]*)\/(.*)$/", $user_avatar_url, $url_ary);
+                                preg_match("/^(http:\/\/)?([\w\-\.]+)\:?([0-9]*)\/(.*)$/", (string) $user_avatar_url, $url_ary);
 
                                 if( !empty($url_ary[4]) )
                                 {
@@ -536,7 +547,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                                                 }
                                                 @fclose($fsock);
 
-                                                if( preg_match("/Content-Length\: ([0-9]+)[^\/ ][\s]+/i", $avatar_data, $file_data1) && preg_match("/Content-Type\: image\/[x\-]*([a-z]+)[\s]+/i", $avatar_data, $file_data2) )
+                                                if( preg_match("/Content-Length\: ([0-9]+)[^\/ ][\s]+/i", (string) $avatar_data, $file_data1) && preg_match("/Content-Type\: image\/[x\-]*([a-z]+)[\s]+/i", (string) $avatar_data, $file_data2) )
                                                 {
                                                         $file_size = $file_data1[1];
                                                         $file_type = $file_data2[1];
@@ -562,7 +573,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
 
                                                         if( !$error && $file_size > 0 && $file_size < $board_config['avatar_filesize'] )
                                                         {
-                                                                $avatar_data = substr($avatar_data, strlen($avatar_data) - $file_size, $file_size);
+                                                                $avatar_data = substr((string) $avatar_data, strlen((string) $avatar_data) - $file_size, $file_size);
 
                                                                 $tmp_filename = tempnam ("/tmp", $this_userdata['user_id'] . "-");
                                                                 $fptr = @fopen($tmp_filename, "wb");
@@ -571,7 +582,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
 
                                                                 if( $bytes_written == $file_size )
                                                                 {
-                                                                        list($width, $height) = @getimagesize($tmp_filename);
+                                                                        [$width, $height] = @getimagesize($tmp_filename);
 
                                                                         if( $width <= $board_config['avatar_max_width'] && $height <= $board_config['avatar_max_height'] )
                                                                         {
@@ -643,14 +654,14 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 }
                 else if( $user_avatar_remoteurl != "" && $avatar_sql == "" && !$error )
                 {
-                        if( !preg_match("#^http:\/\/#i", $user_avatar_remoteurl) )
+                        if( !preg_match("#^http:\/\/#i", (string) $user_avatar_remoteurl) )
                         {
                                 $user_avatar_remoteurl = "http://" . $user_avatar_remoteurl;
                         }
 
-                        if( preg_match("#^(http:\/\/[a-z0-9\-]+?\.([a-z0-9\-]+\.)*[a-z]+\/.*?\.(gif|jpg|png)$)#is", $user_avatar_remoteurl) )
+                        if( preg_match("#^(http:\/\/[a-z0-9\-]+?\.([a-z0-9\-]+\.)*[a-z]+\/.*?\.(gif|jpg|png)$)#is", (string) $user_avatar_remoteurl) )
                         {
-                                $avatar_sql = ", user_avatar = '" . str_replace("\'", "''", $user_avatar_remoteurl) . "', user_avatar_type = " . USER_AVATAR_REMOTE;
+                                $avatar_sql = ", user_avatar = '" . str_replace("\'", "''", (string) $user_avatar_remoteurl) . "', user_avatar_type = " . USER_AVATAR_REMOTE;
                         }
                         else
                         {
@@ -660,7 +671,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 }
                 else if( $user_avatar_local != "" && $avatar_sql == "" && !$error )
                 {
-                        $avatar_sql = ", user_avatar = '" . str_replace("\'", "''", phpbb_ltrim(basename($user_avatar_category), "'") . '/' . phpbb_ltrim(basename($user_avatar_local), "'")) . "', user_avatar_type = " . USER_AVATAR_GALLERY;
+                        $avatar_sql = ", user_avatar = '" . str_replace("\'", "''", phpbb_ltrim(basename((string) $user_avatar_category), "'") . '/' . phpbb_ltrim(basename((string) $user_avatar_local), "'")) . "', user_avatar_type = " . USER_AVATAR_GALLERY;
                 }
 
                 //
@@ -669,7 +680,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 if( !$error )
                 {
                         $sql = "UPDATE " . USERS_TABLE . "
-                                SET " . $username_sql . $passwd_sql . "user_email = '" . str_replace("\'", "''", $email) . "', user_icq = '" . str_replace("\'", "''", $icq) . "', user_website = '" . str_replace("\'", "''", $website) . "', user_occ = '" . str_replace("\'", "''", $occupation) . "', user_from = '" . str_replace("\'", "''", $location) . "', user_interests = '" . str_replace("\'", "''", $interests) . "', user_sig = '" . str_replace("\'", "''", $signature) . "', user_viewemail = $viewemail, user_aim = '" . str_replace("\'", "''", $aim) . "', user_yim = '" . str_replace("\'", "''", $yim) . "', user_msnm = '" . str_replace("\'", "''", $msn) . "', user_attachsig = $attachsig, user_sig_bbcode_uid = '$signature_bbcode_uid', user_allowsmile = $allowsmilies, user_allowhtml = $allowhtml, user_allowavatar = $user_allowavatar, user_allowbbcode = $allowbbcode, user_allow_viewonline = $allowviewonline, user_notify = $notifyreply, user_allow_pm = $user_allowpm, user_notify_pm = $notifypm, user_popup_pm = $popuppm, user_lang = '" . str_replace("\'", "''", $user_lang) . "', user_style = $user_style, user_timezone = $user_timezone, user_dateformat = '" . str_replace("\'", "''", $user_dateformat) . "', user_active = $user_status, user_rank = $user_rank" . $avatar_sql . "
+                                SET " . $username_sql . $passwd_sql . "user_email = '" . str_replace("\'", "''", (string) $email) . "', user_icq = '" . str_replace("\'", "''", (string) $icq) . "', user_website = '" . str_replace("\'", "''", (string) $website) . "', user_occ = '" . str_replace("\'", "''", (string) $occupation) . "', user_from = '" . str_replace("\'", "''", (string) $location) . "', user_interests = '" . str_replace("\'", "''", (string) $interests) . "', user_sig = '" . str_replace("\'", "''", (string) $signature) . "', user_viewemail = $viewemail, user_aim = '" . str_replace("\'", "''", (string) $aim) . "', user_yim = '" . str_replace("\'", "''", (string) $yim) . "', user_msnm = '" . str_replace("\'", "''", (string) $msn) . "', user_attachsig = $attachsig, user_sig_bbcode_uid = '$signature_bbcode_uid', user_allowsmile = $allowsmilies, user_allowhtml = $allowhtml, user_allowavatar = $user_allowavatar, user_allowbbcode = $allowbbcode, user_allow_viewonline = $allowviewonline, user_notify = $notifyreply, user_allow_pm = $user_allowpm, user_notify_pm = $notifypm, user_popup_pm = $popuppm, user_lang = '" . str_replace("\'", "''", (string) $user_lang) . "', user_style = $user_style, user_timezone = $user_timezone, user_dateformat = '" . str_replace("\'", "''", (string) $user_dateformat) . "', user_active = $user_status, user_rank = $user_rank" . $avatar_sql . "
 				WHERE user_id = $user_id";
 
                         if( $result = $db->sql_query($sql) )
@@ -677,8 +688,8 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                                 if( isset($rename_user) )
                                 {
                                         $sql = "UPDATE " . GROUPS_TABLE . "
-                                                SET group_name = '".str_replace("\'", "''", $rename_user)."'
-                                                WHERE group_name = '".str_replace("'", "''", $this_userdata['username'] )."'";
+                                                SET group_name = '".str_replace("\'", "''", (string) $rename_user)."'
+                                                WHERE group_name = '".str_replace("'", "''", (string) $this_userdata['username'] )."'";
                                         if( !$result = $db->sql_query($sql) )
                                         {
                                                 message_die(GENERAL_ERROR, 'Could not rename users group', '', __LINE__, __FILE__, $sql);
@@ -727,31 +738,31 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
 
                         $template->assign_var_from_handle('ERROR_BOX', 'reg_header');
 
-                        $username = htmlspecialchars(stripslashes($username));
-                        $email = stripslashes($email);
+                        $username = htmlspecialchars(stripslashes((string) $username));
+                        $email = stripslashes((string) $email);
                         $password = '';
                         $password_confirm = '';
 
-                        $icq = stripslashes($icq);
-                        $aim = htmlspecialchars(str_replace('+', ' ', stripslashes($aim)));
-                        $msn = htmlspecialchars(stripslashes($msn));
-                        $yim = htmlspecialchars(stripslashes($yim));
+                        $icq = stripslashes((string) $icq);
+                        $aim = htmlspecialchars(str_replace('+', ' ', stripslashes((string) $aim)));
+                        $msn = htmlspecialchars(stripslashes((string) $msn));
+                        $yim = htmlspecialchars(stripslashes((string) $yim));
 
-                        $website = htmlspecialchars(stripslashes($website));
-                        $location = htmlspecialchars(stripslashes($location));
-                        $occupation = htmlspecialchars(stripslashes($occupation));
-                        $interests = htmlspecialchars(stripslashes($interests));
-                        $signature = htmlspecialchars(stripslashes($signature));
+                        $website = htmlspecialchars(stripslashes((string) $website));
+                        $location = htmlspecialchars(stripslashes((string) $location));
+                        $occupation = htmlspecialchars(stripslashes((string) $occupation));
+                        $interests = htmlspecialchars(stripslashes((string) $interests));
+                        $signature = htmlspecialchars(stripslashes((string) $signature));
 
-                        $user_lang = stripslashes($user_lang);
-                        $user_dateformat = htmlspecialchars(stripslashes($user_dateformat));
+                        $user_lang = stripslashes((string) $user_lang);
+                        $user_dateformat = htmlspecialchars(stripslashes((string) $user_dateformat));
                 }
         }
-        else if( !isset( $HTTP_POST_VARS['submit'] ) && $mode != 'save' && !isset( $HTTP_POST_VARS['avatargallery'] ) && !isset( $HTTP_POST_VARS['submitavatar'] ) && !isset( $HTTP_POST_VARS['cancelavatar'] ) )
+        else if( !isset( $_POST['submit'] ) && $mode != 'save' && !isset( $_POST['avatargallery'] ) && !isset( $_POST['submitavatar'] ) && !isset( $_POST['cancelavatar'] ) )
         {
-                if( isset( $HTTP_GET_VARS[POST_USERS_URL]) || isset( $HTTP_POST_VARS[POST_USERS_URL]) )
+                if( isset( $_GET[POST_USERS_URL]) || isset( $_POST[POST_USERS_URL]) )
                 {
-                        $user_id = ( isset( $HTTP_POST_VARS[POST_USERS_URL]) ) ? intval( $HTTP_POST_VARS[POST_USERS_URL]) : intval( $HTTP_GET_VARS[POST_USERS_URL]);
+                        $user_id = ( isset( $_POST[POST_USERS_URL]) ) ? intval( $_POST[POST_USERS_URL]) : intval( $_GET[POST_USERS_URL]);
                         $this_userdata = get_userdata($user_id);
                         if( !$this_userdata )
                         {
@@ -760,7 +771,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 }
                 else
                 {
-                        $this_userdata = get_userdata($HTTP_POST_VARS['username'], true);
+                        $this_userdata = get_userdata($_POST['username'], true);
                         if( !$this_userdata )
                         {
                                 message_die(GENERAL_MESSAGE, $lang['No_user_id_specified'] );
@@ -777,17 +788,17 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 $password_confirm = '';
 
                 $icq = $this_userdata['user_icq'];
-                $aim = htmlspecialchars(str_replace('+', ' ', $this_userdata['user_aim'] ));
-                $msn = htmlspecialchars($this_userdata['user_msnm']);
-                $yim = htmlspecialchars($this_userdata['user_yim']);
+                $aim = htmlspecialchars(str_replace('+', ' ', (string) $this_userdata['user_aim'] ));
+                $msn = htmlspecialchars((string) $this_userdata['user_msnm']);
+                $yim = htmlspecialchars((string) $this_userdata['user_yim']);
 
-                $website = htmlspecialchars($this_userdata['user_website']);
-                $location = htmlspecialchars($this_userdata['user_from']);
-                $occupation = htmlspecialchars($this_userdata['user_occ']);
-                $interests = htmlspecialchars($this_userdata['user_interests']);
+                $website = htmlspecialchars((string) $this_userdata['user_website']);
+                $location = htmlspecialchars((string) $this_userdata['user_from']);
+                $occupation = htmlspecialchars((string) $this_userdata['user_occ']);
+                $interests = htmlspecialchars((string) $this_userdata['user_interests']);
 
-                $signature = ($this_userdata['user_sig_bbcode_uid'] != '') ? preg_replace('#:' . $this_userdata['user_sig_bbcode_uid'] . '#si', '', $this_userdata['user_sig']) : $this_userdata['user_sig'];
-                $signature = preg_replace($html_entities_match, $html_entities_replace, $signature);
+                $signature = ($this_userdata['user_sig_bbcode_uid'] != '') ? preg_replace('#:' . $this_userdata['user_sig_bbcode_uid'] . '#si', '', (string) $this_userdata['user_sig']) : $this_userdata['user_sig'];
+                $signature = preg_replace($html_entities_match, $html_entities_replace, (string) $signature);
 
                 $viewemail = $this_userdata['user_viewemail'];
                 $notifypm = $this_userdata['user_notify_pm'];
@@ -804,7 +815,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 $user_style = $this_userdata['user_style'];
                 $user_lang = $this_userdata['user_lang'];
                 $user_timezone = $this_userdata['user_timezone'];
-                $user_dateformat = htmlspecialchars($this_userdata['user_dateformat']);
+                $user_dateformat = htmlspecialchars((string) $this_userdata['user_dateformat']);
 
                 $user_status = $this_userdata['user_active'];
                 $user_allowavatar = $this_userdata['user_allowavatar'];
@@ -817,11 +828,11 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                 $smilies_status = ($this_userdata['user_allowsmile'] ) ? $lang['Smilies_are_ON'] : $lang['Smilies_are_OFF'];
         }
 
-        if( isset($HTTP_POST_VARS['avatargallery']) && !$error )
+        if( isset($_POST['avatargallery']) && !$error )
         {
                 if( !$error )
                 {
-                        $user_id = intval($HTTP_POST_VARS['id']);
+                        $user_id = intval($_POST['id']);
 
                         $template->set_filenames(array(
                                 "body" => "admin/user_avatar_gallery.tpl")
@@ -858,24 +869,23 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
 
                         @closedir($dir);
 
-                        if( isset($HTTP_POST_VARS['avatarcategory']) )
+                        if( isset($_POST['avatarcategory']) )
                         {
-                                $category = htmlspecialchars($HTTP_POST_VARS['avatarcategory']);
+                                $category = htmlspecialchars((string) $_POST['avatarcategory']);
                         }
                         else
                         {
-                                list($category, ) = each($avatar_images);
+                                $category = key($avatar_images);
                         }
                         @reset($avatar_images);
 
                         $s_categories = "";
-                        while( list($key) = each($avatar_images) )
-                        {
-                                $selected = ( $key == $category ) ? "selected=\"selected\"" : "";
-                                if( count($avatar_images[$key]) )
-                                {
-                                        $s_categories .= '<option value="' . $key . '"' . $selected . '>' . ucfirst($key) . '</option>';
-                                }
+                        foreach (array_keys($avatar_images) as $key) {
+                            $selected = ( $key == $category ) ? "selected=\"selected\"" : "";
+                            if( count($avatar_images[$key]) )
+                            {
+                                    $s_categories .= '<option value="' . $key . '"' . $selected . '>' . ucfirst((string) $key) . '</option>';
+                            }
                         }
 
                         $s_colspan = 0;
@@ -897,22 +907,22 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                                 }
                         }
 
-                        $coppa = ( ( !$HTTP_POST_VARS['coppa'] && !$HTTP_GET_VARS['coppa'] ) || $mode == "register") ? 0 : TRUE;
+                        $coppa = ( ( !$_POST['coppa'] && !$_GET['coppa'] ) || $mode == "register") ? 0 : TRUE;
 
                         $s_hidden_fields = '<input type="hidden" name="mode" value="edit" /><input type="hidden" name="agreed" value="true" /><input type="hidden" name="coppa" value="' . $coppa . '" /><input type="hidden" name="avatarcatname" value="' . $category . '" />';
                         $s_hidden_fields .= '<input type="hidden" name="id" value="' . $user_id . '" />';
 
-                        $s_hidden_fields .= '<input type="hidden" name="username" value="' . str_replace("\"", "&quot;", $username) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="email" value="' . str_replace("\"", "&quot;", $email) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="icq" value="' . str_replace("\"", "&quot;", $icq) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="aim" value="' . str_replace("\"", "&quot;", $aim) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="msn" value="' . str_replace("\"", "&quot;", $msn) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="yim" value="' . str_replace("\"", "&quot;", $yim) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="website" value="' . str_replace("\"", "&quot;", $website) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="location" value="' . str_replace("\"", "&quot;", $location) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="occupation" value="' . str_replace("\"", "&quot;", $occupation) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="interests" value="' . str_replace("\"", "&quot;", $interests) . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="signature" value="' . str_replace("\"", "&quot;", $signature) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="username" value="' . str_replace("\"", "&quot;", (string) $username) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="email" value="' . str_replace("\"", "&quot;", (string) $email) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="icq" value="' . str_replace("\"", "&quot;", (string) $icq) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="aim" value="' . str_replace("\"", "&quot;", (string) $aim) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="msn" value="' . str_replace("\"", "&quot;", (string) $msn) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="yim" value="' . str_replace("\"", "&quot;", (string) $yim) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="website" value="' . str_replace("\"", "&quot;", (string) $website) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="location" value="' . str_replace("\"", "&quot;", (string) $location) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="occupation" value="' . str_replace("\"", "&quot;", (string) $occupation) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="interests" value="' . str_replace("\"", "&quot;", (string) $interests) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="signature" value="' . str_replace("\"", "&quot;", (string) $signature) . '" />';
                         $s_hidden_fields .= '<input type="hidden" name="viewemail" value="' . $viewemail . '" />';
                         $s_hidden_fields .= '<input type="hidden" name="notifypm" value="' . $notifypm . '" />';
                         $s_hidden_fields .= '<input type="hidden" name="popup_pm" value="' . $popuppm . '" />';
@@ -925,7 +935,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                         $s_hidden_fields .= '<input type="hidden" name="style" value="' . $user_style . '" />';
                         $s_hidden_fields .= '<input type="hidden" name="language" value="' . $user_lang . '" />';
                         $s_hidden_fields .= '<input type="hidden" name="timezone" value="' . $user_timezone . '" />';
-                        $s_hidden_fields .= '<input type="hidden" name="dateformat" value="' . str_replace("\"", "&quot;", $user_dateformat) . '" />';
+                        $s_hidden_fields .= '<input type="hidden" name="dateformat" value="' . str_replace("\"", "&quot;", (string) $user_dateformat) . '" />';
 
                         $s_hidden_fields .= '<input type="hidden" name="user_status" value="' . $user_status . '" />';
                         $s_hidden_fields .= '<input type="hidden" name="user_allowpm" value="' . $user_allowpm . '" />';
@@ -1018,7 +1028,7 @@ if ( $mode == 'edit' || $mode == 'save' && ( isset($HTTP_POST_VARS['username']) 
                         'INTERESTS' => $interests,
                         'LOCATION' => $location,
                         'WEBSITE' => $website,
-                        'SIGNATURE' => str_replace('<br />', "\n", $signature),
+                        'SIGNATURE' => str_replace('<br />', "\n", (string) $signature),
                         'VIEW_EMAIL_YES' => ($viewemail) ? 'checked="checked"' : '',
                         'VIEW_EMAIL_NO' => (!$viewemail) ? 'checked="checked"' : '',
                         'HIDE_USER_YES' => (!$allowviewonline) ? 'checked="checked"' : '',
