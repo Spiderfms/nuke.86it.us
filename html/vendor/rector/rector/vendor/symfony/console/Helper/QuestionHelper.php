@@ -341,7 +341,7 @@ class QuestionHelper extends Helper
             $exe = __DIR__ . '/../Resources/bin/hiddeninput.exe';
             // handle code running from a phar
             if (\strncmp(__FILE__, 'phar:', \strlen('phar:')) === 0) {
-                $tmpExe = \sys_get_local_temp_dir() . '/hiddeninput.exe';
+                $tmpExe = \sys_get_temp_dir() . '/hiddeninput.exe';
                 \copy($exe, $tmpExe);
                 $exe = $tmpExe;
             }

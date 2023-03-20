@@ -20,12 +20,12 @@
             'dev_requirement' => false,
         ),
         'phpstan/phpstan' => array(
-            'pretty_version' => '1.10.4',
-            'version' => '1.10.4.0',
+            'pretty_version' => '1.10.7',
+            'version' => '1.10.7.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpstan/phpstan',
             'aliases' => array(),
-            'reference' => '8d39218664b45a4a42d5be66d2b63dcf8c149982',
+            'reference' => 'b10ceb526d9607903c5b2673f1fc8775dbe48975',
             'dev_requirement' => true,
         ),
         'rector/rector' => array(

@@ -38,7 +38,7 @@ class PhpProcess extends Process
             $php = \false === $php ? null : \array_merge([$php], $executableFinder->findArguments());
         }
         if ('phpdbg' === \PHP_SAPI) {
-            $file = \tempnam(\sys_get_local_temp_dir(), 'dbg');
+            $file = \tempnam(\sys_get_temp_dir(), 'dbg');
             \file_put_contents($file, $script);
             \register_shutdown_function('unlink', $file);
             $php[] = $file;

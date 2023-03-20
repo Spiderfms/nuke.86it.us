@@ -153,6 +153,6 @@ final class CompleteCommand extends Command
             return;
         }
         $commandName = \basename($_SERVER['argv'][0]);
-        \file_put_contents(\sys_get_local_temp_dir() . '/sf_' . $commandName . '.log', \implode(\PHP_EOL, (array) $messages) . \PHP_EOL, \FILE_APPEND);
+        \file_put_contents(\sys_get_temp_dir() . '/sf_' . $commandName . '.log', \implode(\PHP_EOL, (array) $messages) . \PHP_EOL, \FILE_APPEND);
     }
 }

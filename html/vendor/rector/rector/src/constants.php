@@ -11,5 +11,3 @@ if (!\defined('T_ENUM')) {
 if (!\defined('T_NAME_RELATIVE')) {
     \define('T_NAME_RELATIVE', 5001);
 }
-
-

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit742169cd3b61e4f3b436e2d208735bfd
+class ComposerStaticInit25a00638c2cb8ce7243411cb83e5d517
 {
     public static $files = array (
         '9b38cf48e83f5d8f60375221cd213eee' => __DIR__ . '/..' . '/phpstan/phpstan/bootstrap.php',
@@ -18,7 +18,7 @@ class ComposerStaticInit742169cd3b61e4f3b436e2d208735bfd
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->classMap = ComposerStaticInit742169cd3b61e4f3b436e2d208735bfd::$classMap;
+            $loader->classMap = ComposerStaticInit25a00638c2cb8ce7243411cb83e5d517::$classMap;
 
         }, null, ClassLoader::class);
     }

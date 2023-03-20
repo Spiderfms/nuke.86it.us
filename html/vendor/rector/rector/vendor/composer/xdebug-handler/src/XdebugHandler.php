@@ -271,7 +271,7 @@ class XdebugHandler
         $error = null;
         $iniFiles = self::getAllIniFiles();
         $scannedInis = \count($iniFiles) > 1;
-        $tmpDir = \sys_get_local_temp_dir();
+        $tmpDir = \sys_get_temp_dir();
         if (!$this->cli) {
             $error = 'Unsupported SAPI: ' . \PHP_SAPI;
         } elseif (!$this->checkConfiguration($info)) {

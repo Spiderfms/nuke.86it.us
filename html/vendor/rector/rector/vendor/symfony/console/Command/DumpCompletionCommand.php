@@ -113,7 +113,7 @@ EOH
     }
     private function tailDebugLog(string $commandName, OutputInterface $output) : void
     {
-        $debugFile = \sys_get_local_temp_dir() . '/sf_' . $commandName . '.log';
+        $debugFile = \sys_get_temp_dir() . '/sf_' . $commandName . '.log';
         if (!\file_exists($debugFile)) {
             \touch($debugFile);
         }
