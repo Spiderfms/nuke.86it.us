@@ -496,6 +496,8 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 		}
 		echo "<br><br>"._USERSTATUS.": <b>$online</b><br>\n";
 		
+		if(!isset($cookie[1])) { $cookie[1] = 'Anonymous'; }
+		
 		if (($userinfo['newsletter'] == 1) AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2]) OR (is_admin() AND ($userinfo['newsletter'] == 1))) {
 			echo "<i>"._SUBSCRIBED."</i><br>";
 		} elseif ((isset($cookie[1])) AND ($userinfo['newsletter'] == 0) AND ($username == $cookie[1]) AND ($userinfo['user_password'] == $cookie[2]) OR (is_admin() AND ($userinfo['newsletter'] == 0))) {
@@ -595,10 +597,13 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 			$sql3 = "SELECT jid FROM ".$prefix."_journal WHERE aid='$username' AND status='yes' ORDER BY pdate,jid DESC LIMIT 0,1";
 			$result3 = $db->sql_query($sql3);
 			$row3 = $db->sql_fetchrow($result3);
-			$jid = intval($row3['jid']);
+			$jid = intval($row3['jid'] ?? 0);
+			var_dump($username);
 			
-			if (!empty($jid) AND isset($jid)) {
+			if(isset($cookie[1])) {
+			   if (!empty($jid) AND isset($jid)) {
 				echo "[ <a href=\"modules.php?name=Journal&amp;file=search&amp;bywhat=aid&amp;forwhat=$username\">"._READMYJOURNAL."</a> ]<br>";
+			  }
 			}
 		}
 		if (is_admin()) {
