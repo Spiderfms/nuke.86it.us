@@ -20,6 +20,12 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
@@ -37,11 +43,11 @@ $phpbb_root_path = "./../";
 require($phpbb_root_path . 'extension.inc');
 require('./pagestart.' . $phpEx);
 
-if( isset($HTTP_POST_VARS['add_name']) )
+if( isset($_POST['add_name']) )
 {
         include("../includes/functions_validate.php");
 
-        $disallowed_user = ( isset($HTTP_POST_VARS['disallowed_user']) ) ? trim($HTTP_POST_VARS['disallowed_user']) : trim($HTTP_GET_VARS['disallowed_user']);
+        $disallowed_user = ( isset($_POST['disallowed_user']) ) ? trim((string) $_POST['disallowed_user']) : trim((string) $_GET['disallowed_user']);
 
         if ($disallowed_user == '')
         {
@@ -67,9 +73,9 @@ if( isset($HTTP_POST_VARS['add_name']) )
 
         message_die(GENERAL_MESSAGE, $message);
 }
-else if( isset($HTTP_POST_VARS['delete_name']) )
+else if( isset($_POST['delete_name']) )
 {
-        $disallowed_id = ( isset($HTTP_POST_VARS['disallowed_id']) ) ? intval( $HTTP_POST_VARS['disallowed_id'] ) : intval( $HTTP_GET_VARS['disallowed_id'] );
+        $disallowed_id = ( isset($_POST['disallowed_id']) ) ? intval( $_POST['disallowed_id'] ) : intval( $_GET['disallowed_id'] );
 
         $sql = "DELETE FROM " . DISALLOW_TABLE . "
                 WHERE disallow_id = $disallowed_id";
@@ -104,14 +110,14 @@ $disallowed = $db->sql_fetchrowset($result);
 //
 $disallow_select = '<select name="disallowed_id">';
 
-if( trim($disallowed) == "" )
+if( trim((string) $disallowed) == "" )
 {
         $disallow_select .= '<option value="">' . $lang['no_disallowed'] . '</option>';
 }
 else
 {
         $user = array();
-        for( $i = 0; $i < count($disallowed); $i++ )
+        for( $i = 0; $i < (is_countable($disallowed) ? count($disallowed) : 0); $i++ )
         {
                 $disallow_select .= '<option value="' . $disallowed[$i]['disallow_id'] . '">' . $disallowed[$i]['disallow_username'] . '</option>';
         }
@@ -143,4 +149,3 @@ $template->pparse("body");
 
 include('./page_footer_admin.'.$phpEx);
 
-?>
