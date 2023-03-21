@@ -20,6 +20,10 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * TernaryToNullCoalescingRector
+ */
+ 
 if ( !defined('IN_PHPBB') )
 {
         die('Hacking attempt');
@@ -37,12 +41,12 @@ $template->set_filenames(array(
 );
 
 $template->assign_vars(array(
-        'TRANSLATION_INFO' => ( isset($lang['TRANSLATION_INFO']) ) ? $lang['TRANSLATION_INFO'] : '',
+        'TRANSLATION_INFO' => $lang['TRANSLATION_INFO'] ?? '',
         'ADMIN_LINK' => $admin_link)
 );
 
 $template->pparse('overall_footer');
-@CloseTable();
+CloseTable();
 //
 // Close our DB connection.
 //
@@ -54,4 +58,3 @@ $db->sql_close();
 if ($popup != "1") {
     include("footer.php");
     }
-?>
