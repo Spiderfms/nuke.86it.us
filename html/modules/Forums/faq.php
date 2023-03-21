@@ -19,6 +19,12 @@
  *   (at your option) any later version.
  *
  ***************************************************************************/
+ 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ */
+ 
 if ( !defined('MODULE_FILE') )
 {
 	die("You can't access this file directly...");
@@ -43,9 +49,9 @@ $faq = array();
 //
 // Load the appropriate faq file
 //
-if( isset($HTTP_GET_VARS['mode']) )
+if( isset($_GET['mode']) )
 {
-        switch( $HTTP_GET_VARS['mode'] )
+        switch( $_GET['mode'] )
         {
                 case 'bbcode':
                         $lang_file = 'lang_bbcode';
@@ -112,7 +118,7 @@ $template->assign_vars(array(
 
 for($i = 0; $i < count($faq_block); $i++)
 {
-        if( count($faq_block[$i]) )
+        if( is_countable($faq_block[$i]) ? count($faq_block[$i]) : 0 )
         {
                 $template->assign_block_vars('faq_block', array(
                         'BLOCK_TITLE' => $faq_block_titles[$i])
@@ -121,7 +127,7 @@ for($i = 0; $i < count($faq_block); $i++)
                         'BLOCK_TITLE' => $faq_block_titles[$i])
                 );
 
-                for($j = 0; $j < count($faq_block[$i]); $j++)
+                for($j = 0; $j < (is_countable($faq_block[$i]) ? count($faq_block[$i]) : 0); $j++)
                 {
                         $row_color = ( !($j % 2) ) ? $theme['td_color1'] : $theme['td_color2'];
                         $row_class = ( !($j % 2) ) ? $theme['td_class1'] : $theme['td_class2'];
@@ -150,4 +156,3 @@ $template->pparse('body');
 
 include("modules/$module_name/includes/page_tail.php");
 
-?>
