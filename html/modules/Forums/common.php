@@ -20,6 +20,9 @@
  ***************************************************************************/
 
 /* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * ArraySpreadInsteadOfArrayMergeRector (https://wiki.php.net/rfc/spread_operator_for_array)
+ * NullToStrictStringFuncCallArgRector
  * WrapVariableVariableNameInCurlyBracesRector (https://www.php.net/manual/en/language.variables.variable.php)
  * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
  * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
@@ -40,28 +43,28 @@ error_reporting  (E_ERROR | E_WARNING | E_PARSE); // This will NOT report uninit
 // PHP5 with register_long_arrays off?
 if (phpversion() >= '5.0.0' && (!ini_get('register_long_arrays') || ini_get('register_long_arrays') == '0' || strtolower(ini_get('register_long_arrays')) == 'off'))
 {
-	$HTTP_POST_VARS = $_POST;
-	$HTTP_GET_VARS = $_GET;
-	$HTTP_SERVER_VARS = $_SERVER;
-	$HTTP_COOKIE_VARS = $_COOKIE;
-	$HTTP_ENV_VARS = $_ENV;
-	$HTTP_POST_FILES = $_FILES;
+	$_POST = $_POST;
+	$_GET = $_GET;
+	$_SERVER = $_SERVER;
+	$_COOKIE = $_COOKIE;
+	$_ENV = $_ENV;
+	$_FILES = $_FILES;
 
 	// _SESSION is the only superglobal which is conditionally set
 	if (isset($_SESSION))
 	{
-		$HTTP_SESSION_VARS = $_SESSION;
+		$_SESSION = $_SESSION;
 	}
 }
 
 // Protect against GLOBALS tricks
-if (isset($HTTP_POST_VARS['GLOBALS']) || isset($HTTP_POST_FILES['GLOBALS']) || isset($HTTP_GET_VARS['GLOBALS']) || isset($HTTP_COOKIE_VARS['GLOBALS']))
+if (isset($_POST['GLOBALS']) || isset($_FILES['GLOBALS']) || isset($_GET['GLOBALS']) || isset($_COOKIE['GLOBALS']))
 {
 	die("Hacking attempt");
 }
 
 // Protect against HTTP_SESSION_VARS tricks
-if (isset($HTTP_SESSION_VARS) && !is_array($HTTP_SESSION_VARS))
+if (isset($_SESSION) && !is_array($_SESSION))
 {
 	die("Hacking attempt");
 }
@@ -74,14 +77,14 @@ if (ini_get('register_globals') == '1' || strtolower(ini_get('register_globals')
 	// Not only will array_merge give a warning if a parameter
 	// is not an array, it will actually fail. So we check if
 	// HTTP_SESSION_VARS has been initialised.
-	if (!isset($HTTP_SESSION_VARS) || !is_array($HTTP_SESSION_VARS))
+	if (!isset($_SESSION) || !is_array($_SESSION))
 	{
-		$HTTP_SESSION_VARS = array();
+		$_SESSION = array();
 	}
 
 	// Merge all into one extremely huge array; unset
 	// this later
-	$input = array_merge($HTTP_GET_VARS, $HTTP_POST_VARS, $HTTP_COOKIE_VARS, $HTTP_SERVER_VARS, $HTTP_SESSION_VARS, $HTTP_ENV_VARS, $HTTP_POST_FILES);
+	$input = [...$_GET, ...$_POST, ...$_COOKIE, ...$_SERVER, ...$_SESSION, ...$_ENV, ...$_FILES];
 
 	unset($input['input']);
 	unset($input['not_unset']);
@@ -107,58 +110,58 @@ if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()){
 }
 else
 {
-	if( is_array($HTTP_GET_VARS) )
+	if( is_array($_GET) )
 	{
-		foreach ($HTTP_GET_VARS as $k => $v) {
-      if( is_array($HTTP_GET_VARS[$k]) )
+		foreach ($_GET as $k => $v) {
+      if( is_array($_GET[$k]) )
    			{
-   				foreach ($HTTP_GET_VARS[$k] as $k2 => $v2) {
-           $HTTP_GET_VARS[$k][$k2] = addslashes($v2);
+   				foreach ($_GET[$k] as $k2 => $v2) {
+           $_GET[$k][$k2] = addslashes((string) $v2);
        }
-   				reset($HTTP_GET_VARS[$k]);
+   				reset($_GET[$k]);
    			}
    			else
    			{
-   				$HTTP_GET_VARS[$k] = addslashes($v);
+   				$_GET[$k] = addslashes((string) $v);
    			}
   }
-		reset($HTTP_GET_VARS);
+		reset($_GET);
 	}
 
-	if( is_array($HTTP_POST_VARS) )
+	if( is_array($_POST) )
 	{
-		foreach ($HTTP_POST_VARS as $k => $v) {
-      if( is_array($HTTP_POST_VARS[$k]) )
+		foreach ($_POST as $k => $v) {
+      if( is_array($_POST[$k]) )
    			{
-   				foreach ($HTTP_POST_VARS[$k] as $k2 => $v2) {
-           $HTTP_POST_VARS[$k][$k2] = addslashes($v2);
+   				foreach ($_POST[$k] as $k2 => $v2) {
+           $_POST[$k][$k2] = addslashes((string) $v2);
        }
-   				reset($HTTP_POST_VARS[$k]);
+   				reset($_POST[$k]);
    			}
    			else
    			{
-   				$HTTP_POST_VARS[$k] = addslashes($v);
+   				$_POST[$k] = addslashes((string) $v);
    			}
   }
-		reset($HTTP_POST_VARS);
+		reset($_POST);
 	}
 
-	if( is_array($HTTP_COOKIE_VARS) )
+	if( is_array($_COOKIE) )
 	{
-		foreach ($HTTP_COOKIE_VARS as $k => $v) {
-      if( is_array($HTTP_COOKIE_VARS[$k]) )
+		foreach ($_COOKIE as $k => $v) {
+      if( is_array($_COOKIE[$k]) )
    			{
-   				foreach ($HTTP_COOKIE_VARS[$k] as $k2 => $v2) {
-           $HTTP_COOKIE_VARS[$k][$k2] = addslashes($v2);
+   				foreach ($_COOKIE[$k] as $k2 => $v2) {
+           $_COOKIE[$k][$k2] = addslashes((string) $v2);
        }
-   				reset($HTTP_COOKIE_VARS[$k]);
+   				reset($_COOKIE[$k]);
    			}
    			else
    			{
-   				$HTTP_COOKIE_VARS[$k] = addslashes($v);
+   				$_COOKIE[$k] = addslashes((string) $v);
    			}
   }
-		reset($HTTP_COOKIE_VARS);
+		reset($_COOKIE);
 	}
 }
 
@@ -211,7 +214,7 @@ unset($dbpasswd);
 // even bother complaining ... go scream and shout at the idiots out there who feel
 // "clever" is doing harm rather than good ... karma is a great thing ... :)
 //
-$client_ip = ( !empty($HTTP_SERVER_VARS['REMOTE_ADDR']) ) ? $HTTP_SERVER_VARS['REMOTE_ADDR'] : ( ( !empty($HTTP_ENV_VARS['REMOTE_ADDR']) ) ? $HTTP_ENV_VARS['REMOTE_ADDR'] : getenv('REMOTE_ADDR') );
+$client_ip = ( !empty($_SERVER['REMOTE_ADDR']) ) ? $_SERVER['REMOTE_ADDR'] : ( ( !empty($_ENV['REMOTE_ADDR']) ) ? $_ENV['REMOTE_ADDR'] : getenv('REMOTE_ADDR') );
 $user_ip = encode_ip($client_ip);
 
 //
@@ -240,4 +243,3 @@ if( $board_config['board_disable'] && !defined("IN_ADMIN") && !defined("IN_LOGIN
 	message_die(GENERAL_MESSAGE, 'Board_disable', 'Information');
 }
 
-?>
