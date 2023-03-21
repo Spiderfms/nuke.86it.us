@@ -12,6 +12,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -22,7 +28,7 @@ $module_name = basename(dirname(__FILE__));
 get_lang($module_name);
 
 if (isset($query)) {
-	if (strlen($query) < 3) {
+	if (strlen((string) $query) < 3) {
 		Header("Location: modules.php?name=$module_name&qlen=1");
 	}
 }
@@ -55,7 +61,7 @@ switch($op) {
 	if (!isset($max)) $max=$min+$offset;
     $min = intval($min);
     $max = intval($max);
-	$query = stripslashes(check_html($query, "nohtml"));
+	$query = stripslashes((string) check_html($query, "nohtml"));
 	$pagetitle = "- "._SEARCH."";
 	include("header.php");
 	$topic = intval($topic);
@@ -88,7 +94,7 @@ switch($op) {
 		echo "<center><font class=\"title\"><b>"._SEARCHREVIEWS."</b></font></center><br>";
 	} elseif ($type == "comments" AND isset($sid)) {
 		$res = $db->sql_query("select title from ".$prefix."_stories where sid='$sid'");
-		list($st_title) = $db->sql_fetchrow($res);
+		[$st_title] = $db->sql_fetchrow($res);
 		$st_title = filter($st_title, "nohtml");
 		$instory = "AND sid='$sid'";
 		echo "<center><font class=\"title\"><b>"._SEARCHINSTORY." $st_title</b></font></center><br>";
@@ -181,7 +187,7 @@ switch($op) {
 			echo ""._SEARCHCHARACTERS."";
 			CloseTable();
 		}
-		$query = stripslashes(check_html($query, "nohtml"));
+		$query = stripslashes((string) check_html($query, "nohtml"));
 		$query2 = filter($query, "nohtml", 1);
 		$query3 = filter($query, "", 1);
 		if ($type=="stories" OR !$type) {
@@ -207,7 +213,7 @@ switch($op) {
 				if ($nrows>0) {
 					while($row5 = $db->sql_fetchrow($result5)) {
 						$sid = intval($row5['sid']);
-						$aid = stripslashes($row5['aid']);
+						$aid = stripslashes((string) $row5['aid']);
 						$informant = filter($row5['informant'], "nohtml");
 						$title = filter($row5['title'], "nohtml");
 						$time = $row5['time'];
@@ -220,21 +226,21 @@ switch($op) {
 						$topictext = filter($row6['topictext'], "nohtml");
 						$furl = "modules.php?name=News&file=article&sid=$sid";
 						$datetime = formatTimestamp($time);
-						$query = stripslashes(check_html($query, "nohtml"));
+						$query = stripslashes((string) check_html($query, "nohtml"));
 						if (empty($informant)) {
 							$informant = $anonymous;
 						} else {
 							$informant = "<a href=\"modules.php?name=Your_Account&amp;op=userinfo&amp;username=$informant\">$informant</a>";
 						}
 						if (!empty($query) AND $query != "*") {
-							if (eregi(quotemeta($query),$title)) {
+							if (preg_match(quotemeta($query),(string) $title)) {
 								$a = 1;
 							}
 							$text = "$hometext$bodytext";
-							if (eregi(quotemeta($query),$text)) {
+							if (preg_match(quotemeta($query),$text)) {
 								$a = 2;
 							}
-							if (eregi(quotemeta($query),$text) AND eregi(quotemeta($query),$title)) {
+							if (preg_match(quotemeta($query),$text) AND preg_match(quotemeta($query),(string) $title)) {
 								$a = 3;
 							}
 							if ($a == 1) {
@@ -372,7 +378,7 @@ switch($op) {
 						$reviewer = filter($rown['reviewer'], nohmtl);
 						$score = intval($rown['score']);
 						$furl = "modules.php?name=Reviews&amp;op=showcontent&amp;id=$id";
-						$pages = count(explode( "[--pagebreak--]", $text ));
+						$pages = count(explode( "[--pagebreak--]", (string) $text ));
 						echo "<tr><td><img src=\"images/folders.gif\" border=\"0\" alt=\"\">&nbsp;<font class=\"option\"><a href=\"$furl\"><b>$title</b></a></font><br>"
 						."<font class=\"content\">"._POSTEDBY." $reviewer<br>"
 						.""._REVIEWSCORE.": $score/10<br>";
@@ -487,5 +493,3 @@ switch($op) {
 		include("footer.php");
 		break;
 }
-
-?>

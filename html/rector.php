@@ -254,7 +254,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/admin/pagestart.php',
 		
 		///__DIR__ . '/modules/Forums/includes/auth.php',
-		#__DIR__ . '/modules/Forums/includes/bbcode.php', LOCKEDUP WHEN TRYING TO RUN
+		  #__DIR__ . '/modules/Forums/includes/bbcode.php', LOCKEDUP WHEN TRYING TO RUN
 		///__DIR__ . '/modules/Forums/includes/constants.php',
 		///__DIR__ . '/modules/Forums/includes/emailer.php',
 		///__DIR__ . '/modules/Forums/includes/functions.php',
@@ -319,7 +319,9 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Recommend_Us/index.php',
 
 		///__DIR__ . '/modules/Reviews/admin/index.php',
-		__DIR__ . '/modules/Reviews/index.php',
+		///__DIR__ . '/modules/Reviews/index.php',
+
+		__DIR__ . '/modules/Search/index.php',
 
 		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 
@@ -338,7 +340,7 @@ return static function (RectorConfig $rectorConfig): void {
 
 		///__DIR__ . '/modules/Forums/common.php',
 
-        #__DIR__ . '/themes',
+          #__DIR__ . '/themes',
 		///__DIR__ . '/admin.php',
 		///__DIR__ . '/backend.php',
 		///__DIR__ . '/footer.php',
