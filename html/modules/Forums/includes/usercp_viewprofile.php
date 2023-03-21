@@ -147,7 +147,7 @@ else
 	$email_img = '&nbsp;';
 	$email = '&nbsp;';
 }
-if (( $profiledata['user-website'] == "http:///") || ( $profiledata['user_website'] == "http://")){
+if (( $profiledata['user_website'] == "http:///") || ( $profiledata['user_website'] == "http://")){
     $profiledata['user_website'] =  "";
 }
 if (($profiledata['user_website'] != "" ) && (!str_starts_with((string) $profiledata['user_website'], "http://"))) {

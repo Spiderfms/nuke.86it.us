@@ -836,7 +836,7 @@ function replyPreview ($pid, $sid, $subject, $comment, $xanonpost, $mode, $order
 	echo "<br>";
 	OpenTable();
 	cookiedecode($user);
-	$subject = filter($subject, "nohtml", 0, preview);
+	$subject = filter($subject, "nohtml", 0, 'preview');
 	$comment = filter($comment);
 	if (!isset($pid) OR !isset($sid)) {
 		die(_NOTRIGHT);

@@ -182,7 +182,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/admin/modules/blocks.php',
 		///__DIR__ . '/admin/modules/authors.php',
 		///__DIR__ . '/admin/modules/ipban.php',
-		   __DIR__ . '/admin/modules/settings.php',
+		///__DIR__ . '/admin/modules/settings.php',
           #__DIR__ . '/blocks',
 		///__DIR__ . '/blocks/blocks-Modules.php',
         ///__DIR__ . '/install/includes/database.php',
@@ -227,7 +227,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Feedback/index.php',
 
 		///__DIR__ . '/modules/Forums/admin/admin_avatar.php',
-		///__DIR__ . '/modules/Forums/admin/admin_board.php',
+		__DIR__ . '/modules/Forums/admin/admin_board.php',
 		///__DIR__ . '/modules/Forums/admin/admin_db_utilities.php',
 		///__DIR__ . '/modules/Forums/admin/admin_disallow.php',
 		///__DIR__ . '/modules/Forums/admin/admin_forum_prune.php',

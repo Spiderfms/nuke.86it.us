@@ -171,15 +171,15 @@ function write_review() {
 
 function preview_review($date, $title, $text, $reviewer, $email, $score, $cover, $url, $url_title, $hits, $id, $rlanguage) {
 	global $admin, $multilingual, $module_name;
-	$title = filter($title, "nohtml", 0, preview);
+	$title = filter($title, "nohtml", 0, 'preview');
 	$text = filter($text);
-	$reviewer = filter($reviewer, "nohtml", 0, preview);
-	$url_title = filter($url_title, "nohtml", 0, preview);
-	$email = filter($email, "nohtml", 0, preview);
+	$reviewer = filter($reviewer, "nohtml", 0, 'preview');
+	$url_title = filter($url_title, "nohtml", 0, 'preview');
+	$email = filter($email, "nohtml", 0, 'preview');
 	$score = intval($score);
-	$cover = filter($cover, "nohtml", 0, preview);
-	$url = filter($url, "nohtml", 0, preview);
-	$url_title = filter($url_title, "nohtml", 0, preview);
+	$cover = filter($cover, "nohtml", 0, 'preview');
+	$url = filter($url, "nohtml", 0, 'preview');
+	$url_title = filter($url_title, "nohtml", 0, 'preview');
 	$hits = intval($hits);
 	$id = intval($id);
 	include ('header.php');

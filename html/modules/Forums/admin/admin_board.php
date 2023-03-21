@@ -11,7 +11,8 @@
  *
  ***************************************************************************/
 
-/* Applied rules:
+/* Applied rules: 
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
  * TernaryToNullCoalescingRector
  * NullToStrictStringFuncCallArgRector
  */
@@ -49,9 +50,9 @@ else
 	{
 		$config_name = $row['config_name'];
 		$config_value = $row['config_value'];
-		$default_config[$config_name] = isset($HTTP_POST_VARS['submit']) ? str_replace("'", "\'", (string) $config_value) : $config_value;
+		$default_config[$config_name] = isset($_POST['submit']) ? str_replace("'", "\'", (string) $config_value) : $config_value;
 
-		$new[$config_name] = $HTTP_POST_VARS[$config_name] ?? $default_config[$config_name];
+		$new[$config_name] = $_POST[$config_name] ?? $default_config[$config_name];
 
 		if ($config_name == 'cookie_name')
 		{
@@ -65,7 +66,7 @@ else
 			$new['server_name'] = str_replace('http://', '', (string) $new['server_name']);
 		}
 
-		if( isset($HTTP_POST_VARS['submit']) )
+		if( isset($_POST['submit']) )
 		{
 			$sql = "UPDATE " . CONFIG_TABLE . " SET
 				config_value = '" . str_replace("\'", "''", (string) $new[$config_name]) . "'
@@ -77,7 +78,7 @@ else
 		}
 	}
 
-	if( isset($HTTP_POST_VARS['submit']) )
+	if( isset($_POST['submit']) )
 	{
 		$message = $lang['Config_updated'] . "<br /><br />" . sprintf($lang['Click_return_config'], "<a href=\"" . append_sid("admin_board.$phpEx") . "\">", "</a>") . "<br /><br />" . sprintf($lang['Click_return_admin_index'], "<a href=\"" . append_sid("index.$phpEx?pane=right") . "\">", "</a>");
 

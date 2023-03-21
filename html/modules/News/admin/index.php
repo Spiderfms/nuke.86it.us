@@ -961,7 +961,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 			$tsec = "0$tsec";
 		}
 		$nowdate = "$tmonth $tday, $tyear @ $thour:$tmin:$tsec";
-		$subject = filter($subject, "nohtml", 0, preview);
+		$subject = filter($subject, "nohtml", 0, 'preview');
 		$hometext = filter($hometext);
 		$bodytext = filter($bodytext);
 		$hometext1 = redir($hometext);
@@ -1797,7 +1797,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		echo "<center><font class=\"option\"><b>"._PREVIEWSTORY."</b></font></center><br>"
 			."<form action=\"".$admin_file.".php\" method=\"post\">"
 			."<input type=\"hidden\" name=\"catid\" value=\"$catid\">";
-		$subject = filter($subject, "nohtml", 0, preview);
+		$subject = filter($subject, "nohtml", 0, 'preview');
 		$hometext = filter($hometext);
 		$bodytext = filter($bodytext);
 		$result = $db->sql_query("select topicimage from ".$prefix."_topics where topicid='$topic'");

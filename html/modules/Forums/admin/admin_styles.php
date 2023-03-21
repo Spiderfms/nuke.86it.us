@@ -82,6 +82,7 @@ else
 switch( $mode )
 {
 	case "addnew":
+
 		$install_to = ( isset($_GET['install_to']) ) ? urldecode((string) $_GET['install_to']) : $_POST['install_to'];
 		$style_name = ( isset($_GET['style']) ) ? urldecode((string) $_GET['style']) : $_POST['style'];
 
@@ -554,9 +555,11 @@ switch( $mode )
                         {
 				$s_template_select = '<select name="template_name">';
 				while( $file = readdir($dir) )
-                                {
+                {
 					if( !is_file(phpbb_realpath($phpbb_root_path . 'templates/' . $file)) && !is_link(phpbb_realpath($phpbb_root_path . 'templates/' . $file)) && $file != "." && $file != ".." && $file != "CVS" )
 					{
+				        if(!isset($selected['template_name'])){	$selected['template_name'] = ''; }
+						
 						if($file == $selected['template_name'])
 						{
 							$s_template_select .= '<option value="' . $file . '" selected="selected">' . $file . "</option>\n";
@@ -574,6 +577,9 @@ switch( $mode )
 				message_die(GENERAL_MESSAGE, $lang['No_template_dir']);
 			}
 
+			if(!isset($s_hidden_fields))
+			$s_hidden_fields = '';
+			
 			$s_hidden_fields .= '<input type="hidden" name="mode" value="' . $mode . '" />';
 
 			$template->assign_vars(array(
@@ -706,7 +712,7 @@ switch( $mode )
 		break;
 
 	case "export";
-		if($_POST['export_template'])
+		if(isset($_POST['export_template']))
 		{
 			$template_name = $_POST['export_template'];
 
@@ -777,7 +783,7 @@ switch( $mode )
 			message_die(GENERAL_MESSAGE, $message);
 
 		}
-		else if($_POST['send_file'])
+		else if(isset($_POST['send_file']))
 		{
 
 			header("Content-Type: text/x-delimtext; name=\"theme_info.cfg\"");

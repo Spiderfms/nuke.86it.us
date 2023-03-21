@@ -130,7 +130,7 @@ function PreviewStory($name, $address, $subject, $story, $storyext, $topic, $ala
 	include ("header.php");
 	$f_story = filter($story);
 	$f_storyext = filter($storyext);
-	$subject = filter($subject, "nohtml", 0, preview);
+	$subject = filter($subject, "nohtml", 0, 'preview');
 	$story2 = "$f_story<br><br>$f_storyext";
 	OpenTable();
 	echo "<center><font class=\"title\"><b>"._NEWSUBPREVIEW."</b></font>";

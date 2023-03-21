@@ -12,6 +12,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
@@ -191,7 +197,8 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function themes() {
-		global $prefix, $db, $admin_file;
+		$themelist = [];
+  global $prefix, $db, $admin_file;
 		include ("header.php");
 		GraphicAdmin();
 		options_menu("themes");
@@ -213,12 +220,12 @@ if ($row['radminsuper'] == 1) {
 			."<tr><td>" . _DEFAULTTHEME . ":</td><td><select name='xDefault_Theme'>";
 		$handle=opendir('themes');
 		while ($file = readdir($handle)) {
-			if ( (!ereg("[.]",$file)) ) {
+			if ( (!preg_match('#[\.]#m',$file)) ) {
 				$themelist .= "$file ";
 			}
 		}
 		closedir($handle);
-		$themelist = explode(" ", $themelist);
+		$themelist = explode(" ", (string) $themelist);
 		sort($themelist);
 		for ($i=0; $i < sizeof($themelist); $i++) {
 			if(!empty($themelist[$i])) {
@@ -244,7 +251,11 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function users() {
-		global $prefix, $db, $admin_file;
+		$sel1 = null;
+  $sel2 = null;
+  $sel3 = null;
+  $sel4 = null;
+  global $prefix, $db, $admin_file;
 		include("header.php");
 		GraphicAdmin();
 		options_menu("users");
@@ -274,7 +285,7 @@ if ($row['radminsuper'] == 1) {
 		}
 		echo "</td></tr><tr><td>"
 			.""._LETUSERSCHANGETHM."</td><td>";
-		if ($row[overwrite_theme] == 1) {
+		if ($row['overwrite_theme'] == 1) {
 			echo "<input type='radio' name='xoverwrite_theme' value='1' checked>" . _YES . " &nbsp;"
 				."<input type='radio' name='xoverwrite_theme' value='0'>" . _NO . "";
 		} else {
@@ -314,7 +325,11 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function comments() {
-		global $prefix, $db, $admin_file;
+		$sel1 = null;
+  $sel2 = null;
+  $sel3 = null;
+  $sel0 = null;
+  global $prefix, $db, $admin_file;
 		include ("header.php");
 		GraphicAdmin();
 		options_menu("comments");
@@ -326,7 +341,7 @@ if ($row['radminsuper'] == 1) {
 		$pollcomm = intval($row['pollcomm']);
 		$articlecomm = intval($row['articlecomm']);
 		$CensorMode = intval($row['CensorMode']);
-		$CensorReplace = filter($row['CensorReplace'], "nohtml", 0, preview);
+		$CensorReplace = filter($row['CensorReplace'], "nohtml", 0, 'preview');
 		echo "<center><font class='option'><b>"._COMMENTSCONFIG."</b></font></center>"
 			."<form action='".$admin_file.".php' method='post'>"
 			."<table border=\"0\" align=\"center\" cellpadding=\"3\"><tr><td>"
@@ -408,17 +423,19 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function languages() {
-		global $prefix, $db, $admin_file;
+		$matches = [];
+  $languageslist = [];
+  global $prefix, $db, $admin_file;
 		include ("header.php");
 		GraphicAdmin();
 		options_menu("languages");
 		OpenTable();
 		$row = $db->sql_fetchrow($db->sql_query("SELECT language, locale, multilingual, useflags, backend_language from ".$prefix."_config"));
-		$language = filter($row['language'], "nohtml", 0, preview);
-		$locale = filter($row['locale'], "nohtml", 0, preview);
+		$language = filter($row['language'], "nohtml", 0, 'preview');
+		$locale = filter($row['locale'], "nohtml", 0, 'preview');
 		$multilingual = intval($row['multilingual']);
 		$useflags = intval($row['useflags']);
-		$backend_language = filter($row['backend_language'], "nohtml", 0, preview);
+		$backend_language = filter($row['backend_language'], "nohtml", 0, 'preview');
 		echo "<center><font class='option'><b>"._LANGUAGESCONFIG."</b></font></center>"
 			."<form action='".$admin_file.".php' method='post'>"
 			."<table border=\"0\" align=\"center\" cellpadding=\"3\"><tr><td>"
@@ -426,13 +443,13 @@ if ($row['radminsuper'] == 1) {
 			."<select name='xlanguage'>";
 		$handle=opendir('language');
 		while ($file = readdir($handle)) {
-			if (ereg("^lang\-(.+)\.php", $file, $matches)) {
+			if (preg_match('#^lang\-(.+)\.php#m', $file, $matches)) {
 				$langFound = $matches[1];
 				$languageslist .= "$langFound ";
 			}
 		}
 		closedir($handle);
-		$languageslist = explode(" ", $languageslist);
+		$languageslist = explode(" ", (string) $languageslist);
 		sort($languageslist);
 		for ($i=0; $i < sizeof($languageslist); $i++) {
 			if(!empty($languageslist[$i])) {
@@ -473,17 +490,17 @@ if ($row['radminsuper'] == 1) {
 		options_menu("footer");
 		OpenTable();
 		$row = $db->sql_fetchrow($db->sql_query("SELECT foot1, foot2, foot3 from ".$prefix."_config"));
-		$foot1 = filter($row['foot1'], "", 0, preview);
-		$foot2 = filter($row['foot2'], "", 0, preview);
-		$foot3 = filter($row['foot3'], "", 0, preview);
+		$foot1 = filter($row['foot1'], "", 0, 'preview');
+		$foot2 = filter($row['foot2'], "", 0, 'preview');
+		$foot3 = filter($row['foot3'], "", 0, 'preview');
 		echo "<center><font class='option'><b>"._FOOTERCONFIG."</b></font></center>"
 			."<form action='".$admin_file.".php' method='post'>"
 			."<table border=\"0\" align=\"center\" cellpadding=\"3\"><tr><td>"
-			."" . _FOOTERLINE1 . ":</td><td><textarea name='xfoot1' cols='70' rows='15'>" . stripslashes($foot1) . "</textarea>"
+			."" . _FOOTERLINE1 . ":</td><td><textarea name='xfoot1' cols='70' rows='15'>" . stripslashes((string) $foot1) . "</textarea>"
 			."</td></tr><tr><td>"
-			."" . _FOOTERLINE2 . ":</td><td><textarea name='xfoot2' cols='70' rows='15'>" . stripslashes($foot2) . "</textarea>"
+			."" . _FOOTERLINE2 . ":</td><td><textarea name='xfoot2' cols='70' rows='15'>" . stripslashes((string) $foot2) . "</textarea>"
 			."</td></tr><tr><td>"
-			."" . _FOOTERLINE3 . ":</td><td><textarea name='xfoot3' cols='70' rows='15'>" . stripslashes($foot3) . "</textarea>"
+			."" . _FOOTERLINE3 . ":</td><td><textarea name='xfoot3' cols='70' rows='15'>" . stripslashes((string) $foot3) . "</textarea>"
 			."</td></tr><tr><td>&nbsp;</td><td halign=\"left\"><input type='hidden' name='op' value='savefooter'>"
 			."<br><br><input type='submit' value='" . _SAVECHANGES . "'></form></td></tr></table>";		
 		CloseTable();
@@ -497,9 +514,9 @@ if ($row['radminsuper'] == 1) {
 		options_menu("backend");
 		OpenTable();
 		$row = $db->sql_fetchrow($db->sql_query("SELECT backend_title, backend_language, site_logo, ultramode from ".$prefix."_config"));
-		$backend_title = filter($row['backend_title'], "nohtml", 0, preview);
-		$backend_language = filter($row['backend_language'], "nohtml", 0, preview);
-		$site_logo = filter($row['site_logo'], "nohtml", 0, preview);
+		$backend_title = filter($row['backend_title'], "nohtml", 0, 'preview');
+		$backend_language = filter($row['backend_language'], "nohtml", 0, 'preview');
+		$site_logo = filter($row['site_logo'], "nohtml", 0, 'preview');
 		$ultramode = intval($row['ultramode']);
 		echo "<center><font class='option'><b>"._BACKENDCONFIG."</b></font></center>"
 			."<form action='".$admin_file.".php' method='post'>"
@@ -523,7 +540,12 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function referers() {
-		global $prefix, $db, $admin_file;
+		$sel1 = null;
+  $sel2 = null;
+  $sel3 = null;
+  $sel4 = null;
+  $sel5 = null;
+  global $prefix, $db, $admin_file;
 		include ("header.php");
 		GraphicAdmin();
 		options_menu("referers");
@@ -575,12 +597,12 @@ if ($row['radminsuper'] == 1) {
 		options_menu("mailing");
 		OpenTable();
 		$row = $db->sql_fetchrow($db->sql_query("SELECT adminmail, notify, notify_email, notify_subject, notify_message, notify_from from ".$prefix."_config"));
-		$adminmail = filter($row['adminmail'], "nohtml", 0, preview);
+		$adminmail = filter($row['adminmail'], "nohtml", 0, 'preview');
 		$notify= intval($row['notify']);
-		$notify_email = filter($row['notify_email'], "nohtml", 0, preview);
-		$notify_subject = filter($row['notify_subject'], "nohtml", 0, preview);
-		$notify_message = filter($row['notify_message'], "", 0, preview);
-		$notify_from = filter($row['notify_from'], "nohtml", 0, preview);
+		$notify_email = filter($row['notify_email'], "nohtml", 0, 'preview');
+		$notify_subject = filter($row['notify_subject'], "nohtml", 0, 'preview');
+		$notify_message = filter($row['notify_message'], "", 0, 'preview');
+		$notify_from = filter($row['notify_from'], "nohtml", 0, 'preview');
 		echo "<center><font class='option'><b>"._MAILCONFIG."</b></font></center>"
 			."<form action='".$admin_file.".php' method='post'>"
 			."<table border=\"0\" align=\"center\" cellpadding=\"3\"><tr><td>"
@@ -607,7 +629,24 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function other() {
-		global $prefix, $db, $admin_file;
+		$sel1 = null;
+  $sel2 = null;
+  $sel3 = null;
+  $sel4 = null;
+  $sel5 = null;
+  $sel6 = null;
+  $sela1 = null;
+  $sela2 = null;
+  $sela3 = null;
+  $sela4 = null;
+  $sela5 = null;
+  $sela6 = null;
+  $selb1 = null;
+  $selb2 = null;
+  $selb3 = null;
+  $selb4 = null;
+  $selb5 = null;
+  global $prefix, $db, $admin_file;
 		include ("header.php");
 		GraphicAdmin();
 		options_menu("other");
@@ -668,7 +707,8 @@ if ($row['radminsuper'] == 1) {
 	}
 
 	function savegeneral($xsitename, $xnukeurl, $xslogan, $xstartdate, $xadmingraphic, $xgfx_chk, $xnuke_editor, $xdisplay_errors) {
-		global $prefix, $db, $admin_file;
+		$xsite_logo = null;
+  global $prefix, $db, $admin_file;
 		$xsitename = filter($xsitename, "nohtml", 1);
 		$xnukeurl = filter($xnukeurl, "nohtml", 1);
 		$xslogan = filter($xslogan, "nohtml", 1);

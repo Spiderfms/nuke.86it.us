@@ -813,7 +813,7 @@ function replyPreview ($pid, $pollID, $subject, $comment, $xanonpost, $mode, $or
 	global $userinfo, $user, $cookie, $AllowableHTML, $anonymous, $module_name, $nuke_editor;
 	cookiedecode($user);
                   getusrinfo($user);
-	$subject = filter($subject, "nohtml", 0, preview);
+	$subject = filter($subject, "nohtml", 0, 'preview');
                   if (!isset($mode) OR empty($mode)) {
                     if(isset($userinfo['umode'])) {
                       $mode = $userinfo['umode'];
