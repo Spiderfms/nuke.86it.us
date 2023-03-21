@@ -176,4 +176,3 @@ function auto_prune($forum_id = 0)
         return;
 }
 
-?>
