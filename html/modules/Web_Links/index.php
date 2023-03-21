@@ -16,6 +16,14 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * RandomFunctionRector
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -28,7 +36,7 @@ if (isset($show)) {
     $show = intval($show);
 }
 if (isset($description)) {
-    $description = addslashes(htmlentities($description));
+    $description = addslashes(htmlentities((string) $description));
 }
 
 define('INDEX_FILE', true);
@@ -93,7 +101,9 @@ function menu($mainlink) {
 }
 
 function SearchForm() {
-	echo "<form action=\"modules.php?name=$module_name&amp;l_op=search&amp;query=$query\" method=\"post\">"
+	$module_name = null;
+ $query = null;
+ echo "<form action=\"modules.php?name=$module_name&amp;l_op=search&amp;query=$query\" method=\"post\">"
 	."<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">"
 	."<tr><td><font class=\"content\"><input type=\"text\" size=\"25\" name=\"query\"> <input type=\"submit\" value=\""._SEARCH."\"></td></tr>"
 	."</table>"
@@ -221,7 +231,8 @@ function AddLink() {
 }
 
 function Add($title, $url, $auth_name, $cat, $description, $email) {
-	global $prefix, $db, $user;
+	$submitter = null;
+ global $prefix, $db, $user;
 	$url = filter($url, "nohtml");
 	$result = $db->sql_query("SELECT url from ".$prefix."_links_links where url='$url'");
 	$numrows = $db->sql_numrows($result);
@@ -236,7 +247,7 @@ function Add($title, $url, $auth_name, $cat, $description, $email) {
 		include("footer.php");
 	} else {
 		if(is_user()) {
-			$user2 = base64_decode($user);
+			$user2 = base64_decode((string) $user);
 			$user2 = addslashes($user2);
 			$cookie = explode(":", $user2);
 			cookiedecode($user);
@@ -275,7 +286,7 @@ function Add($title, $url, $auth_name, $cat, $description, $email) {
 			CloseTable();
 			include("footer.php");
 		}
-		$cat = explode("-", $cat);
+		$cat = explode("-", (string) $cat);
 		if (empty($cat[1])) {
 			$cat[1] = 0;
 		}
@@ -308,7 +319,7 @@ function Add($title, $url, $auth_name, $cat, $description, $email) {
 function NewLinks($newlinkshowdays) {
 	global $prefix, $db, $module_name;
 	include("header.php");
-    $newlinkshowdays = intval(trim($newlinkshowdays));
+    $newlinkshowdays = intval(trim((string) $newlinkshowdays));
 	menu(1);
 	echo "<br>";
 	OpenTable();
@@ -360,7 +371,7 @@ function NewLinks($newlinkshowdays) {
 
 function NewLinksDate($selectdate) {
 	global $prefix, $db, $module_name, $admin, $user, $admin_file, $locale, $mainvotedecimal, $datetime;
-	$admin = base64_decode($admin);
+	$admin = base64_decode((string) $admin);
 	$admin = addslashes($admin);
 	$admin = explode(":", $admin);
 	$aid = "$admin[0]";
@@ -400,11 +411,11 @@ function NewLinksDate($selectdate) {
 		echo "<br>"._DESCRIPTION.": $description<br>";
 		setlocale (LC_TIME, $locale);
 		/* INSERT code for *editor review* here */
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $datetime);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $datetime);
 		$datetime = strftime(""._LINKSDATESTRING."", mktime($datetime[4],$datetime[5],$datetime[6],$datetime[2],$datetime[3],$datetime[1]));
 		$datetime = ucfirst($datetime);
 		echo ""._ADDEDON.": <b>$datetime</b> "._HITS.": $hits";
-		$transfertitle = str_replace (" ", "_", $title);
+		$transfertitle = str_replace (" ", "_", (string) $title);
 		/* voting & comments stats */
 		if ($totalvotes == 1) {
 			$votestring = _VOTE;
@@ -442,7 +453,10 @@ function NewLinksDate($selectdate) {
 }
 
 function TopRated($ratenum, $ratetype) {
-	global $prefix, $db, $admin, $module_name, $user, $locale, $mainvotedecimal, $datetime, $admin_file;
+	$toplinkspercentrigger = null;
+ $toplinks = null;
+ $linkvotemin = null;
+ global $prefix, $db, $admin, $module_name, $user, $locale, $mainvotedecimal, $datetime, $admin_file;
 	include("header.php");
 	include("modules/$module_name/l_config.php");
 	menu(1);
@@ -451,7 +465,7 @@ function TopRated($ratenum, $ratetype) {
 	echo "<table border=\"0\" width=\"100%\"><tr><td align=\"center\">";
 	if (!empty($ratenum) && !empty($ratetype)) {
 		$ratenum = intval($ratenum);
-		$ratetype = htmlentities($ratetype);
+		$ratetype = htmlentities((string) $ratetype);
 		$toplinks = $ratenum;
 		if ($ratetype == "percent") {
 			$toplinkspercentrigger = 1;
@@ -502,11 +516,11 @@ function TopRated($ratenum, $ratetype) {
 		echo "<br>";
 		echo ""._DESCRIPTION.": $description<br>";
 		setlocale (LC_TIME, $locale);
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $datetime);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $datetime);
 		$datetime = strftime(""._LINKSDATESTRING."", mktime($datetime[4],$datetime[5],$datetime[6],$datetime[2],$datetime[3],$datetime[1]));
 		$datetime = ucfirst($datetime);
 		echo ""._ADDEDON.": $datetime "._HITS.": $hits";
-		$transfertitle = str_replace (" ", "_", $title);
+		$transfertitle = str_replace (" ", "_", (string) $title);
 		/* voting & comments stats */
 		if ($totalvotes == 1) {
 			$votestring = _VOTE;
@@ -541,8 +555,10 @@ function TopRated($ratenum, $ratetype) {
 }
 
 function MostPopular($ratenum, $ratetype) {
-	global $prefix, $db, $admin, $module_name, $user, $admin_file, $locale, $mainvotedecimal, $datetime;
-	$admin = base64_decode($admin);
+	$mostpoplinkspercentrigger = null;
+ $mostpoplinks = null;
+ global $prefix, $db, $admin, $module_name, $user, $admin_file, $locale, $mainvotedecimal, $datetime;
+	$admin = base64_decode((string) $admin);
 	$admin = addslashes($admin);
 	$admin = explode(":", $admin);
 	$aid = "$admin[0]";
@@ -556,7 +572,7 @@ function MostPopular($ratenum, $ratetype) {
 	echo "<table border=\"0\" width=\"100%\"><tr><td align=\"center\">";
 	if (!empty($ratenum) && !empty($ratetype)) {
 		$ratenum = intval($ratenum);
-		$ratetype = htmlentities($ratetype);
+		$ratetype = htmlentities((string) $ratetype);
 		$mostpoplinks = $ratenum;
 		if ($ratetype == "percent") $mostpoplinkspercentrigger = 1;
 	}
@@ -607,11 +623,11 @@ function MostPopular($ratenum, $ratetype) {
 		echo "<br>";
 		echo ""._DESCRIPTION.": $description<br>";
 		setlocale (LC_TIME, $locale);
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $datetime);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $datetime);
 		$datetime = strftime(""._LINKSDATESTRING."", mktime($datetime[4],$datetime[5],$datetime[6],$datetime[2],$datetime[3],$datetime[1]));
 		$datetime = ucfirst($datetime);
 		echo ""._ADDEDON.": $datetime "._HITS.": <b>$hits</b>";
-		$transfertitle = str_replace (" ", "_", $title);
+		$transfertitle = str_replace (" ", "_", (string) $title);
 		/* voting & comments stats */
 		if ($totalvotes == 1) {
 			$votestring = _VOTE;
@@ -656,8 +672,8 @@ function RandomLink() {
 	if ($numrows == 1) {
 		$random = 1;
 	} else {
-		srand((double)microtime()*1000000);
-		$random = rand(1,$numrows);
+		mt_srand((double)microtime()*1000000);
+		$random = random_int(1,$numrows);
 		$random = intval($random);
 	}
 	$row2 = $db->sql_fetchrow($db->sql_query("SELECT url from ".$prefix."_links_links where lid='$random'"));
@@ -667,16 +683,17 @@ function RandomLink() {
 }
 
 function viewlink($cid, $min, $orderby, $show) {
-	global $prefix, $db, $admin, $perpage, $module_name, $user, $admin_file, $locale, $mainvotedecimal, $datetime;
+	$description = null;
+ global $prefix, $db, $admin, $perpage, $module_name, $user, $admin_file, $locale, $mainvotedecimal, $datetime;
 	$show = intval($show);
 	if (empty($show))
 	{
 		$show = '';
 	}
 	if (!empty($orderby)) {
-		$orderby = htmlspecialchars($orderby);
+		$orderby = htmlspecialchars((string) $orderby);
 	}
-	$admin = base64_decode($admin);
+	$admin = base64_decode((string) $admin);
 	$admin = addslashes($admin);
 	$admin = explode(":", $admin);
 	$aid = "$admin[0]";
@@ -787,11 +804,11 @@ function viewlink($cid, $min, $orderby, $show) {
 		echo "<br>";
 		echo ""._DESCRIPTION.": $description<br>";
 		setlocale (LC_TIME, $locale);
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $datetime);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $datetime);
 		$datetime = strftime(""._LINKSDATESTRING."", mktime($datetime[4],$datetime[5],$datetime[6],$datetime[2],$datetime[3],$datetime[1]));
 		$datetime = ucfirst($datetime);
 		echo ""._ADDEDON.": $datetime "._HITS.": $hits";
-		$transfertitle = str_replace (" ", "_", $title);
+		$transfertitle = str_replace (" ", "_", (string) $title);
 		/* voting & comments stats */
 		if ($totalvotes == 1) {
 			$votestring = _VOTE;
@@ -868,7 +885,7 @@ function newlinkgraphic($datetime, $time) {
 	global $module_name, $locale;
 	echo "&nbsp;";
 	setlocale (LC_TIME, $locale);
-	ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $datetime);
+	preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $datetime);
 	$datetime = strftime(""._LINKSDATESTRING."", mktime($datetime[4],$datetime[5],$datetime[6],$datetime[2],$datetime[3],$datetime[1]));
 	$datetime = ucfirst($datetime);
 	$startdate = time();
@@ -892,13 +909,14 @@ function newlinkgraphic($datetime, $time) {
 }
 
 function categorynewlinkgraphic($cat) {
-	global $prefix, $db, $module_name, $locale;
-	$cat = intval(trim($cat));
+	$datetime = [];
+ global $prefix, $db, $module_name, $locale;
+	$cat = intval(trim((string) $cat));
 	$row = $db->sql_fetchrow($db->sql_query("SELECT date from ".$prefix."_links_links where cid='$cat' order by date desc limit 1"));
 	$time = $row['date'];
 	echo "&nbsp;";
 	setlocale (LC_TIME, $locale);
-	ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $datetime);
+	preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $datetime);
 	$datetime = strftime(""._LINKSDATESTRING."", mktime($datetime[4],$datetime[5],$datetime[6],$datetime[2],$datetime[3],$datetime[1]));
 	$datetime = ucfirst($datetime);
 	$startdate = time();
@@ -922,7 +940,8 @@ function categorynewlinkgraphic($cat) {
 }
 
 function popgraphic($hits) {
-	global $module_name;
+	$popular = null;
+ global $module_name;
 	include("modules/$module_name/l_config.php");
 	if ($hits>=$popular) {
 		echo "&nbsp;<img src=\"modules/$module_name/images/pop.gif\" alt=\""._POPULAR."\">";
@@ -946,7 +965,8 @@ function convertorderbyin($orderby) {
 }
 
 function convertorderbytrans($orderby) {
-	if ($orderby != "hits ASC" AND $orderby != "hits DESC" AND $orderby != "title ASC" AND $orderby != "title DESC" AND $orderby != "date ASC" AND $orderby != "date DESC" AND $orderby != "linkratingsummary ASC" AND $orderby != "linkratingsummary DESC") {
+	$orderbyTrans = null;
+ if ($orderby != "hits ASC" AND $orderby != "hits DESC" AND $orderby != "title ASC" AND $orderby != "title DESC" AND $orderby != "date ASC" AND $orderby != "date DESC" AND $orderby != "linkratingsummary ASC" AND $orderby != "linkratingsummary DESC") {
 	    Header("Location: index.php");
 	    die();
 	}
@@ -988,7 +1008,9 @@ function visit($lid) {
 }
 
 function search($query, $min, $orderby, $show) {
-	global $prefix, $db, $admin, $bgcolor2, $module_name, $locale, $mainvotedecimal, $datetime, $admin_file;
+	$linksresults = null;
+ $perpage = null;
+ global $prefix, $db, $admin, $bgcolor2, $module_name, $locale, $mainvotedecimal, $datetime, $admin_file;
 	include("modules/$module_name/l_config.php");
 	include("header.php");
 	if (!isset($min)) $min=0;
@@ -1034,7 +1056,7 @@ function search($query, $min, $orderby, $show) {
 				$title3 = filter($row3['title'], "nohtml");
 				$parentid3 = intval($row3['parentid']);
 				if ($parentid3>0) $title3 = getparent($parentid3,$title3);
-				$title3 = ereg_replace($query1, "<b>$query1</b>", $title3);
+				$title3 = preg_replace('#' . preg_quote((string) $query1, '#') . '#m', "<b>$query1</b>", (string) $title3);
 				echo "<strong><big>&middot;</big></strong>&nbsp;<a href=\"modules.php?name=$module_name&amp;l_op=viewlink&amp;cid=$cid\">$title3</a> ($numrows)<br>";
 			}
 			echo "<br><table width=\"100%\" bgcolor=\"$bgcolor2\"><tr><td><font class=\"option\"><b>"._LINKS."</b></font></td></tr></table>";
@@ -1058,8 +1080,8 @@ function search($query, $min, $orderby, $show) {
 				$totalvotes = intval($row['totalvotes']);
 				$totalcomments = intval($row['totalcomments']);
 				$linkratingsummary = number_format($linkratingsummary, $mainvotedecimal);
-				$transfertitle = str_replace (" ", "_", $title);
-				$title = ereg_replace($query1, "<b>$query1</b>", $title);
+				$transfertitle = str_replace (" ", "_", (string) $title);
+				$title = preg_replace('#' . preg_quote((string) $query1, '#') . '#m', "<b>$query1</b>", (string) $title);
 				if (is_admin()) {
 			    	echo "<a href=\"".$admin_file.".php?op=LinksModLink&amp;lid=$lid\"><img src=\"modules/$module_name/images/lwin.gif\" border=\"0\" alt=\""._EDIT."\"></a>&nbsp;&nbsp;";
 				} else {
@@ -1069,10 +1091,10 @@ function search($query, $min, $orderby, $show) {
 				newlinkgraphic($datetime, $time);
 				popgraphic($hits);
 				echo "<br>";
-				$description = ereg_replace($the_query, "<b>$the_query</b>", $description);
+				$description = preg_replace('#' . preg_quote((string) $the_query, '#') . '#m', "<b>$the_query</b>", (string) $description);
 				echo ""._DESCRIPTION.": $description<br>";
 				setlocale (LC_TIME, $locale);
-				ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $time, $datetime);
+				preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $datetime);
 				$datetime = strftime(""._LINKSDATESTRING."", mktime($datetime[4],$datetime[5],$datetime[6],$datetime[2],$datetime[3],$datetime[1]));
 				$datetime = ucfirst($datetime);
 				echo ""._ADDEDON.": $datetime "._HITS.": $hits";
@@ -1159,20 +1181,21 @@ function search($query, $min, $orderby, $show) {
 }
 
 function viewlinkeditorial($lid) {
-	global $prefix, $db, $admin, $module_name;
+	$editorialtime = [];
+ global $prefix, $db, $admin, $module_name;
 	include("header.php");
 	include("modules/$module_name/l_config.php");
 	menu(1);
 	$row = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_links_links WHERE lid='$lid'"));
     $ttitle = filter($row['title'], "nohtml");
-	$lid = intval(trim($lid));
+	$lid = intval(trim((string) $lid));
 	$result = $db->sql_query("SELECT adminid, editorialtimestamp, editorialtext, editorialtitle FROM ".$prefix."_links_editorials WHERE linkid = '$lid'");
 	$recordexist = $db->sql_numrows($result);
-	$transfertitle = ereg_replace ("_", " ", $ttitle);
+	$transfertitle = preg_replace ('#_#m', " ", (string) $ttitle);
 	$displaytitle = $transfertitle;
 	echo "<br>";
 	OpenTable();
-	echo "<center><font class=\"option\"><b>"._LINKPROFILE.": ".htmlentities($displaytitle)."</b></font><br>";
+	echo "<center><font class=\"option\"><b>"._LINKPROFILE.": ".htmlentities((string) $displaytitle)."</b></font><br>";
 	linkinfomenu($lid);
 	if ($recordexist != 0) {
 		while($row = $db->sql_fetchrow($result)) {
@@ -1180,7 +1203,7 @@ function viewlinkeditorial($lid) {
 			$editorialtimestamp = $row['editorialtimestamp'];
 			$editorialtext = filter($row['editorialtext']);
 			$editorialtitle = filter($row['editorialtitle'], "nohtml");
-			ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $editorialtimestamp, $editorialtime);
+			preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $editorialtimestamp, $editorialtime);
 			$editorialtime = strftime("%F",mktime($editorialtime[4],$editorialtime[5],$editorialtime[6],$editorialtime[2],$editorialtime[3],$editorialtime[1]));
 			$date_array = explode("-", $editorialtime);
 			$timestamp = mktime(0, 0, 0, $date_array['1'], $date_array['2'], $date_array['0']);
@@ -1213,20 +1236,23 @@ function detecteditorial($lid) {
 }
 
 function viewlinkcomments($lid) {
-	global $prefix, $db, $admin, $bgcolor2, $module_name, $admin_file;
+	$ratingtime = [];
+ $rating2 = null;
+ $nukeurl = null;
+ global $prefix, $db, $admin, $bgcolor2, $module_name, $admin_file;
 	include("header.php");
 	include("modules/$module_name/l_config.php");
 	menu(1);
 	$row = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_links_links WHERE lid='$lid'"));
     $ttitle = filter($row['title'], "nohtml");
-	$lid = intval(trim($lid));
+	$lid = intval(trim((string) $lid));
 	echo "<br>";
 	$result = $db->sql_query("SELECT ratinguser, rating, ratingcomments, ratingtimestamp FROM ".$prefix."_links_votedata WHERE ratinglid = '$lid' AND ratingcomments != '' ORDER BY ratingtimestamp DESC");
 	$totalcomments = $db->sql_numrows($result);
-	$transfertitle = ereg_replace ("_", " ", $ttitle);
+	$transfertitle = preg_replace ('#_#m', " ", (string) $ttitle);
 	$displaytitle = $transfertitle;
 	OpenTable();
-	echo "<center><font class=\"option\"><b>"._LINKPROFILE.": ".htmlentities($displaytitle)."</b></font><br><br>";
+	echo "<center><font class=\"option\"><b>"._LINKPROFILE.": ".htmlentities((string) $displaytitle)."</b></font><br><br>";
 	linkinfomenu($lid);
 	echo "<br><br><br>"._TOTALOF." $totalcomments "._COMMENTS."</font></center><br>"
 	."<table align=\"center\" border=\"0\" cellspacing=\"0\" cellpadding=\"2\" width=\"450\">";
@@ -1236,7 +1262,7 @@ function viewlinkcomments($lid) {
 		$rating = intval($row['rating']);
 		$ratingcomments = $row['ratingcomments'];
 		$ratingtimestamp = $row['ratingtimestamp'];
-		ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $ratingtimestamp, $ratingtime);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $ratingtimestamp, $ratingtime);
 		$ratingtime = strftime("%F",mktime($ratingtime[4],$ratingtime[5],$ratingtime[6],$ratingtime[2],$ratingtime[3],$ratingtime[1]));
 		$date_array = explode("-", $ratingtime);
 		$timestamp = mktime(0, 0, 0, $date_array['1'], $date_array['2'], $date_array['0']);
@@ -1286,7 +1312,12 @@ function viewlinkcomments($lid) {
 }
 
 function viewlinkdetails($lid) {
-	global $prefix, $db, $admin, $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $module_name, $anonymous;
+	$useoutsidevoting = null;
+ $outsidevoteval = null;
+ $detailvotedecimal = null;
+ $anonweight = null;
+ $outsideweight = null;
+ global $prefix, $db, $admin, $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $module_name, $anonymous;
 	include("header.php");
 	include("modules/$module_name/l_config.php");
 	menu(1);
@@ -1467,12 +1498,12 @@ function viewlinkdetails($lid) {
 		if ($ovvchartheight[$rcounter]==0) $ovvchartheight[$rcounter]=1;
 	}
     $res = $db->sql_query("SELECT title FROM ".$prefix."_links_links WHERE lid='$lid'");
-    list($title) = $db->sql_fetchrow($res);
+    [$title] = $db->sql_fetchrow($res);
     $ttitle = filter($title, "nohtml");
     $displaytitle = $ttitle;
 	echo "<br>";
 	OpenTable();
-	echo "<center><font class=\"option\"><b>"._LINKPROFILE.": ".htmlentities($displaytitle)."</b></font><br><br>";
+	echo "<center><font class=\"option\"><b>"._LINKPROFILE.": ".htmlentities((string) $displaytitle)."</b></font><br><br>";
 	linkinfomenu($lid);
 	echo "<br><br>"._LINKRATINGDET."<br>"
 	.""._TOTALVOTES." $totalvotesDB<br>"
@@ -1758,7 +1789,7 @@ function brokenlink($lid) {
 	if (is_user()) {
 		include("header.php");
 		include("modules/$module_name/l_config.php");
-		$user2 = base64_decode($user);
+		$user2 = base64_decode((string) $user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
 		cookiedecode($user);
@@ -1793,7 +1824,7 @@ function brokenlinkS($lid,$cid, $title, $url, $description, $modifysubmitter) {
 	global $prefix, $db, $user, $anonymous, $cookie, $module_name, $user;
 	if (is_user()) {
 		include("modules/$module_name/l_config.php");
-		$user2 = base64_decode($user);
+		$user2 = base64_decode((string) $user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
 		cookiedecode($user);
@@ -1804,7 +1835,7 @@ function brokenlinkS($lid,$cid, $title, $url, $description, $modifysubmitter) {
 		$description = filter($description, "", 1);
 		$url = filter($url, "nohtml", 1);
 		$modifysubmitter = filter($modifysubmitter, "nohtml", 1);
-		$db->sql_query("insert into ".$prefix."_links_modrequest values (NULL, '$lid', '$cid', '0', '".addslashes($title)."', '".addslashes($url)."', '".addslashes($description)."', '".addslashes($ratinguser)."', '1')");
+		$db->sql_query("insert into ".$prefix."_links_modrequest values (NULL, '$lid', '$cid', '0', '".addslashes((string) $title)."', '".addslashes((string) $url)."', '".addslashes((string) $description)."', '".addslashes($ratinguser)."', '1')");
 		include("header.php");
 		menu(1);
 		echo "<br>";
@@ -1818,11 +1849,12 @@ function brokenlinkS($lid,$cid, $title, $url, $description, $modifysubmitter) {
 }
 
 function modifylinkrequest($lid) {
-	global $prefix, $db, $user, $module_name, $anonymous;
+	$blockunregmodify = null;
+ global $prefix, $db, $user, $module_name, $anonymous;
 	include("header.php");
 	include("modules/$module_name/l_config.php");
 	if(is_user()) {
-		$user2 = base64_decode($user);
+		$user2 = base64_decode((string) $user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
 		cookiedecode($user);
@@ -1834,7 +1866,7 @@ function modifylinkrequest($lid) {
 	echo "<br>";
 	OpenTable();
 	$blocknow = 0;
-	$lid = intval(trim($lid));
+	$lid = intval(trim((string) $lid));
 	if ($blockunregmodify == 1 && $ratinguser=="$anonymous") {
 		echo "<br><br><center>"._ONLYREGUSERSMODIFY."</center>";
 		$blocknow = 1;
@@ -1880,10 +1912,12 @@ function modifylinkrequest($lid) {
 }
 
 function modifylinkrequestS($lid, $cat, $title, $url, $description, $modifysubmitter) {
-	global $prefix, $db, $user, $module_name;
+	$anonymous = null;
+ $blockunregmodify = null;
+ global $prefix, $db, $user, $module_name;
 	include("modules/$module_name/l_config.php");
 	if(is_user()) {
-		$user2 = base64_decode($user);
+		$user2 = base64_decode((string) $user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
 		cookiedecode($user);
@@ -1903,7 +1937,7 @@ function modifylinkrequestS($lid, $cat, $title, $url, $description, $modifysubmi
 		include("footer.php");
 	}
 	if ($blocknow != 1) {
-		$cat = explode("-", $cat);
+		$cat = explode("-", (string) $cat);
 		if (empty($cat[1])) {
 			$cat[1] = 0;
 		}
@@ -1913,7 +1947,7 @@ function modifylinkrequestS($lid, $cat, $title, $url, $description, $modifysubmi
 		$lid = intval($lid);
 		$cat[0] = intval($cat[0]);
 		$cat[1] = intval($cat[1]);
-		$db->sql_query("insert into ".$prefix."_links_modrequest values (NULL, '$lid', '$cat[0]', '$cat[1]', '".addslashes($title)."', '".addslashes($url)."', '".addslashes($description)."', '".addslashes($ratinguser)."', 0)");
+		$db->sql_query("insert into ".$prefix."_links_modrequest values (NULL, '$lid', '$cat[0]', '$cat[1]', '".addslashes((string) $title)."', '".addslashes((string) $url)."', '".addslashes((string) $description)."', '".addslashes($ratinguser)."', 0)");
 		include("header.php");
 		menu(1);
 		echo "<br>";
@@ -1934,14 +1968,19 @@ function rateinfo($lid) {
 }
 
 function addrating($ratinglid, $ratinguser, $rating, $ratinghost_name, $ratingcomments) {
-	global $prefix, $db, $cookie, $user, $module_name, $anonymous;
+	$anonwaitdays = null;
+ $outsidewaitdays = null;
+ $lid = null;
+ $finalrating = null;
+ $truecomments = null;
+ global $prefix, $db, $cookie, $user, $module_name, $anonymous;
 	$passtest = "yes";
 	include("header.php");
 	include("modules/$module_name/l_config.php");
 	$ratinglid = intval($ratinglid);
 	completevoteheader();
 	if(is_user()) {
-		$user2 = base64_decode($user);
+		$user2 = base64_decode((string) $user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
 		cookiedecode($user);
@@ -2064,7 +2103,7 @@ function completevotefooter($lid, $ratinguser) {
 		echo "<center><font class=\"content\">".WEAPPREACIATE." $sitename!<br><a href=\"$url\">"._RETURNTO." $ttitle</a></font><center><br><br>";
 		$row2 = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_links_links where lid='$lid'"));
 		$title = filter($row2['title'], "nohtml");
-		$ttitle = ereg_replace (" ", "_", $title);
+		$ttitle = preg_replace ('# #m', "_", (string) $title);
 	}
 	echo "<center>";
 	linkinfomenu($lid);
@@ -2084,7 +2123,9 @@ function completevote($error) {
 }
 
 function ratelink($lid, $user) {
-	global $prefix, $cookie, $datetime, $module_name, $user_prefix;
+	$db = null;
+ $anonymous = null;
+ global $prefix, $cookie, $datetime, $module_name, $user_prefix;
 	include("header.php");
 	menu(1);
 	echo "<br>";
@@ -2095,7 +2136,7 @@ function ratelink($lid, $user) {
 	if (empty($ip)) {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
-	echo "<b>".htmlentities($displaytitle)."</b>"
+	echo "<b>".htmlentities((string) $displaytitle)."</b>"
 	."<ul><font class=\"content\">"
 	."<li>"._RATENOTE1.""
 	."<li>"._RATENOTE2.""
@@ -2103,7 +2144,7 @@ function ratelink($lid, $user) {
 	."<li>"._RATENOTE4.""
 	."<li>"._RATENOTE5."";
 	if(is_user()) {
-		$user2 = base64_decode($user);
+		$user2 = base64_decode((string) $user);
 		$user2 = addslashes($user2);
 		$cookie = explode(":", $user2);
 		echo "<li>"._YOUAREREGGED.""
@@ -2259,4 +2300,4 @@ switch($l_op) {
 
 }
 
-?>
+

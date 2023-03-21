@@ -333,8 +333,8 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Topics/copyright.php',
 
 
-		__DIR__ . '/modules/Web_Links/admin/index.php',
-		//__DIR__ . '/modules/Web_Links/index.php', Mucho Fuckups Here
+		///__DIR__ . '/modules/Web_Links/admin/index.php',
+		__DIR__ . '/modules/Web_Links/index.php',
 		//__DIR__ . '/modules/Web_Links/l_config.php',
 
 
