@@ -12,6 +12,11 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ */
+
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -168,7 +173,7 @@ function pollNewest() {
 }
 
 function pollCollector($pollID, $voteID) {
-	global $HTTP_COOKIE_VARS, $prefix, $db, $module_name;
+	global $_COOKIE, $prefix, $db, $module_name;
 	/* Fix for lamers that like to cheat on polls */
 	if (empty($ip)) {
 		$ip = $_SERVER['REMOTE_ADDR'];
@@ -306,7 +311,8 @@ function pollList() {
 }
 
 function pollResults($pollID) {
-	global $resultTableBgColor, $resultBarFile, $Default_Theme, $user, $cookie, $prefix, $admin, $module_name, $db, $admin_file, $userinfo;
+	$salto = null;
+ global $resultTableBgColor, $resultBarFile, $Default_Theme, $user, $cookie, $prefix, $admin, $module_name, $db, $admin_file, $userinfo;
 	if (is_user()) {
 		getusrinfo($user);
 		cookiedecode($user);
@@ -426,4 +432,3 @@ function pollResults($pollID) {
 	return(1);
 }
 
-?>
