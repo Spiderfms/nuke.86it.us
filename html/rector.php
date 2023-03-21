@@ -197,7 +197,6 @@ return static function (RectorConfig $rectorConfig): void {
 
 		///__DIR__ . '/modules/Advertising/index.php',
 
-
 		///__DIR__ . '/modules/AutoTheme/includes/php-nuke/atFuncs.php',
 		///__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAdmin.php',
 		///__DIR__ . '/modules/AutoTheme/includes/php-nuke/atAPI.php',
@@ -211,10 +210,8 @@ return static function (RectorConfig $rectorConfig): void {
 
 		///__DIR__ . '/modules/Avantgo/index.php',
 
-
         ///__DIR__ . '/modules/Content/index.php',
 		///__DIR__ . '/modules/Content/copyright.php',
-
 
 		///__DIR__ . '/modules/Downloads/index.php',
 		///__DIR__ . '/modules/Downloads/voteinclude.php',
@@ -252,7 +249,6 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/admin/page_footer_admin.php',
 		///__DIR__ . '/modules/Forums/admin/page_header_admin.php',
 		///__DIR__ . '/modules/Forums/admin/pagestart.php',
-		
 		///__DIR__ . '/modules/Forums/includes/auth.php',
 		  #__DIR__ . '/modules/Forums/includes/bbcode.php', LOCKEDUP WHEN TRYING TO RUN
 		///__DIR__ . '/modules/Forums/includes/constants.php',
@@ -281,7 +277,6 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/includes/usercp_register.php',
 		///__DIR__ . '/modules/Forums/includes/usercp_sendpassword.php',
 		///__DIR__ . '/modules/Forums/includes/usercp_viewprofile.php',
-
 		///__DIR__ . '/modules/Forums/common.php',
 		///__DIR__ . '/modules/Forums/config.php',
 		///__DIR__ . '/modules/Forums/copyright.php',
@@ -335,7 +330,12 @@ return static function (RectorConfig $rectorConfig): void {
 
 		///__DIR__ . '/modules/Topics/admin/index.php',
 		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
-		__DIR__ . '/modules/Topics/copyright.php',
+		///__DIR__ . '/modules/Topics/copyright.php',
+
+
+		__DIR__ . '/modules/Web_Links/admin/index.php',
+		//__DIR__ . '/modules/Web_Links/index.php', Mucho Fuckups Here
+		//__DIR__ . '/modules/Web_Links/l_config.php',
 
 
 		//__DIR__ . '/modules/Your_Account/index.php',

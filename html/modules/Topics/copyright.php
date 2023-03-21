@@ -22,11 +22,11 @@
 // NOTE: in $download_location PLEASE give the direct download link to the file!!!
 
 $author_name = "Francisco Burzi";
-$author_email = "";
-$author_homepage = "http://phpnuke.org";
+$author_email = "fburzi@gmail.com";
+$author_homepage = "http://phpnuke.coders.exchange";
 $license = "GNU/GPL";
-$download_location = "http://phpnuke.org";
-$module_version = "";
+$download_location = "https://phpnuke.coders.exchange";
+$module_version = "1.1";
 $module_description = "All topics are shown in this module with some useful information.";
 
 // DO NOT TOUCH THE FOLLOWING COPYRIGHT CODE. YOU'RE JUST ALLOWED TO CHANGE YOUR "OWN"
@@ -66,5 +66,3 @@ function show_copyright() {
 }
 
 show_copyright();
-
-?>

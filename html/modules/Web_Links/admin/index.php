@@ -16,6 +16,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
@@ -24,7 +30,7 @@ global $prefix, $db, $admin_file;
 $aid = substr("$aid", 0,25);
 $row = $db->sql_fetchrow($db->sql_query("SELECT title, admins FROM ".$prefix."_modules WHERE title='Web_Links'"));
 $row2 = $db->sql_fetchrow($db->sql_query("SELECT name, radminsuper FROM ".$prefix."_authors WHERE aid='$aid'"));
-$admins = explode(",", $row['admins']);
+$admins = explode(",", (string) $row['admins']);
 $auth_user = 0;
 for ($i=0; $i < sizeof($admins); $i++) {
 	if ($row2['name'] == "$admins[$i]" AND !empty($row['admins'])) {
@@ -39,7 +45,8 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	/*********************************************************/
 
 	function getparent($parentid, $title) {
-		global $prefix,$db;
+		$result = null;
+  global $prefix,$db;
 		$title = filter($title, "nohtml");
 		$parentid = intval($parentid);
 		$row = $db->sql_fetchrow($db->sql_query("SELECT cid, title, parentid from " . $prefix . "_links_categories where cid='$parentid'"));
@@ -100,7 +107,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 				$name = filter($row4['name'], "nohtml");
 				$email = filter($row4['email'], "nohtml");
 				$submitter = filter($row4['submitter'], "nohtml");
-				$url2 = urlencode($url);
+				$url2 = urlencode((string) $url);
 				if (empty($submitter)) {
 					$submitter = _NONE;
 				}
@@ -313,7 +320,13 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	}
 
 	function LinksModLink($lid) {
-		global $prefix, $db, $admin_file, $bgcolor1, $bgcolor2, $sitename;
+		$editorialtitle = null;
+  $editorialtext = null;
+  $editorialtime = [];
+  $adminid = null;
+  $ratingtime = [];
+  $rating2 = null;
+  global $prefix, $db, $admin_file, $bgcolor1, $bgcolor2, $sitename;
 		include ("header.php");
 		GraphicAdmin();
 		global $anonymous;
@@ -380,7 +393,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 					$editorialtimestamp = $row3['editorialtimestamp'];
 					$editorialtext = filter($row3['editorialtext']);
 					$editorialtitle = filter($row3['editorialtitle'], "nohtml");
-					ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $editorialtimestamp, $editorialtime);
+					preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $editorialtimestamp, $editorialtime);
 					$editorialtime = strftime("%F",mktime($editorialtime[4],$editorialtime[5],$editorialtime[6],$editorialtime[2],$editorialtime[3],$editorialtime[1]));
 					$date_array = explode("-", $editorialtime);
 					$timestamp = mktime(0, 0, 0, $date_array['1'], $date_array['2'], $date_array['0']);
@@ -412,7 +425,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 				$ratinguser = $row4['ratinguser'];
 				$ratingcomments = filter($row4['ratingcomments']);
 				$ratingtimestamp = $row4['ratingtimestamp'];
-				ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $ratingtimestamp, $ratingtime);
+				preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $ratingtimestamp, $ratingtime);
 				$ratingtime = strftime("%F",mktime($ratingtime[4],$ratingtime[5],$ratingtime[6],$ratingtime[2],$ratingtime[3],$ratingtime[1]));
 				$date_array = explode("-", $ratingtime);
 				$timestamp = mktime(0, 0, 0, $date_array['1'], $date_array['2'], $date_array['0']);
@@ -438,7 +451,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 				$rating = intval($row5['rating']);
 				$ratinghostname = filter($row5['ratinghostname'], "nohtml");
 				$ratingtimestamp = $row5['ratingtimestamp'];
-				ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $ratingtimestamp, $ratingtime);
+				preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $ratingtimestamp, $ratingtime);
 				$ratingtime = strftime("%F",mktime($ratingtime[4],$ratingtime[5],$ratingtime[6],$ratingtime[2],$ratingtime[3],$ratingtime[1]));
 				$date_array = explode("-", $ratingtime);
 				$timestamp = mktime(0, 0, 0, $date_array['1'], $date_array['2'], $date_array['0']);
@@ -470,7 +483,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 				$rating = intval($row7['rating']);
 				$ratinghostname = filter($row7['ratinghostname'], "nohtml");
 				$ratingtimestamp = $row7['ratingtimestamp'];
-				ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $ratingtimestamp, $ratingtime);
+				preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $ratingtimestamp, $ratingtime);
 				$ratingtime = strftime("%F",mktime($ratingtime[4],$ratingtime[5],$ratingtime[6],$ratingtime[2],$ratingtime[3],$ratingtime[1]));
 				$date_array = explode("-", $ratingtime);
 				$timestamp = mktime(0, 0, 0, $date_array['1'], $date_array['2'], $date_array['0']);
@@ -494,7 +507,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 				$rating = intval($row8['rating']);
 				$ratinghostname = filter($row8['ratinghostname'], "nohtml");
 				$ratingtimestamp = $row8['ratingtimestamp'];
-				ereg ("([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})", $ratingtimestamp, $ratingtime);
+				preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $ratingtimestamp, $ratingtime);
 				$ratingtime = strftime("%F",mktime($ratingtime[4],$ratingtime[5],$ratingtime[6],$ratingtime[2],$ratingtime[3],$ratingtime[1]));
 				$date_array = explode("-", $ratingtime);
 				$timestamp = mktime(0, 0, 0, $date_array['1'], $date_array['2'], $date_array['0']);
@@ -525,7 +538,9 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	}
 
 	function LinksDelVote($lid, $rid) {
-		global $prefix, $db, $admin_file;
+		$finalrating = null;
+  $truecomments = null;
+  global $prefix, $db, $admin_file;
 		$rid = intval($rid);
 		$lid = intval($lid);
 		$db->sql_query("delete from " . $prefix . "_links_votedata where ratingdbid=$rid");
@@ -548,7 +563,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		$cid = intval($row['cid']);
 		$title = filter($row['title'], "nohtml");
 		$url = filter($row['url'], "nohtml");
-		$url2 = urlencode($url);
+		$url2 = urlencode((string) $url);
 		$description = filter($row['description']);
 		$modifysubmitter = $row['modifysubmitter'];
 		$row2 = $db->sql_fetchrow($db->sql_query("SELECT name,email,hits from " . $prefix . "_links_links where lid='$lid'"));
@@ -624,11 +639,11 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 				$row2 = $db->sql_fetchrow($result2);
 				$title = filter($row2['title'], "nohtml");
 				$url = filter($row2['url'], "nohtml");
-				$url2 = urlencode($url);
+				$url2 = urlencode((string) $url);
 				$owner = filter($row2['submitter'], "nohtml");
 				$row4 = $db->sql_fetchrow($db->sql_query("SELECT user_email from " . $user_prefix . "_users where username='$owner'"));
 				$owneremail = filter($row4['user_email'], "nohtml");
-				$url = urlencode($url);
+				$url = urlencode((string) $url);
 				echo "<tr>"
 				."<td bgcolor=\"$colorswitch\"><a href=\"index.php?url=$url2\">$title</a>"
 				."</td>";
@@ -677,7 +692,8 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	}
 
 	function LinksListModRequests() {
-		global $bgcolor2, $prefix, $db, $user_prefix, $admin_file;
+		$xorigdescription = null;
+  global $bgcolor2, $prefix, $db, $user_prefix, $admin_file;
 		include ("header.php");
 		GraphicAdmin();
 		OpenTable();
@@ -696,18 +712,18 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 			$sid = intval($row['sid']);
 			$title = filter($row['title'], "nohtml");
 			$url = filter($row['url'], "nohtml");
-			$url = urlencode($url);
+			$url = urlencode((string) $url);
 			$description = filter($row['description']);
-			$xdescription = eregi_replace("<a href=\"http://", "<a href=\"index.php?url=http://", $description);
+			$xdescription = preg_replace('#<a href="http:\/\/#mi', "<a href=\"index.php?url=http://", (string) $description);
 			$modifysubmitter = filter($row['modifysubmitter'], "nohtml");
 			$row2 = $db->sql_fetchrow($db->sql_query("SELECT cid, sid, title, url, description, submitter from " . $prefix . "_links_links where lid='$lid'"));
 			$origcid = intval($row2['cid']);
 			$origsid = intval($row2['sid']);
 			$origtitle = filter($row2['title'], "nohtml");
 			$origurl = filter($row2['url'], "nohtml");
-			$origurl = urlencode($origurl);
+			$origurl = urlencode((string) $origurl);
 			$origdescription = filter($row2['description']);
-			$xorigdescription = eregi_replace("<a href=\"http://", "<a href=\"index.php?url=http://", $xorigdescription);
+			$xorigdescription = preg_replace('#<a href="http:\/\/#mi', "<a href=\"index.php?url=http://", (string) $xorigdescription);
 			$owner = filter($row2['submitter'], "nohtml");
 			$result3 = $db->sql_query("SELECT title from " . $prefix . "_links_categories where cid='$cid'");
 			$result5 = $db->sql_query("SELECT title from " . $prefix . "_links_categories where cid='$origcid'");
@@ -808,7 +824,9 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	}
 
 	function LinksCleanVotes() {
-		global $prefix, $db, $admin_file;
+		$finalrating = null;
+  $truecomments = null;
+  global $prefix, $db, $admin_file;
 		$result = $db->sql_query("SELECT distinct ratinglid FROM " .$prefix  . "_links_votedata");
 		while ($row = $db->sql_fetchrow($result)) {
 			$lid = intval($row['ratinglid']);
@@ -822,7 +840,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 
 	function LinksModLinkS($lid, $title, $url, $description, $name, $email, $hits, $cat) {
 		global $prefix, $db, $admin_file;
-		$cat = explode("-", $cat);
+		$cat = explode("-", (string) $cat);
 		if (empty($cat[1])) {
 			$cat[1] = 0;
 		}
@@ -863,7 +881,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		echo "<center><font class=\"title\"><b>" . _WEBLINKSADMIN . "</b></font></center>";
 		CloseTable();
 		echo "<br>";
-		$cat = explode("-", $cat);
+		$cat = explode("-", (string) $cat);
 		if (empty($cat[1])) {
 			$cat[1] = 0;
 		}
@@ -927,7 +945,8 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	}
 
 	function LinksDelCat($cid, $sid, $sub, $ok=0) {
-		global $prefix, $db, $admin_file;
+		$nblink = null;
+  global $prefix, $db, $admin_file;
 		include("header.php");
 		$cid = intval($cid);
 		$sid = intval($sid);
@@ -1021,7 +1040,8 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	}
 
 	function LinksAddEditorial($linkid, $editorialtitle, $editorialtext) {
-		global $aid, $prefix, $db, $admin_file;
+		$adminid = null;
+  global $aid, $prefix, $db, $admin_file;
 		$linkid = intval($linkid);
 		$editorialtext = filter($editorialtext, "", 1);
 		$editorialtitle = filter($editorialtitle, "nohtml", 1);
@@ -1043,7 +1063,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		$linkid = intval($linkid);
 		$editorialtext = filter($editorialtext, "", 1);
 		$editorialtitle = filter($editorialtitle, "nohtml", 1);
-		$editorialtext = stripslashes(FixQuotes($editorialtext));
+		$editorialtext = stripslashes((string) FixQuotes($editorialtext));
 		$db->sql_query("update " . $prefix . "_links_editorials set editorialtext='$editorialtext', editorialtitle='$editorialtitle' where linkid='$linkid'");
 		include("header.php");
 		GraphicAdmin();
@@ -1088,7 +1108,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		while ($row = $db->sql_fetchrow($result)) {
 			$cid = intval($row['cid']);
 			$title = filter($row['title'], "nohtml");
-			$transfertitle = str_replace (" ", "_", $title);
+			$transfertitle = str_replace (" ", "_", (string) $title);
 			echo "<a href=\"".$admin_file.".php?op=LinksValidate&amp;cid=$cid&amp;sid=0&amp;ttitle=$transfertitle\">$title</a><br>";
 		}
 		echo "</font></center></td></tr></table>";
@@ -1097,7 +1117,11 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	}
 
 	function LinksValidate($cid, $sid, $ttitle) {
-		global $bgcolor2, $prefix, $db, $admin_file;
+		$title = null;
+  $result = null;
+  $row3 = [];
+  $url = null;
+  global $bgcolor2, $prefix, $db, $admin_file;
 		$cid = intval($cid);
 		$sid = intval($sid);
 		$title = filter($title, "nohtml");
@@ -1108,7 +1132,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		CloseTable();
 		echo "<br>";
 		OpenTable();
-		$transfertitle = str_replace ("_", "", $ttitle);
+		$transfertitle = str_replace ("_", "", (string) $ttitle);
 		/* Check ALL Links */
 		echo "<table width=100% border=0>";
 		if ($cid==0 && $sid==0) {
@@ -1130,7 +1154,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 			$lid = intval($row3['lid']);
 			$title = filter($row['title'], "nohtml");
 			$row['url'] = filter($row['url'], "nohtml");
-			$vurl = parse_url($row['url']);
+			$vurl = parse_url((string) $row['url']);
 			$fp = fsockopen($vurl['host'], 80, $errno, $errstr, 15);
 			if (!$fp){
 				echo "<tr><td align=\"center\"><b>&nbsp;&nbsp;" . _FAILED . "&nbsp;&nbsp;</b></td>"
@@ -1223,7 +1247,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 				CloseTable();
 				include("footer.php");
 			}
-			$cat = explode("-", $cat);
+			$cat = explode("-", (string) $cat);
 			if (empty($cat[1])) {
 				$cat[1] = 0;
 			}
@@ -1244,7 +1268,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 					$subject = "" . _YOURLINKAT . " $sitename";
 					$message = "" . _HELLO . " $name:\n\n" . _LINKAPPROVEDMSG . "\n\n" . _LINKTITLE . ": $title\n" . _URL . ": $url\n" . _DESCRIPTION . ": $description\n\n\n" . _YOUCANBROWSEUS . " $nukeurl/modules.php?name=Web_Links\n\n" . _THANKS4YOURSUBMISSION . "\n\n$sitename " . _TEAM . "";
 					$from = "$sitename";
-					mail($email, $subject, $message, "From: $from\nX-Mailer: PHP/" . phpversion());
+					mail((string) $email, $subject, $message, "From: $from\nX-Mailer: PHP/" . phpversion());
 				}
 			}
 			include("footer.php");
@@ -1372,4 +1396,3 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	include("footer.php");
 }
 
-?>
