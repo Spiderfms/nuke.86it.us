@@ -12,6 +12,10 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ */
+
 // To have the Copyright window work in your module just fill the following
 // required information and then copy the file "copyright.php" into your
 // module's directory. It's all, as easy as it sounds ;)
@@ -42,7 +46,7 @@ function show_copyright() {
 	if ($module_version == "") { $module_version = "N/A"; }
 	if ($module_description == "") { $module_description = "N/A"; }
 	$module_name = basename(dirname(__FILE__));
-	$module_name = eregi_replace("_", " ", $module_name);
+	$module_name = preg_replace('#_#mi', " ", $module_name);
 	echo "<html>\n"
 	."<body bgcolor=\"#F6F6EB\" link=\"#363636\" alink=\"#363636\" vlink=\"#363636\">\n"
 	."<title>$module_name: Copyright Information</title>\n"

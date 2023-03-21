@@ -333,8 +333,9 @@ return static function (RectorConfig $rectorConfig): void {
 
 		///__DIR__ . '/modules/Top/index.php', 
 
-		__DIR__ . '/modules/Topics/admin/index.php',
+		///__DIR__ . '/modules/Topics/admin/index.php',
 		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
+		__DIR__ . '/modules/Topics/copyright.php',
 
 
 		//__DIR__ . '/modules/Your_Account/index.php',
