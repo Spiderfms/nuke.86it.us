@@ -12,15 +12,21 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
 
 global $prefix, $db, $admin_file;
-$aid = substr($aid, 0,25);
+$aid = substr((string) $aid, 0,25);
 $row = $db->sql_fetchrow($db->sql_query("SELECT title, admins FROM ".$prefix."_modules WHERE title='Topics'"));
 $row2 = $db->sql_fetchrow($db->sql_query("SELECT name, radminsuper FROM ".$prefix."_authors WHERE aid='$aid'"));
-$admins = explode(",", $row['admins']);
+$admins = explode(",", (string) $row['admins']);
 $auth_user = 0;
 for ($i=0; $i < sizeof($admins); $i++) {
 	if ($row2['name'] == "$admins[$i]" AND !empty($row['admins'])) {
@@ -35,7 +41,8 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	/*********************************************************/
 
 	function topicsmanager() {
-		global $prefix, $db, $admin_file, $tipath;
+		$tlist = [];
+  global $prefix, $db, $admin_file, $tipath;
 		include("header.php");
 		GraphicAdmin();
 		OpenTable();
@@ -79,12 +86,12 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		$path = "$path1[0]/$path1[1]";
 		$handle=opendir($path);
 		while ($file = readdir($handle)) {
-			if ( (ereg("^([_0-9a-zA-Z]+)([.]{1})([_0-9a-zA-Z]{3})$",$file)) AND $file != "AllTopics.gif") {
+			if ( (preg_match('#^([_0-9a-zA-Z]+)([\.]{1})([_0-9a-zA-Z]{3})$#m',$file)) AND $file != "AllTopics.gif") {
 				$tlist .= "$file ";
 			}
 		}
 		closedir($handle);
-		$tlist = explode(" ", $tlist);
+		$tlist = explode(" ", (string) $tlist);
 		sort($tlist);
 		for ($i=0; $i < sizeof($tlist); $i++) {
 			if(!empty($tlist[$i])) {
@@ -100,7 +107,8 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	}
 
 	function topicedit($topicid) {
-		global $prefix, $db, $admin_file, $tipath;
+		$tlist = [];
+  global $prefix, $db, $admin_file, $tipath;
 		include("header.php");
 		GraphicAdmin();
 		OpenTable();
@@ -130,12 +138,12 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		$path = "$path1[0]/$path1[1]";
 		$handle=opendir($path);
 		while ($file = readdir($handle)) {
-			if ( (ereg("^([_0-9a-zA-Z]+)([.]{1})([_0-9a-zA-Z]{3})$",$file)) AND $file != "AllTopics.gif") {
+			if ( (preg_match('#^([_0-9a-zA-Z]+)([\.]{1})([_0-9a-zA-Z]{3})$#m',$file)) AND $file != "AllTopics.gif") {
 				$tlist .= "$file ";
 			}
 		}
 		closedir($handle);
-		$tlist = explode(" ", $tlist);
+		$tlist = explode(" ", (string) $tlist);
 		sort($tlist);
 		for ($i=0; $i < sizeof($tlist); $i++) {
 			if(!empty($tlist[$i])) {
@@ -328,4 +336,3 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	include("footer.php");
 }
 
-?>
