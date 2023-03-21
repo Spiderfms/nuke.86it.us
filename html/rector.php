@@ -329,7 +329,9 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Submit_News/index.php',
 
 		///__DIR__ . '/modules/Surveys/comments.php',
-		__DIR__ . '/modules/Surveys/index.php',
+		///__DIR__ . '/modules/Surveys/index.php',
+
+		__DIR__ . '/modules/Top/index.php', 
 
 		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 

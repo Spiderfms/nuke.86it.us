@@ -12,6 +12,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -172,7 +178,7 @@ if ($db->sql_numrows($result8)>0) {
 		$resultArray[$counter] = array($row9['pollID'], $row9['pollTitle'], $row9['timeStamp'], $row9['voters']);
 		$counter++;
 	}
-	for ($count = 0; $count < count($resultArray); $count++) {
+	for ($count = 0; $count < (is_countable($resultArray) ? count($resultArray) : 0); $count++) {
 		$id = $resultArray[$count][0];
 		$pollTitle = $resultArray[$count][1];
 		$voters = $resultArray[$count][3];
@@ -242,7 +248,7 @@ if ($db->sql_numrows($result13) > 0) {
 		if($hits>0) {
 			$row_res = $db->sql_fetchrow($db->sql_query("SELECT title FROM ".$prefix."_downloads_categories WHERE cid='$cid'"));
 			$ctitle = filter($row_res['title'], "nohtml");
-			$utitle = ereg_replace(" ", "_", $title);
+			$utitle = preg_replace('# #m', "_", (string) $title);
 			echo "<strong><big>&middot;</big></strong>&nbsp;$lugar: <a href=\"modules.php?name=Downloads&amp;d_op=viewdownloaddetails&amp;lid=$lid&amp;ttitle=$utitle\">$title</a> ("._CATEGORY.": $ctitle) - ($hits "._LDOWNLOADS.")<br>\n";
 			$lugar++;
 		}
@@ -272,4 +278,3 @@ if ($db->sql_numrows($result14) > 0) {
 CloseTable();
 include("footer.php");
 
-?>
