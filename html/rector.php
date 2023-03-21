@@ -316,7 +316,10 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Private_Messages/index.php',
 		///__DIR__ . '/modules/Private_Messages/copyright.php',
 
-		__DIR__ . '/modules/Recommend_Us/index.php',
+		///__DIR__ . '/modules/Recommend_Us/index.php',
+
+		__DIR__ . '/modules/Reviews/admin/index.php',
+		//__DIR__ . '/modules/Reviews/index.php',
 
 		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 

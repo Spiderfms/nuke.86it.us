@@ -12,6 +12,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('ADMIN_FILE')) {
 	die ("Access Denied");
 }
@@ -20,7 +26,7 @@ global $prefix, $db, $admin_file;
 $aid = substr("$aid", 0,25);
 $row = $db->sql_fetchrow($db->sql_query("SELECT title, admins FROM ".$prefix."_modules WHERE title='Reviews'"));
 $row2 = $db->sql_fetchrow($db->sql_query("SELECT name, radminsuper FROM ".$prefix."_authors WHERE aid='$aid'"));
-$admins = explode(",", $row['admins']);
+$admins = explode(",", (string) $row['admins']);
 $auth_user = 0;
 for ($i=0; $i < sizeof($admins); $i++) {
 	if ($row2['name'] == "$admins[$i]" AND !empty($row['admins'])) {
@@ -36,14 +42,16 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 
 	function mod_main($title, $description) {
 		global $prefix, $db, $admin_file;
-		$title = stripslashes(FixQuotes($title));
-		$description = stripslashes(FixQuotes($description));
+		$title = stripslashes((string) FixQuotes($title));
+		$description = stripslashes((string) FixQuotes($description));
 		$db->sql_query("update ".$prefix."_reviews_main set title='$title', description='$description'");
 		Header("Location: ".$admin_file.".php?op=reviews");
 	}
 
 	function reviews() {
-		global $prefix, $db, $multilingual, $admin_file;
+		$languageslist = [];
+  $language = null;
+  global $prefix, $db, $multilingual, $admin_file;
 		include ("header.php");
 
 		GraphicAdmin();
@@ -52,7 +60,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		CloseTable();
 		echo "<br>";
 		$resultrm = $db->sql_query("select title, description from ".$prefix."_reviews_main");
-		list($title, $description) = $db->sql_fetchrow($resultrm);
+		[$title, $description] = $db->sql_fetchrow($resultrm);
 		OpenTable();
 		echo "<form action=\"".$admin_file.".php\" method=\"post\">"
 		."<center>"._REVTITLE."<br>"
@@ -69,11 +77,11 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 		$result = $db->sql_query("select * from ".$prefix."_reviews_add order by id");
 		$numrows = $db->sql_numrows($result);
 		if ($numrows>0) {
-			while(list($id, $date, $title, $text, $reviewer, $email, $score, $url, $url_title, $rlanguage) = $db->sql_fetchrow($result)) {
+			while([$id, $date, $title, $text, $reviewer, $email, $score, $url, $url_title, $rlanguage] = $db->sql_fetchrow($result)) {
 				$id = intval($id);
 				$score = intval($score);
-				$title = stripslashes($title);
-				$text = stripslashes($text);
+				$title = stripslashes((string) $title);
+				$text = stripslashes((string) $text);
 				echo "<form action=\"".$admin_file.".php\" method=\"post\">"
 				."<hr noshade size=\"1\"><br><table border=\"0\" cellpadding=\"1\" cellspacing=\"2\">"
 				."<tr><td><b>"._REVIEWID.":</td><td><b>$id</b></td></tr>"
@@ -91,7 +99,7 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 						}
 					}
 					closedir($handle);
-					$languageslist = explode(" ", $languageslist);
+					$languageslist = explode(" ", (string) $languageslist);
 					sort($languageslist);
 					for ($i=0; $i < sizeof($languageslist); $i++) {
 						if($languageslist[$i]!="") {
@@ -131,10 +139,10 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	function add_review($id, $date, $title, $text, $reviewer, $email, $score, $cover, $url, $url_title, $rlanguage) {
 		global $prefix, $db, $admin_file;
 		$id = intval($id);
-		$title = stripslashes(FixQuotes($title));
-		$text = stripslashes(FixQuotes($text));
-		$reviewer = stripslashes(FixQuotes($reviewer));
-		$email = stripslashes(FixQuotes($email));
+		$title = stripslashes((string) FixQuotes($title));
+		$text = stripslashes((string) FixQuotes($text));
+		$reviewer = stripslashes((string) FixQuotes($reviewer));
+		$email = stripslashes((string) FixQuotes($email));
 		$score = intval($score);
 		$db->sql_query("insert into ".$prefix."_reviews values (NULL, '$date', '$title', '$text', '$reviewer', '$email', '$score', '$cover', '$url', '$url_title', '1', '$rlanguage')");
 		$db->sql_query("delete from ".$prefix."_reviews_add WHERE id = '$id'");
@@ -165,5 +173,3 @@ if ($row2['radminsuper'] == 1 || $auth_user == 1) {
 	CloseTable();
 	include("footer.php");
 }
-
-?>
