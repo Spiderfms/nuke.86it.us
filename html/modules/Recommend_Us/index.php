@@ -12,6 +12,11 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * RandomFunctionRector
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -50,7 +55,7 @@ function RecommendSite($mess="0") {
 	."<tr><td><b>"._FFRIENDEMAIL." </b></td><td><input type=\"text\" name=\"fmail\"></td></tr>\n";
 	mt_srand ((double)microtime()*1000000);
 	$maxran = 1000000;
-	$random_num = mt_rand(0, $maxran);
+	$random_num = random_int(0, $maxran);
 	if (extension_loaded("gd") AND $gfx_chk != 0 ) {
 		echo "<tr><td><b>"._SECURITYCODE.":</b></td><td><img src='?gfx=gfx_little&random_num=$random_num' border='1' alt='"._SECURITYCODE."' title='"._SECURITYCODE."'></td></tr>\n";
 		echo "<tr><td><b>"._TYPESECCODE.":</b></td><td><input type=\"text\" NAME=\"gfx_check\" SIZE=\"3\" MAXLENGTH=\"3\"></td></tr>\n";
@@ -87,7 +92,7 @@ function SendSite($yname, $ymail, $fname, $fmail, $random_num="0", $gfx_check) {
 	} else {
 		$subject = ""._INTSITE." $sitename";
 		$message = ""._HELLO." $fname:\n\n"._YOURFRIEND." $yname "._OURSITE." $sitename "._INTSENT."\n\n\n"._FSITENAME." $sitename\n$slogan\n"._FSITEURL." $nukeurl\n";
-		mail($fmail, $subject, $message, "From: \"$yname\" <$ymail>\nX-Mailer: PHP/" . phpversion());
+		mail((string) $fmail, $subject, $message, "From: \"$yname\" <$ymail>\nX-Mailer: PHP/" . phpversion());
 		update_points(3);
 		Header("Location: modules.php?name=$module_name&op=SiteSent&fname=$fname");
 	}
@@ -120,4 +125,3 @@ switch($op) {
 
 }
 
-?>
