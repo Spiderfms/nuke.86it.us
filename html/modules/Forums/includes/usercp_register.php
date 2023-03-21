@@ -35,6 +35,7 @@
 */
 
 /* Applied rules:
+ * WhileEachToForeachRector
  * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
  * TernaryToNullCoalescingRector
  * WrapVariableVariableNameInCurlyBracesRector (https://www.php.net/manual/en/language.variables.variable.php)
@@ -121,7 +122,8 @@ if (
         // Strip all tags from data ... may p**s some people off, bah, strip_tags is
         // doing the job but can still break HTML output ... have no choice, have
         // to use htmlspecialchars ... be prepared to be moaned at.
-        while( [$var, $param] = @each($strip_var_list) )
+        // while( [$var, $param] = each($strip_var_list) ) maybe ghost
+		foreach ($strip_var_list as $var => $param)
         {
                 if ( !empty($_POST[$param]) )
                 {
@@ -133,7 +135,8 @@ if (
 
         $trim_var_list = array('cur_password' => 'cur_password', 'new_password' => 'new_password', 'password_confirm' => 'password_confirm', 'signature' => 'signature');
 
-        while( [$var, $param] = @each($trim_var_list) )
+        //while( [$var, $param] = each($trim_var_list) )
+		foreach ($trim_var_list as $var => $param)
         {
                 if ( !empty($_POST[$param]) )
                 {

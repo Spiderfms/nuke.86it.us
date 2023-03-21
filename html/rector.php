@@ -227,7 +227,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Feedback/index.php',
 
 		///__DIR__ . '/modules/Forums/admin/admin_avatar.php',
-		__DIR__ . '/modules/Forums/admin/admin_board.php',
+		///__DIR__ . '/modules/Forums/admin/admin_board.php',
 		///__DIR__ . '/modules/Forums/admin/admin_db_utilities.php',
 		///__DIR__ . '/modules/Forums/admin/admin_disallow.php',
 		///__DIR__ . '/modules/Forums/admin/admin_forum_prune.php',
