@@ -20,35 +20,45 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * TernaryToNullCoalescingRector
+ * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 //
 // Adds/updates a new session to the database for the given userid.
 // Returns the new session ID on success.
 //
 function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_autologin = 0, $admin = 0)
 {
-	global $db, $board_config;
-	global $HTTP_COOKIE_VARS, $HTTP_GET_VARS, $SID;
+	$login = null;
+ global $db, $board_config;
+	global $_COOKIE, $_GET, $SID;
 
 	$cookiename = $board_config['cookie_name'];
 	$cookiepath = $board_config['cookie_path'];
 	$cookiedomain = $board_config['cookie_domain'];
 	$cookiesecure = $board_config['cookie_secure'];
 
-	if ( isset($HTTP_COOKIE_VARS[$cookiename . '_sid']) || isset($HTTP_COOKIE_VARS[$cookiename . '_data']) )
+	if ( isset($_COOKIE[$cookiename . '_sid']) || isset($_COOKIE[$cookiename . '_data']) )
 	{
-		$session_id = isset($HTTP_COOKIE_VARS[$cookiename . '_sid']) ? $HTTP_COOKIE_VARS[$cookiename . '_sid'] : '';
-		$sessiondata = isset($HTTP_COOKIE_VARS[$cookiename . '_data']) ? unserialize(stripslashes($HTTP_COOKIE_VARS[$cookiename . '_data'])) : array();
+		$session_id = $_COOKIE[$cookiename . '_sid'] ?? '';
+		$sessiondata = isset($_COOKIE[$cookiename . '_data']) ? unserialize(stripslashes((string) $_COOKIE[$cookiename . '_data'])) : array();
 		$sessionmethod = SESSION_METHOD_COOKIE;
 	}
 	else
 	{
 		$sessiondata = array();
-		$session_id = ( isset($HTTP_GET_VARS['sid']) ) ? $HTTP_GET_VARS['sid'] : '';
+		$session_id = $_GET['sid'] ?? '';
 		$sessionmethod = SESSION_METHOD_GET;
 	}
 
 	//
-	if (!preg_match('/^[A-Za-z0-9]*$/', $session_id))
+	if (!preg_match('/^[A-Za-z0-9]*$/', (string) $session_id))
 	{
 		$session_id = '';
 	}
@@ -83,7 +93,7 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 				WHERE u.user_id = ' . (int) $user_id . "
 					AND u.user_active = 1
 					AND k.user_id = u.user_id
-					AND k.key_id = '" . md5($sessiondata['autologinid']) . "'";
+					AND k.key_id = '" . md5((string) $sessiondata['autologinid']) . "'";
 			if (!($result = $db->sql_query($sql)))
 			{
 				message_die(CRITICAL_ERROR, 'Error doing DB query userdata row fetch', '', __LINE__, __FILE__, $sql);
@@ -144,7 +154,7 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 	//
 	// Initial ban check against user id, IP and email address
 	//
-	preg_match('/(..)(..)(..)(..)/', $user_ip, $user_ip_parts);
+	preg_match('/(..)(..)(..)(..)/', (string) $user_ip, $user_ip_parts);
 
 	$sql = "SELECT ban_ip, ban_userid, ban_email
 		FROM " . BANLIST_TABLE . "
@@ -152,8 +162,8 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 			OR ban_userid = $user_id";
 	if ( $user_id != ANONYMOUS )
 	{
-		$sql .= " OR ban_email LIKE '" . str_replace("\'", "''", $userdata['user_email']) . "'
-			OR ban_email LIKE '" . substr(str_replace("\'", "''", $userdata['user_email']), strpos(str_replace("\'", "''", $userdata['user_email']), "@")) . "'";
+		$sql .= " OR ban_email LIKE '" . str_replace("\'", "''", (string) $userdata['user_email']) . "'
+			OR ban_email LIKE '" . substr(str_replace("\'", "''", (string) $userdata['user_email']), strpos(str_replace("\'", "''", (string) $userdata['user_email']), "@")) . "'";
 	}
 	if ( !($result = $db->sql_query($sql)) )
 	{
@@ -177,7 +187,7 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 			AND session_ip = '$user_ip'";
 	if ( !$db->sql_query($sql) || !$db->sql_affectedrows() )
 	{
-		$session_id = md5(dss_rand());
+		$session_id = md5((string) dss_rand());
 
 		$sql = "INSERT INTO " . SESSIONS_TABLE . "
 			(session_id, session_user_id, session_start, session_time, session_ip, session_page, session_logged_in, session_admin)
@@ -216,7 +226,7 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 			{
 				$sql = 'UPDATE ' . SESSIONS_KEYS_TABLE . "
 					SET last_ip = '$user_ip', key_id = '" . md5($auto_login_key) . "', last_login = $current_time
-					WHERE key_id = '" . md5($sessiondata['autologinid']) . "'";
+					WHERE key_id = '" . md5((string) $sessiondata['autologinid']) . "'";
 			}
 			else
 			{
@@ -250,8 +260,8 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 	$userdata['session_admin'] = $admin;
 	$userdata['session_key'] = $sessiondata['autologinid'];
 
-	setcookie($cookiename . '_data', serialize($sessiondata), $current_time + 31536000, $cookiepath, $cookiedomain, $cookiesecure);
-	setcookie($cookiename . '_sid', $session_id, 0, $cookiepath, $cookiedomain, $cookiesecure);
+	setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
+	setcookie($cookiename . '_sid', (string) $session_id, ['expires' => 0, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
 
 	$SID = 'sid=' . $session_id;
 
@@ -264,8 +274,10 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 //
 function session_pagestart($user_ip, $thispage_id, $nukeuser)
 {
-	global $db, $lang, $board_config, $session_id;
-	global $HTTP_COOKIE_VARS, $HTTP_GET_VARS, $SID;
+	$userdata = [];
+ $sql = null;
+ global $db, $lang, $board_config, $session_id;
+	global $_COOKIE, $_GET, $SID;
 
 	$cookiename = $board_config['cookie_name'];
 	$cookiepath = $board_config['cookie_path'];
@@ -275,21 +287,21 @@ function session_pagestart($user_ip, $thispage_id, $nukeuser)
 	$current_time = time();
 	unset($userdata);
 
-	if ( isset($HTTP_COOKIE_VARS[$cookiename . '_sid']) || isset($HTTP_COOKIE_VARS[$cookiename . '_data']) )
+	if ( isset($_COOKIE[$cookiename . '_sid']) || isset($_COOKIE[$cookiename . '_data']) )
 	{
-		$sessiondata = isset( $HTTP_COOKIE_VARS[$cookiename . '_data'] ) ? unserialize(stripslashes($HTTP_COOKIE_VARS[$cookiename . '_data'])) : array();
-		$session_id = isset( $HTTP_COOKIE_VARS[$cookiename . '_sid'] ) ? $HTTP_COOKIE_VARS[$cookiename . '_sid'] : '';
+		$sessiondata = isset( $_COOKIE[$cookiename . '_data'] ) ? unserialize(stripslashes((string) $_COOKIE[$cookiename . '_data'])) : array();
+		$session_id = $_COOKIE[$cookiename . '_sid'] ?? '';
 		$sessionmethod = SESSION_METHOD_COOKIE;
 	}
 	else
 	{
 		$sessiondata = array();
-		$session_id = ( isset($HTTP_GET_VARS['sid']) ) ? $HTTP_GET_VARS['sid'] : '';
+		$session_id = $_GET['sid'] ?? '';
 		$sessionmethod = SESSION_METHOD_GET;
 	}
 
 	// 
-	if (!preg_match('/^[A-Za-z0-9]*$/', $session_id))
+	if (!preg_match('/^[A-Za-z0-9]*$/', (string) $session_id))
 	{
 		$session_id = '';
 	}
@@ -329,8 +341,8 @@ function session_pagestart($user_ip, $thispage_id, $nukeuser)
 			// bits ... I've been told (by vHiker) this should alleviate problems with
 			// load balanced et al proxies while retaining some reliance on IP security.
 			//
-			$ip_check_s = substr($userdata['session_ip'], 0, 6);
-			$ip_check_u = substr($user_ip, 0, 6);
+			$ip_check_s = substr((string) $userdata['session_ip'], 0, 6);
+			$ip_check_u = substr((string) $user_ip, 0, 6);
 
 			if ($ip_check_s == $ip_check_u)
 			{
@@ -365,8 +377,8 @@ function session_pagestart($user_ip, $thispage_id, $nukeuser)
 
 					session_clean($userdata['session_id']);
 
-					setcookie($cookiename . '_data', serialize($sessiondata), $current_time + 31536000, $cookiepath, $cookiedomain, $cookiesecure);
-					setcookie($cookiename . '_sid', $session_id, 0, $cookiepath, $cookiedomain, $cookiesecure);
+					setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
+					setcookie($cookiename . '_sid', (string) $session_id, ['expires' => 0, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
 				}
 
 				// Add the session_key to the userdata array if it is set
@@ -403,7 +415,7 @@ function session_pagestart($user_ip, $thispage_id, $nukeuser)
 function session_end($session_id, $user_id)
 {
 	global $db, $lang, $board_config, $userdata;
-	global $HTTP_COOKIE_VARS, $HTTP_GET_VARS, $SID;
+	global $_COOKIE, $_GET, $SID;
 
 	$cookiename = $board_config['cookie_name'];
 	$cookiepath = $board_config['cookie_path'];
@@ -412,7 +424,7 @@ function session_end($session_id, $user_id)
 
 	$current_time = time();
 
-	if (!preg_match('/^[A-Za-z0-9]*$/', $session_id))
+	if (!preg_match('/^[A-Za-z0-9]*$/', (string) $session_id))
 	{
 		return;
 	}
@@ -433,7 +445,7 @@ function session_end($session_id, $user_id)
 	//
 	if ( isset($userdata['session_key']) && $userdata['session_key'] != '' )
 	{
-		$autologin_key = md5($userdata['session_key']);
+		$autologin_key = md5((string) $userdata['session_key']);
 		$sql = 'DELETE FROM ' . SESSIONS_KEYS_TABLE . '
 			WHERE user_id = ' . (int) $user_id . "
 				AND key_id = '$autologin_key'";
@@ -461,8 +473,8 @@ function session_end($session_id, $user_id)
 	$db->sql_freeresult($result);
 
 
-	setcookie($cookiename . '_data', '', $current_time - 31536000, $cookiepath, $cookiedomain, $cookiesecure);
-	setcookie($cookiename . '_sid', '', $current_time - 31536000, $cookiepath, $cookiedomain, $cookiesecure);
+	setcookie($cookiename . '_data', '', ['expires' => $current_time - 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
+	setcookie($cookiename . '_sid', '', ['expires' => $current_time - 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
 
 	return true;
 }
@@ -506,9 +518,10 @@ function session_clean($session_id)
 */
 function session_reset_keys($user_id, $user_ip)
 {
-	global $db, $userdata, $board_config;
+	$sessiondata = [];
+ global $db, $userdata, $board_config;
 
-	$key_sql = ($user_id == $userdata['user_id'] && !empty($userdata['session_key'])) ? "AND key_id != '" . md5($userdata['session_key']) . "'" : '';
+	$key_sql = ($user_id == $userdata['user_id'] && !empty($userdata['session_key'])) ? "AND key_id != '" . md5((string) $userdata['session_key']) . "'" : '';
 
 	$sql = 'DELETE FROM ' . SESSIONS_KEYS_TABLE . '
 		WHERE user_id = ' . (int) $user_id . "
@@ -536,7 +549,7 @@ function session_reset_keys($user_id, $user_ip)
 
 		$sql = 'UPDATE ' . SESSIONS_KEYS_TABLE . "
 			SET last_ip = '$user_ip', key_id = '" . md5($auto_login_key) . "', last_login = $current_time
-			WHERE key_id = '" . md5($userdata['session_key']) . "'";
+			WHERE key_id = '" . md5((string) $userdata['session_key']) . "'";
 		
 		if ( !$db->sql_query($sql) )
 		{
@@ -551,7 +564,7 @@ function session_reset_keys($user_id, $user_ip)
 		$cookiedomain = $board_config['cookie_domain'];
 		$cookiesecure = $board_config['cookie_secure'];
 
-		setcookie($cookiename . '_data', serialize($sessiondata), $current_time + 31536000, $cookiepath, $cookiedomain, $cookiesecure);
+		setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
 		
 		$userdata['session_key'] = $auto_login_key;
 		unset($sessiondata);
@@ -568,54 +581,54 @@ function session_reset_keys($user_id, $user_ip)
 function append_sid($url, $non_html_amp = false)
 {
 	global $SID, $admin, $userdata;
-	if (ereg("modules.php",$url)) {
+	if (preg_match('#modules.php#m',(string) $url)) {
 		// We've already Nuke'd it, don't do anything
 	}
-	elseif (ereg("admin=1", $url) || ereg("admin_", $url) || ereg("pane=", $url)){
+	elseif (preg_match('#admin=1#m', (string) $url) || preg_match('#admin_#m', (string) $url) || preg_match('#pane=#m', (string) $url)){
 								//  The format is fine, don't change a thing.
-	} else if (ereg("Your_Account", $url)){
-    	    $url = str_replace(".php", "", $url); 		//  Strip the .php from all the files,
+	} else if (preg_match('#Your_Account#m', (string) $url)){
+    	    $url = str_replace(".php", "", (string) $url); 		//  Strip the .php from all the files,
     	    $url = str_replace("modules", "modules.php", $url); //  and put it back for the modules.php
 	}
-	else if (ereg("redirect", $url))
+	else if (preg_match('#redirect#m', (string) $url))
 	{
-    	    $url = str_replace("login.php", "modules.php?name=Your_Account", $url); 		//  Strip the .php from all the files,
+    	    $url = str_replace("login.php", "modules.php?name=Your_Account", (string) $url); 		//  Strip the .php from all the files,
     	    $url = str_replace(".php", "", $url); 		//  Strip the .php from all the files,
     	    $url = str_replace("?redirect", "&redirect", $url); 		//  Strip the .php from all the files,
     	    $url = str_replace("modules", "modules.php", $url); //  and put it back for the modules.php
 	}
-	else if (ereg("menu=1", $url))
+	else if (preg_match('#menu=1#m', (string) $url))
 	{
-    	    $url = str_replace("?", "&", $url); // As we are already in nuke, change the ? to &
+    	    $url = str_replace("?", "&", (string) $url); // As we are already in nuke, change the ? to &
     	    $url = str_replace(".php", "", $url); 		//  Strip the .php from all the files,
 	    $url = "../../../modules.php?name=Forums&file=$url";
 	}
-	else if ((ereg("privmsg", $url)) && (!ereg("highlight=privmsg", $url)))
+	else if ((preg_match('#privmsg#m', (string) $url)) && (!preg_match('#highlight=privmsg#m', (string) $url)))
 	{
-    	    $url = str_replace("?", "&", $url); // As we are already in nuke, change the ? to &
+    	    $url = str_replace("?", "&", (string) $url); // As we are already in nuke, change the ? to &
     	    $url = str_replace("privmsg.php", "modules.php?name=Private_Messages&file=index", $url); //  and put it back for the modules.php
 	}
-	else if ((ereg("profile", $url)) && (!ereg("highlight", $url) && !ereg("profile", $url)))
+	else if ((preg_match('#profile#m', (string) $url)) && (!preg_match('#highlight#m', (string) $url) && !preg_match('#profile#m', (string) $url)))
 	{
-    	    $url = str_replace("?", "&", $url); // As we are already in nuke, change the ? to &
+    	    $url = str_replace("?", "&", (string) $url); // As we are already in nuke, change the ? to &
     	    $url = str_replace("profile.php", "modules.php?name=Forums&file=profile", $url); //  and put it back for the modules.php
 	    $dummy = 1;
 	}
-	else if ((ereg("memberlist", $url)) && (!ereg("highlight=memberlist", $url)))
+	else if ((preg_match('#memberlist#m', (string) $url)) && (!preg_match('#highlight=memberlist#m', (string) $url)))
 	{
-    	    $url = str_replace("?", "&", $url); // As we are already in nuke, change the ? to &
+    	    $url = str_replace("?", "&", (string) $url); // As we are already in nuke, change the ? to &
     	    $url = str_replace("memberlist.php", "modules.php?name=Members_List&file=index", $url); //  and put it back for the modules.php
 	} else {
-    	    $url = str_replace("?", "&", $url); // As we are already in nuke, change the ? to &
+    	    $url = str_replace("?", "&", (string) $url); // As we are already in nuke, change the ? to &
     	    $url = str_replace(".php", "", $url);
     	    $url = "modules.php?name=Forums&file=".$url; //Change to Nuke format
 	}
 
    if ($userdata['user_level'] > 1) { 
-	if ( !empty($SID) && !eregi('sid=', $url) )
+	if ( !empty($SID) && !preg_match('#sid=#mi', (string) $url) )
 	{
-	    if ( !empty($SID) && !eregi('sid=', $url) )	{
-		$url .= ( ( strpos($url, '?') != false ) ?  ( ( $non_html_amp ) ? '&' : '&amp;' ) : '?' ) . $SID;
+	    if ( !empty($SID) && !preg_match('#sid=#mi', (string) $url) )	{
+		$url .= ( ( strpos((string) $url, '?') != false ) ?  ( ( $non_html_amp ) ? '&' : '&amp;' ) : '?' ) . $SID;
           } 
       }    
    }
@@ -634,4 +647,3 @@ function admin_sid($url, $non_html_amp = false)
 	return $url;
 }
 
-?>
