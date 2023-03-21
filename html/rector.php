@@ -305,10 +305,6 @@ return static function (RectorConfig $rectorConfig): void {
 		//__DIR__ . '/modules/Member_List/index.php',
 		//__DIR__ . '/modules/Member_List/copyright.php',
 		
-		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
-
-		///__DIR__ . '/modules/Private_Messages/index.php',
-
 		///__DIR__ . '/modules/News/index.php',
 		///__DIR__ . '/modules/News/admin/index.php',
 		///__DIR__ . '/modules/News/index.php',
@@ -316,6 +312,10 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/News/article.php',
 		///__DIR__ . '/modules/News/associates.php',
 		///__DIR__ . '/modules/Submit_News/index.php',
+
+		__DIR__ . '/modules/Private_Messages/index.php',
+
+		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 
 
 		///__DIR__ . '/modules/Stories_Archive/index.php',
