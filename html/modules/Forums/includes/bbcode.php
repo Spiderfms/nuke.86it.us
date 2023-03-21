@@ -78,36 +78,48 @@ function prepare_bbcode_template($bbcode_tpl)
 {
 	global $lang;
 
-	$bbcode_tpl['olist_open'] = str_replace('{LIST_TYPE}', '\\1', $bbcode_tpl['olist_open']);
-
-	$bbcode_tpl['color_open'] = str_replace('{COLOR}', '\\1', $bbcode_tpl['color_open']);
-
-	$bbcode_tpl['size_open'] = str_replace('{SIZE}', '\\1', $bbcode_tpl['size_open']);
-
-	$bbcode_tpl['quote_open'] = str_replace('{L_QUOTE}', $lang['Quote'], $bbcode_tpl['quote_open']);
-
-	$bbcode_tpl['quote_username_open'] = str_replace('{L_QUOTE}', $lang['Quote'], $bbcode_tpl['quote_username_open']);
-	$bbcode_tpl['quote_username_open'] = str_replace('{L_WROTE}', $lang['wrote'], $bbcode_tpl['quote_username_open']);
-	$bbcode_tpl['quote_username_open'] = str_replace('{USERNAME}', '\\1', $bbcode_tpl['quote_username_open']);
-
-	$bbcode_tpl['code_open'] = str_replace('{L_CODE}', $lang['Code'], $bbcode_tpl['code_open']);
-
-	$bbcode_tpl['img'] = str_replace('{URL}', '\\1', $bbcode_tpl['img']);
-
-	// We do URLs in several different ways..
-	$bbcode_tpl['url1'] = str_replace('{URL}', '\\1', $bbcode_tpl['url']);
-	$bbcode_tpl['url1'] = str_replace('{DESCRIPTION}', '\\1', $bbcode_tpl['url1']);
-
-	$bbcode_tpl['url2'] = str_replace('{URL}', 'http://\\1', $bbcode_tpl['url']);
-	$bbcode_tpl['url2'] = str_replace('{DESCRIPTION}', '\\1', $bbcode_tpl['url2']);
-
-	$bbcode_tpl['url3'] = str_replace('{URL}', '\\1', $bbcode_tpl['url']);
-	$bbcode_tpl['url3'] = str_replace('{DESCRIPTION}', '\\2', $bbcode_tpl['url3']);
-
-	$bbcode_tpl['url4'] = str_replace('{URL}', 'http://\\1', $bbcode_tpl['url']);
-	$bbcode_tpl['url4'] = str_replace('{DESCRIPTION}', '\\3', $bbcode_tpl['url4']);
-
-	$bbcode_tpl['email'] = str_replace('{EMAIL}', '\\1', $bbcode_tpl['email']);
+//	$bbcode_tpl['olist_open'] = str_replace('{LIST_TYPE}', '\\1', $bbcode_tpl['olist_open']);
+	$bbcode_tpl['olist_open'] = str_replace('{LIST_TYPE}', '\\1', (string) $bbcode_tpl['olist_open']);
+ 
+//	$bbcode_tpl['color_open'] = str_replace('{COLOR}', '\\1', $bbcode_tpl['color_open']);
+	$bbcode_tpl['color_open'] = str_replace('{COLOR}', '\\1', (string) $bbcode_tpl['color_open']);
+ 
+//	$bbcode_tpl['size_open'] = str_replace('{SIZE}', '\\1', $bbcode_tpl['size_open']);
+	$bbcode_tpl['size_open'] = str_replace('{SIZE}', '\\1', (string) $bbcode_tpl['size_open']);
+ 
+//	$bbcode_tpl['quote_open'] = str_replace('{L_QUOTE}', $lang['Quote'], $bbcode_tpl['quote_open']);
+	$bbcode_tpl['quote_open'] = str_replace('{L_QUOTE}', $lang['Quote'], (string) $bbcode_tpl['quote_open']);
+ 
+//	$bbcode_tpl['quote_username_open'] = str_replace('{L_QUOTE}', $lang['Quote'], $bbcode_tpl['quote_username_open']);
+	$bbcode_tpl['quote_username_open'] = str_replace('{L_QUOTE}', $lang['Quote'], (string) $bbcode_tpl['quote_username_open']);
+ 	$bbcode_tpl['quote_username_open'] = str_replace('{L_WROTE}', $lang['wrote'], $bbcode_tpl['quote_username_open']);
+ 	$bbcode_tpl['quote_username_open'] = str_replace('{USERNAME}', '\\1', $bbcode_tpl['quote_username_open']);
+ 
+//	$bbcode_tpl['code_open'] = str_replace('{L_CODE}', $lang['Code'], $bbcode_tpl['code_open']);
+	$bbcode_tpl['code_open'] = str_replace('{L_CODE}', $lang['Code'], (string) $bbcode_tpl['code_open']);
+ 
+//	$bbcode_tpl['img'] = str_replace('{URL}', '\\1', $bbcode_tpl['img']);
+	$bbcode_tpl['img'] = str_replace('{URL}', '\\1', (string) $bbcode_tpl['img']);
+ 
+ 	// We do URLs in several different ways..
+//	$bbcode_tpl['url1'] = str_replace('{URL}', '\\1', $bbcode_tpl['url']);
+	$bbcode_tpl['url1'] = str_replace('{URL}', '\\1', (string) $bbcode_tpl['url']);
+ 	$bbcode_tpl['url1'] = str_replace('{DESCRIPTION}', '\\1', $bbcode_tpl['url1']);
+ 
+//	$bbcode_tpl['url2'] = str_replace('{URL}', 'http://\\1', $bbcode_tpl['url']);
+	$bbcode_tpl['url2'] = str_replace('{URL}', 'http://\\1', (string) $bbcode_tpl['url']);
+ 	$bbcode_tpl['url2'] = str_replace('{DESCRIPTION}', '\\1', $bbcode_tpl['url2']);
+ 
+//	$bbcode_tpl['url3'] = str_replace('{URL}', '\\1', $bbcode_tpl['url']);
+	$bbcode_tpl['url3'] = str_replace('{URL}', '\\1', (string) $bbcode_tpl['url']);
+ 	$bbcode_tpl['url3'] = str_replace('{DESCRIPTION}', '\\2', $bbcode_tpl['url3']);
+ 
+//	$bbcode_tpl['url4'] = str_replace('{URL}', 'http://\\1', $bbcode_tpl['url']);
+	$bbcode_tpl['url4'] = str_replace('{URL}', 'http://\\1', (string) $bbcode_tpl['url']);
+ 	$bbcode_tpl['url4'] = str_replace('{DESCRIPTION}', '\\3', $bbcode_tpl['url4']);
+ 
+//	$bbcode_tpl['email'] = str_replace('{EMAIL}', '\\1', $bbcode_tpl['email']);
+	$bbcode_tpl['email'] = str_replace('{EMAIL}', '\\1', (string) $bbcode_tpl['email']);
 
 	define("BBCODE_TPL_READY", true);
 
@@ -124,7 +136,7 @@ function bbencode_second_pass($text, $uid)
 {
 	global $lang, $bbcode_tpl;
 
-	$text = preg_replace('#(script|about|applet|activex|chrome):#is', "\\1&#058;", $text);
+	$text = preg_replace('#(script|about|applet|activex|chrome):#is', "\\1&#058;", (string) $text);
 
 	// pad it with a space so we can distinguish between FALSE and matching the 1st char (index 0).
 	// This is important; bbencode_quote(), bbencode_list(), and bbencode_code() all depend on it.
@@ -152,7 +164,7 @@ function bbencode_second_pass($text, $uid)
 	$text = bbencode_second_pass_code($text, $uid, $bbcode_tpl);
 
 	// [QUOTE] and [/QUOTE] for posting replies with quote, or just for quoting stuff.
-	$text = str_replace("[quote:$uid]", $bbcode_tpl['quote_open'], $text);
+	$text = str_replace("[quote:$uid]", $bbcode_tpl['quote_open'], (string) $text);
 	$text = str_replace("[/quote:$uid]", $bbcode_tpl['quote_close'], $text);
 
 	// New one liner to deal with opening quotes with usernames...
@@ -161,21 +173,21 @@ function bbencode_second_pass($text, $uid)
 
 	// [list] and [list=x] for (un)ordered lists.
 	// unordered lists
-	$text = str_replace("[list:$uid]", $bbcode_tpl['ulist_open'], $text);
+	$text = preg_replace("/\[quote:$uid=\"(.*?)\"\]/si", (string) $bbcode_tpl['quote_username_open'], $text);
 	// li tags
 	$text = str_replace("[*:$uid]", $bbcode_tpl['listitem'], $text);
 	// ending tags
 	$text = str_replace("[/list:u:$uid]", $bbcode_tpl['ulist_close'], $text);
 	$text = str_replace("[/list:o:$uid]", $bbcode_tpl['olist_close'], $text);
 	// Ordered lists
-	$text = preg_replace("/\[list=([a1]):$uid\]/si", $bbcode_tpl['olist_open'], $text);
+	$text = preg_replace("/\[list=([a1]):$uid\]/si", (string) $bbcode_tpl['olist_open'], $text);
 
 	// colours
-	$text = preg_replace("/\[color=(\#[0-9A-F]{6}|[a-z]+):$uid\]/si", $bbcode_tpl['color_open'], $text);
+	$text = preg_replace("/\[color=(\#[0-9A-F]{6}|[a-z]+):$uid\]/si", (string) $bbcode_tpl['color_open'], $text);
 	$text = str_replace("[/color:$uid]", $bbcode_tpl['color_close'], $text);
 
 	// size
-	$text = preg_replace("/\[size=([1-2]?[0-9]):$uid\]/si", $bbcode_tpl['size_open'], $text);
+	$text = preg_replace("/\[size=([1-2]?[0-9]):$uid\]/si", (string) $bbcode_tpl['size_open'], $text);
 	$text = str_replace("[/size:$uid]", $bbcode_tpl['size_close'], $text);
 
 	// [b] and [/b] for bolding text.
@@ -191,8 +203,8 @@ function bbencode_second_pass($text, $uid)
 	$text = str_replace("[/i:$uid]", $bbcode_tpl['i_close'], $text);
 
 	// Patterns and replacements for URL and email tags..
-	$patterns = array();
-	$replacements = array();
+	$patterns = [];
+	$replacements = [];
 
 	// [img]image_url_here[/img] code..
 	// This one gets first-passed..
@@ -229,7 +241,8 @@ function bbencode_second_pass($text, $uid)
 } // bbencode_second_pass()
 
 // Need to initialize the random numbers only ONCE
-mt_srand( (double) microtime() * 1000000);
+//mt_srand( (double) microtime() * 1000000);
+mt_srand( (double) microtime() * 1_000_000);
 
 function make_bbcode_uid()
 {
@@ -255,7 +268,7 @@ function bbencode_first_pass($text, $uid)
 	$text = bbencode_first_pass_pda($text, $uid, '/\[quote=\\\\&quot;(.*?)\\\\&quot;\]/is', '[/quote]', '', false, '', "[quote:$uid=\\\"\\1\\\"]");
 
 	// [list] and [list=x] for (un)ordered lists.
-	$open_tag = array();
+	$open_tag = [];
 	$open_tag[0] = "[list]";
 
 	// unordered..
@@ -268,7 +281,7 @@ function bbencode_first_pass($text, $uid)
 	$text = bbencode_first_pass_pda($text, $uid, $open_tag, "[/list]", "[/list:o]",  false, 'replace_listitems');
 
 	// [color] and [/color] for setting text color
-	$text = preg_replace("#\[color=(\#[0-9A-F]{6}|[a-z\-]+)\](.*?)\[/color\]#si", "[color=\\1:$uid]\\2[/color:$uid]", $text);
+	$text = preg_replace("#\[color=(\#[0-9A-F]{6}|[a-z\-]+)\](.*?)\[/color\]#si", "[color=\\1:$uid]\\2[/color:$uid]", (string) $text);
 
 	// [size] and [/size] for setting text size
 	$text = preg_replace("#\[size=([1-2]?[0-9])\](.*?)\[/size\]#si", "[size=\\1:$uid]\\2[/size:$uid]", $text);
@@ -283,8 +296,8 @@ function bbencode_first_pass($text, $uid)
 	$text = preg_replace("#\[i\](.*?)\[/i\]#si", "[i:$uid]\\1[/i:$uid]", $text);
 
 	// [img]image_url_here[/img] code..
-	$text = preg_replace("#\[img\]((http|ftp|https|ftps)://)([^ \?&=\#\"\n\r\t<]*?(\.(jpg|jpeg|gif|png)))\[/img\]#sie", "'[img:$uid]\\1' . str_replace(' ', '%20', '\\3') . '[/img:$uid]'", $text);
-
+    $text = preg_replace_callback('#\[img\]((http|ftp|https|ftps)://)([^ \?&=\#"<]*?(\.(jpg|jpeg|gif|png)))\[/img\]#si', fn($matches) => $matches[1] . str_replace(' ', '%20', (string) $matches[3]) . '[/img:{$uid}]', $text);
+ 
 	// Remove our padding from the string..
 	return substr($text, 1);;
 

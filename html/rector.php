@@ -251,7 +251,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/admin/page_header_admin.php',
 		///__DIR__ . '/modules/Forums/admin/pagestart.php',
 		///__DIR__ . '/modules/Forums/includes/auth.php',
-		  #__DIR__ . '/modules/Forums/includes/bbcode.php', LOCKEDUP WHEN TRYING TO RUN
+		  __DIR__ . '/modules/Forums/includes/bbcode.php', 
 		///__DIR__ . '/modules/Forums/includes/constants.php',
 		///__DIR__ . '/modules/Forums/includes/emailer.php',
 		///__DIR__ . '/modules/Forums/includes/functions.php',
@@ -284,7 +284,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/extension.inc',
 		///__DIR__ . '/modules/Forums/faq.php',
 		///__DIR__ . '/modules/Forums/groupcp.php',
-		__DIR__ . '/modules/Forums/index.php',
+		///__DIR__ . '/modules/Forums/index.php',
 		///__DIR__ . '/modules/Forums/login.php',
 		///__DIR__ . '/modules/Forums/modcp.php',
 		///__DIR__ . '/modules/Forums/nukebb.php',
