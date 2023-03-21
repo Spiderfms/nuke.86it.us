@@ -182,7 +182,7 @@ switch($op) {
 			echo "<input type=\"radio\" name=\"type\" value=\"reviews\" $sel4> "._REVIEWS."";
 		}
 		echo "</form></td></tr></table>";
-		if ($qlen == 1) {
+		if (isset($qlen) && $qlen == 1) {
 			OpenTable();
 			echo ""._SEARCHCHARACTERS."";
 			CloseTable();

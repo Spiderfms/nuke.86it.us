@@ -21,6 +21,7 @@
  ***************************************************************************/
 
 /* Applied rules:
+ * WhileEachToForeachRector
  * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
  * CountOnNullRector (https://3v4l.org/Bndc9)
  * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
@@ -159,7 +160,8 @@ function prepare_post(&$mode, &$post_data, &$bbcode_on, &$html_on, &$smilies_on,
                 if(!empty($poll_options))
                 {
                         $temp_option_text = array();
-                        while([$option_id, $option_text] = @each($poll_options))
+                        //while([$option_id, $option_text] = each($poll_options)) maybe ghost
+						foreach ($poll_options as $option_id => $option_text)
                         {
                                 $option_text = trim((string) $option_text);
                                 if (!empty($option_text))
@@ -301,7 +303,7 @@ function submit_post($mode, &$post_data, &$message, &$meta, &$forum_id, &$topic_
                         $poll_id = $db->sql_nextid();
                 }
 
-                @reset($poll_options);
+                reset($poll_options);
 
                 $poll_option_id = 1;
                 foreach ($poll_options as $option_id => $option_text) {
@@ -597,7 +599,7 @@ function user_notification($mode, &$post_data, &$topic_title, &$forum_id, &$topi
                         if ($row = $db->sql_fetchrow($result))
                         {
                                 // Sixty second limit
-                                @set_time_limit(60);
+                                set_time_limit(60);
 
                                 do
                                 {
@@ -615,12 +617,12 @@ function user_notification($mode, &$post_data, &$topic_title, &$forum_id, &$topi
                                 //
                                 if (preg_match('/[c-z]:\\\.*/i', getenv('PATH')) && !$board_config['smtp_delivery'])
                                 {
-                                        $ini_val = (@phpversion() >= '4.0.0') ? 'ini_get' : 'get_cfg_var';
+                                        $ini_val = (phpversion() >= '4.0.0') ? 'ini_get' : 'get_cfg_var';
 
                                         // We are running on windows, force delivery to use our smtp functions
                                         // since php's are broken by default
                                         $board_config['smtp_delivery'] = 1;
-                                        $board_config['smtp_host'] = @$ini_val('SMTP');
+                                        $board_config['smtp_host'] = $ini_val('SMTP');
                                 }
 
                                 if (sizeof($bcc_list_ary))
@@ -643,7 +645,7 @@ function user_notification($mode, &$post_data, &$topic_title, &$forum_id, &$topi
 
                                         $topic_title = (count($orig_word)) ? preg_replace($orig_word, $replacement_word, (string) unprepare_message($topic_title)) : unprepare_message($topic_title);
 
-                                        @reset($bcc_list_ary);
+                                        reset($bcc_list_ary);
                                         foreach ($bcc_list_ary as $user_lang => $bcc_list) {
                                             $emailer->use_template('topic_notify', $user_lang);
                                             for ($i = 0; $i < (is_countable($bcc_list) ? count($bcc_list) : 0); $i++)
@@ -778,7 +780,8 @@ function generate_smilies($mode, $page_id)
                         $row = 0;
                         $col = 0;
 
-                        while ([$smile_url, $data] = @each($rowset))
+                        //while ([$smile_url, $data] = each($rowset)) maybe ghost
+						foreach ($rowset as $smile_url => $data)
                         {
                                 if (!$col)
                                 {

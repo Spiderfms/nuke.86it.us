@@ -94,8 +94,7 @@ function menu($mainlink) {
 	echo "<a href=\"modules.php?name=$module_name&amp;l_op=AddLink\">"._ADDLINK."</a>"
 	." | <a href=\"modules.php?name=$module_name&amp;l_op=NewLinks\">"._NEW."</a>"
 	." | <a href=\"modules.php?name=$module_name&amp;l_op=MostPopular\">"._POPULAR."</a>"
-	." | <a href=\"modules.php?name=$module_name&amp;l_op=TopRated\">"._TOPRATED."</a>"
-	." | <a href=\"modules.php?name=$module_name&amp;l_op=RandomLink\">"._RANDOM."</a> ]"
+	." | <a href=\"modules.php?name=$module_name&amp;l_op=TopRated\">"._TOPRATED."</a> ]"
 	."</font></center>";
 	CloseTable();
 }
@@ -664,24 +663,6 @@ function MostPopular($ratenum, $ratetype) {
 	CloseTable();
 	include("footer.php");
 }
-
-function RandomLink() {
-	global $prefix, $db;
-	$result = $db->sql_query("SELECT * from ".$prefix."_links_links");
-	$numrows = $db->sql_numrows($result);
-	if ($numrows == 1) {
-		$random = 1;
-	} else {
-		mt_srand((double)microtime()*1000000);
-		$random = random_int(1,$numrows);
-		$random = intval($random);
-	}
-	$row2 = $db->sql_fetchrow($db->sql_query("SELECT url from ".$prefix."_links_links where lid='$random'"));
-	$url = filter($row2['url'], "nohtml");
-	$db->sql_query("update ".$prefix."_links_links set hits=hits+1 where lid='$random'");
-	Header("Location: $url");
-}
-
 function viewlink($cid, $min, $orderby, $show) {
 	$description = null;
  global $prefix, $db, $admin, $perpage, $module_name, $user, $admin_file, $locale, $mainvotedecimal, $datetime;
@@ -2228,10 +2209,6 @@ switch($l_op) {
 
 	case "MostPopular":
 	MostPopular($ratenum, $ratetype);
-	break;
-
-	case "RandomLink":
-	RandomLink();
 	break;
 
 	case "viewlink":

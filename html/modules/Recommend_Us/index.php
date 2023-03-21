@@ -68,8 +68,9 @@ function RecommendSite($mess="0") {
 	include ('footer.php');
 }
 
-function SendSite($yname, $ymail, $fname, $fmail, $random_num="0", $gfx_check) {
+function SendSite($yname, $ymail, $fname, $fmail, $random_num="", $gfx_check="") {
 	global $sitename, $slogan, $nukeurl, $module_name, $gfx_chk, $sitekey;
+	if(!isset($random_num)) { $random_num = 0; }
 	if (empty($fname) OR empty($fmail) OR empty($yname) OR empty($ymail)) {
 		include("header.php");
 		title("$sitename - "._RECOMMEND."");

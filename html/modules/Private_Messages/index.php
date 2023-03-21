@@ -1942,6 +1942,9 @@ if( $mode == "" ) {
 $template->set_filenames(array(
         'body' => 'privmsgs_body.tpl')
 );
+
+global $forum_on;
+
 if ($forum_on) {
         make_jumpbox('viewforum.'.$phpEx);
 }

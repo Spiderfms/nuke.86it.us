@@ -133,12 +133,13 @@ $result = $db->sql_query("SELECT sid, catid, aid, title, time, hometext, bodytex
 	include("footer.php");
 }
 
-function rate_article($sid, $score, $random_num="0", $gfx_check) {
-	$r_cookie = [];
+function rate_article($sid, $score, $random_num="", $gfx_check="") {
+ $r_cookie = [];
  $a = null;
  $rcookie = null;
  $code = null;
  global $prefix, $db, $ratecookie, $sitename, $r_options, $sitekey, $gfx_chk, $module_name;
+ if(!isset($random_num)) { $random_num = 0; }
 	if (isset($random_num)) {
 		$datekey = date("F j");
 		$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $random_num . $datekey));
@@ -241,10 +242,12 @@ function rate_article($sid, $score, $random_num="0", $gfx_check) {
 	}
 }
 
-function rate_complete($sid, $rated=0, $score) {
-	$db = null;
+function rate_complete($sid, $rated="", $score="") {
+ $db = null;
  $prefix = null;
  global $sitename, $user, $cookie, $module_name, $userinfo;
+if(!isset($rated))
+$rated = 0;
 	$r_options = "";
 	if (is_user()) {
                 getusrinfo($user);

@@ -978,6 +978,8 @@ function bblogin($nukeuser, $session_id) {
                 message_die(CRITICAL_ERROR, 'Error doing DB query userdata row fetch : session_pagestar');
         }
         $logindata = $db->sql_fetchrow($result);
+		
+		if(!isset($logindata['session_user_id'])){ $logindata['session_user_id'] = ''; }
         if( $nuid != $logindata['session_user_id'] ) {
             $nusername = $cookie[1];
             $sql = "SELECT user_id, username, user_password, user_active, user_level
@@ -990,6 +992,7 @@ function bblogin($nukeuser, $session_id) {
             $rowresult = $db->sql_fetchrow($result);
             $password = $cookie[2];
             if(is_countable($rowresult) ? count($rowresult) : 0 ) {
+				if(!isset($board_config['board_disable'])) { $board_config['board_disable'] = 0; }
                 if( $rowresult['user_level'] != ADMIN && $board_config['board_disable'] ) {
                     header("Location: " . append_sid("index.php", true));
                 } else {
