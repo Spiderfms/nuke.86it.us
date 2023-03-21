@@ -274,9 +274,9 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 //
 function session_pagestart($user_ip, $thispage_id, $nukeuser)
 {
-	$userdata = [];
- $sql = null;
- global $db, $lang, $board_config, $session_id;
+    $userdata = [];
+    $sql = null;
+    global $userdata, $db, $lang, $board_config, $session_id;
 	global $_COOKIE, $_GET, $SID;
 
 	$cookiename = $board_config['cookie_name'];
@@ -305,10 +305,11 @@ function session_pagestart($user_ip, $thispage_id, $nukeuser)
 	{
 		$session_id = '';
 	}
-        if ( ($nukeuser != "") && ($userdata['session_logged_in'] == "" )) {
+    if(!isset($userdata['session_logged_in'])){ $userdata['session_logged_in'] = ''; }
+	    if ( ($nukeuser != "") && ($userdata['session_logged_in'] == "" )) {
                 bblogin($nukeuser, $session_id);
         } else {
-	$thispage_id = (int) $thispage_id;
+	       $thispage_id = (int) $thispage_id;
         }
 
 	//

@@ -185,8 +185,9 @@ if ($db->sql_numrows($result8)>0) {
 		for($i = 0; $i < 12; $i++) {
 			$result10 = $db->sql_query("SELECT optionCount FROM ".$prefix."_poll_data WHERE (pollID='$id') AND (voteID='$i')");
 			$row10 = $db->sql_fetchrow($result10);
-			$optionCount = $row10['optionCount'];
-			$sum = (int)$sum+$optionCount;
+			$optionCount = $row10['optionCount'] ?? 0;
+			if(!isset($sum)) { $sum = 0; }
+			$sum = (int)$sum+$optionCount ?? 0;
 		}
 		$pollTitle = filter($pollTitle, "nohtml");
 		echo "<strong><big>&middot;</big></strong>&nbsp;$lugar: <a href=\"modules.php?name=Surveys&amp;pollID=$id\">$pollTitle</a> - ($sum "._LVOTES.")<br>\n";
