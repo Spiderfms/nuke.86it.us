@@ -282,9 +282,9 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/includes/usercp_sendpassword.php',
 		///__DIR__ . '/modules/Forums/includes/usercp_viewprofile.php',
 
-		__DIR__ . '/modules/Forums/common.php',
-		//__DIR__ . '/modules/Forums/config.php',
-		//__DIR__ . '/modules/Forums/copyright.php',
+		///__DIR__ . '/modules/Forums/common.php',
+		///__DIR__ . '/modules/Forums/config.php',
+		__DIR__ . '/modules/Forums/copyright.php',
 		//__DIR__ . '/modules/Forums/extension.inc',
 		//__DIR__ . '/modules/Forums/faq.php',
 		//__DIR__ . '/modules/Forums/groupcp.php',
