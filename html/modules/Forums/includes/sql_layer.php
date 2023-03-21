@@ -7,14 +7,22 @@
 /* Copyright (c) 2002 by Francisco Burzi                                */
 /* http://www.phpnuke.coders.exchange                                   */
 /*                                                                      */
-/* postgres fix by Rubén Campos - Oscar Silla                         */
+/* postgres fix by Rubén Campos - Oscar Silla                           */
 /*                                                                      */
 /* This program is free software. You can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
-if (eregi("sql_layer.php",$_SERVER['PHP_SELF'])) {
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
+if (preg_match('#sql_layer.php#mi',(string) $_SERVER['PHP_SELF'])) {
     Header("Location: ../index.php");
     die();
 }
@@ -76,7 +84,7 @@ global $dbtype;
 switch ($dbtype) {
 
     case "MySQL":
-        $dbi=@mysql_connect($host, $user, $password);
+        $dbi=mysql_connect($host, $user, $password);
 	mysql_select_db($db);
         return $dbi;
     break;;
@@ -89,32 +97,32 @@ switch ($dbtype) {
 
 
     case "postgres":
-         $dbi=@pg_connect("host=$host user=$user password=$password port=5432 dbname=$db");
+         $dbi=pg_connect("host=$host user=$user password=$password port=5432 dbname=$db");
          return $dbi;
     break;;
 
     case "postgres_local":
-         $dbi=@pg_connect("user=$user password=$password dbname=$db");
+         $dbi=pg_connect("user=$user password=$password dbname=$db");
          return $dbi;
     break;;
 
     case "ODBC":
-         $dbi=@odbc_connect($db,$user,$password);
+         $dbi=odbc_connect($db,$user,$password);
          return $dbi;
     break;;
 
     case "ODBC_Adabas":
-         $dbi=@odbc_connect($host.":".$db,$user,$password);
+         $dbi=odbc_connect($host.":".$db,$user,$password);
 	 return $dbi;
     break;;
 
     case "Interbase":
-         $dbi=@ibase_connect($host.":".$db,$user,$password);
+         $dbi=ibase_connect($host.":".$db,$user,$password);
          return $dbi;
     break;;
 
     case "Sybase":
-        $dbi=@sybase_connect($host, $user, $password);
+        $dbi=sybase_connect($host, $user, $password);
     	sybase_select_db($db,$dbi);
 	return $dbi;
     break;;
@@ -131,34 +139,34 @@ global $dbtype;
 switch ($dbtype) {
 
     case "MySQL":
-        $dbi=@mysql_close($id);
+        $dbi=mysql_close();
         return $dbi;
     break;;
 
     case "mSQL":
-         $dbi=@msql_close($id);
+         $dbi=msql_close($id);
          return $dbi;
     break;;
 
     case "postgres":
     case "postgres_local":
-         $dbi=@pg_close($id);
+         $dbi=pg_close($id);
          return $dbi;
     break;;
   
     case "ODBC":
     case "ODBC_Adabas":
-         $dbi=@odbc_close($id);
+         $dbi=odbc_close($id);
          return $dbi;  
     break;;
 
     case "Interbase":
-         $dbi=@ibase_close($id);
+         $dbi=ibase_close($id);
          return $dbi;
     break;;
 
     case "Sybase":
-        $dbi=@sybase_close($id);
+        $dbi=sybase_close($id);
         return $dbi;
     break;;
 
@@ -179,16 +187,16 @@ function sql_query($query, $id)
 global $dbtype;
 global $sql_debug;
 $sql_debug = 0;
-if($sql_debug) echo "SQL query: ".str_replace(",",", ",$query)."<BR>";
+if($sql_debug) echo "SQL query: ".str_replace(",",", ",(string) $query)."<BR>";
 switch ($dbtype) {
 
     case "MySQL":
-        $res=@mysql_query($query, $id);
+        $res=mysql_query($query);
         return $res;
     break;;
 
     case "mSQL":
-        $res=@msql_query($query, $id);
+        $res=msql_query($query, $id);
         return $res;
     break;;
 
@@ -204,17 +212,17 @@ switch ($dbtype) {
 
     case "ODBC":
     case "ODBC_Adabas":
-        $res=@odbc_exec($id,$query);
+        $res=odbc_exec($id,$query);
         return $res;
     break;;
 
     case "Interbase":
-        $res=@ibase_query($id,$query);
+        $res=ibase_query($id,$query);
         return $res;
     break;;
 
     case "Sybase":
-        $res=@sybase_query($query, $id);
+        $res=sybase_query($query, $id);
         return $res;
     break;;
 
@@ -231,6 +239,7 @@ switch ($dbtype) {
 
 function sql_num_rows($res)
 {
+$rows = null;
 global $dbtype;
 switch ($dbtype) {
  
@@ -385,7 +394,7 @@ switch ($dbtype)
         $result = array();
         $result = odbc_fetch_row($res, $nr);
 
-        $nf = count($result)+2; /* Field numbering starts at 1 */
+        $nf = (is_countable($result) ? count($result) : 0)+2; /* Field numbering starts at 1 */
 	for($count=1; $count < $nf; $count++) {
 	    $field_name = odbc_field_name($res, $count);
 	    $field_value = odbc_result($res, $field_name);
@@ -410,6 +419,7 @@ switch ($dbtype)
 
 function sql_fetch_object(&$res, $nr=0)
 {
+$row = null;
 global $dbtype;
 switch ($dbtype)
     {
@@ -454,7 +464,7 @@ switch ($dbtype)
         $result = odbc_fetch_row($res, $nr);
 	if(!$result) return false;
 
-        $nf = count($result)+2; /* Field numbering starts at 1 */
+        $nf = (is_countable($result) ? count($result) : 0)+2; /* Field numbering starts at 1 */
 	for($count=1; $count < $nf; $count++) {
 	    $field_name = odbc_field_name($res, $count);
 	    $field_value = odbc_result($res, $field_name);
@@ -468,11 +478,10 @@ switch ($dbtype)
 	if($orow)
 	{
 	    $arow=get_object_vars($orow);
-	    while(list($name,$key)=each($arow))
-	    {
-		$name=strtolower($name);
-		$row->$name=$key;
-	    }
+	    foreach ($arow as $name => $key) {
+         $name=strtolower($name);
+         $row->$name=$key;
+     }
     	    return $row;
 	}else return false;
     break;;
@@ -487,6 +496,7 @@ switch ($dbtype)
 
 /*** Function Free Result for function free the memory ***/
 function sql_free_result($res) {
+$rows = null;
 global $dbtype;
 switch ($dbtype) {
 
@@ -525,4 +535,3 @@ switch ($dbtype) {
 	}
 }
 
-?>
