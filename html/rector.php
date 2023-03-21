@@ -240,7 +240,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/admin/admin_styles.php',
 		///__DIR__ . '/modules/Forums/admin/admin_ug_auth.php', HAD PROBLEMS
 		///__DIR__ . '/modules/Forums/admin/admin_user_ban.php',
-		///__DIR__ . '/modules/Forums/admin/admin_users.php',
+		//__DIR__ . '/modules/Forums/admin/admin_users.php',
 		///__DIR__ . '/modules/Forums/admin/admin_words.php',
 		///__DIR__ . '/modules/Forums/admin/case.php',
 		///__DIR__ . '/modules/Forums/admin/common.php',
@@ -284,7 +284,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/extension.inc',
 		///__DIR__ . '/modules/Forums/faq.php',
 		///__DIR__ . '/modules/Forums/groupcp.php',
-		///__DIR__ . '/modules/Forums/index.php',
+		__DIR__ . '/modules/Forums/index.php',
 		///__DIR__ . '/modules/Forums/login.php',
 		///__DIR__ . '/modules/Forums/modcp.php',
 		///__DIR__ . '/modules/Forums/nukebb.php',

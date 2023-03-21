@@ -73,6 +73,9 @@ if (!defined('IN_PHPBB')) {
 	die();
 }
 
+//
+// Pick a language, any language ...
+//
 function language_select($default, $select_name = "language", $dirname="modules/Forums/language")
 {
         global $phpEx;
@@ -82,7 +85,7 @@ function language_select($default, $select_name = "language", $dirname="modules/
         $lang = array();
         while ( $file = readdir($dir) )
         {
-                if ( preg_match('#^lang_#m', $file) && !is_file($dirname . "/" . $file) && !is_link($dirname . "/" . $file) )
+                if ( preg_match("/^lang_/i", $file) && !is_file($dirname . "/" . $file) && !is_link($dirname . "/" . $file) )
                 {
                         $filename = trim(str_replace("lang_", "", $file));
                         $displayname = preg_replace("/^(.*?)_(.*)$/", "\\1 [ \\2 ]", $filename);
@@ -96,14 +99,14 @@ function language_select($default, $select_name = "language", $dirname="modules/
         asort($lang);
         reset($lang);
 
-        $lang_select = '<select name="' . $select_name . '">';
-        //while ( [$displayname, $filename] = each($lang) ) maybe ghost
-		foreach ($lang as $displayname => $filename)
-        {
-                $selected = ( strtolower((string) $default) == strtolower((string) $filename) ) ? ' selected="selected"' : '';
-                $lang_select .= '<option value="' . $filename . '"' . $selected . '>' . ucwords((string) $displayname) . '</option>';
-        }
-        $lang_select .= '</select>';
+        $lang_select = '<select class="form-control" name="' . $select_name . '" id="'.$select_name.'">';
+
+        foreach ($lang as $displayname => $filename): 
+          $selected = ( strtolower((string) $default) == strtolower((string) $filename) ) ? ' selected="selected"' : '';
+          $lang_select .= '<option value="' . $filename . '"' . $selected . '>' . ucwords((string) $displayname) . '</option>';
+        endforeach;
+
+		$lang_select .= '</select>';
 
         return $lang_select;
 }

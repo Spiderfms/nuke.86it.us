@@ -123,13 +123,17 @@ function validate_username($username)
 // Check to see if email address is banned
 // or already present in the DB
 //
+//
+// Check to see if email address is banned
+// or already present in the DB
+//
 function validate_email($email)
 {
         global $db, $lang;
 
         if (!empty($email))
         {
-                if (preg_match('/^[a-z0-9&\'\.\-_\+]+@[a-z0-9\-]+\.([a-z0-9\-]+\.)*?[a-z]+$/is', (string) $email))
+                if (preg_match('/^[a-z0-9&\'\.\-_\+]+@[a-z0-9\-]+\.([a-z0-9\-]+\.)*?[a-z]+$/is', $email))
                 {
                         $sql = "SELECT ban_email
                                 FROM " . BANLIST_TABLE;
@@ -139,8 +143,8 @@ function validate_email($email)
                                 {
                                         do
                                         {
-                                                $match_email = str_replace('*', '.*?', (string) $row['ban_email']);
-                                                if (preg_match('/^' . $match_email . '$/is', (string) $email))
+                                                $match_email = str_replace('*', '.*?', $row['ban_email']);
+                                                if (preg_match('/^' . $match_email . '$/is', $email))
                                                 {
                                                         $db->sql_freeresult($result);
                                                         return array('error' => true, 'error_msg' => $lang['Email_banned']);
@@ -153,7 +157,7 @@ function validate_email($email)
 
                         $sql = "SELECT user_email
                                 FROM " . USERS_TABLE . "
-                                WHERE user_email = '" . str_replace("\'", "''", (string) $email) . "'";
+                                WHERE user_email = '" . str_replace("\'", "''", $email) . "'";
                         if (!($result = $db->sql_query($sql)))
                         {
                                 message_die(GENERAL_ERROR, "Couldn't obtain user email information.", "", __LINE__, __FILE__, $sql);
@@ -178,22 +182,18 @@ function validate_email($email)
 //
 function validate_optional_fields(&$icq, &$aim, &$msnm, &$yim, &$website, &$location, &$occupation, &$interests, &$sig)
 {
-        $check_var_length = array('aim', 'msnm', 'yim', 'location', 'occupation', 'interests', 'sig');
-
-        for($i = 0; $i < count($check_var_length); $i++)
+        $check_var_length = count(['aim', 'msnm', 'yim', 'location', 'occupation', 'interests', 'sig']);
+ 
+        for($i = 0; $i < ($check_var_length); $i++)
         {
-                if (strlen((string) ${$check_var_length}[$i]) < 2)
-                {
-                        ${$check_var_length}[$i] = '';
-                }
+			if(!isset(${$check_var_length}[$i]))
+			${$check_var_length}[$i] = '';
+			   
+            if (strlen((string) ${$check_var_length}[$i]) < 2)
+            {
+               ${$check_var_length}[$i] = '';
+            }
         }
-
-        // ICQ number has to be only numbers.
-        if (!preg_match('/^[0-9]+$/', (string) $icq))
-        {
-                $icq = '';
-        }
-
         // website has to start with http://, followed by something with length at least 3 that
         // contains at least one dot.
         if ($website != "")

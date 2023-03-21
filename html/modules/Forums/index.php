@@ -438,16 +438,25 @@ if( ( $total_categories = count($category_rows) ) )
 								$last_post = $lang['No_Posts'];
 							}
 
-							if ( count($forum_moderators[$forum_id]) > 0 )
-							{
-								$l_moderators = ( count($forum_moderators[$forum_id]) == 1 ) ? $lang['Moderator'] : $lang['Moderators'];
-								$moderator_list = implode(', ', $forum_moderators[$forum_id]);
-							}
-							else
-							{
-								$l_moderators = '&nbsp;';
-								$moderator_list = '&nbsp;';
-							}
+							if (isset($forum_moderators[$forum_id])) {
+                               if ( $forum_moderators[$forum_id] !== [] )
+                               {
+                                  $moderator_list_font_change = ( count($forum_moderators[$forum_id]) == 1 ) ? $lang['Moderator'] : $lang['Moderators'];
+								  $l_moderators = '<span style="font-size:0.9em !important;">'.$moderator_list_font_change.'</span>';
+                                  $moderator_list_font_change = implode(', ', $forum_moderators[$forum_id]);
+								  $moderator_list = '<span style="font-size:0.9em !important;">'.$moderator_list_font_change.'</span>';
+                               }
+                               else
+                               {
+                                  $l_moderators = '';
+                                  $moderator_list = '';
+                               }
+                            }
+                            else
+                               {
+                                  $l_moderators = '';
+                                  $moderator_list = '';
+                               }
 
 							$row_color = ( !($i % 2) ) ? $theme['td_color1'] : $theme['td_color2'];
 							$row_class = ( !($i % 2) ) ? $theme['td_class1'] : $theme['td_class2'];

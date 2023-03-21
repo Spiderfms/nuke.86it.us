@@ -380,14 +380,16 @@ elseif( isset($_GET['pane']) && $_GET['pane'] == 'right' )
                                 $reg_userid_ary[] = $onlinerow_reg[$i]['user_id'];
 
                                 $username = $onlinerow_reg[$i]['username'];
-
+                                if(!isset($onlinerow_reg[$i]['user_allow_viewonline'])) { $onlinerow_reg[$i]['user_allow_viewonline'] = ''; }
                                 if( $onlinerow_reg[$i]['user_allow_viewonline'] || $userdata['user_level'] == ADMIN )
                                 {
-                                        $registered_users++;
+                                        if(!isset($registered_users)) { $registered_users = 0; }
+										$registered_users++;
                                         $hidden = FALSE;
                                 }
                                 else
                                 {
+									    if(!isset($hidden_users)) { $hidden_users = 0; }
                                         $hidden_users++;
                                         $hidden = TRUE;
                                 }

@@ -84,7 +84,8 @@ else if( isset($_POST['delete_name']) )
         {
                 message_die(GENERAL_ERROR, "Couldn't removed disallowed user.", "",__LINE__, __FILE__, $sql);
         }
-
+if(!isset($message))
+$message = '';
         $message .= $lang['Disallowed_deleted'] . "<br /><br />" . sprintf($lang['Click_return_disallowadmin'], "<a href=\"" . append_sid("admin_disallow.$phpEx") . "\">", "</a>") . "<br /><br />" . sprintf($lang['Click_return_admin_index'], "<a href=\"" . append_sid("index.$phpEx?pane=right") . "\">", "</a>");
 
         message_die(GENERAL_MESSAGE, $message);
@@ -103,14 +104,14 @@ if( !$result )
 }
 
 $disallowed = $db->sql_fetchrowset($result);
-
 //
 // Ok now generate the info for the template, which will be put out no matter
 // what mode we are in.
 //
 $disallow_select = '<select name="disallowed_id">';
+if(!isset($lang['no_disallowed'])) {$lang['no_disallowed'] = ''; }
 
-if( trim((string) $disallowed) == "" )
+if($disallowed == '')
 {
         $disallow_select .= '<option value="">' . $lang['no_disallowed'] . '</option>';
 }
@@ -133,7 +134,7 @@ $template->assign_vars(array(
         "S_DISALLOW_SELECT" => $disallow_select,
         "S_FORM_ACTION" => append_sid("admin_disallow.$phpEx"),
 
-        "L_INFO" => $output_info,
+        "L_INFO" => $output_info ?? '',
         "L_DISALLOW_TITLE" => $lang['Disallow_control'],
         "L_DISALLOW_EXPLAIN" => $lang['Disallow_explain'],
         "L_DELETE" => $lang['Delete_disallow'],
