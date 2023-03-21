@@ -20,6 +20,14 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * TernaryToNullCoalescingRector
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if ( !defined('IN_PHPBB') )
 {
    die("Hacking attempt");
@@ -38,9 +46,9 @@ if ( $board_config['gzip_compress'] )
 {
         $phpver = phpversion();
 
-	$useragent = (isset($HTTP_SERVER_VARS['HTTP_USER_AGENT'])) ? $HTTP_SERVER_VARS['HTTP_USER_AGENT'] : getenv('HTTP_USER_AGENT');
+	$useragent = $_SERVER['HTTP_USER_AGENT'] ?? getenv('HTTP_USER_AGENT');
 
-        if ( $phpver >= '4.0.4pl1' && ( strstr($useragent,'compatible') || strstr($useragent,'Gecko') ) )
+        if ( $phpver >= '4.0.4pl1' && ( strstr((string) $useragent,'compatible') || strstr((string) $useragent,'Gecko') ) )
         {
                 if ( extension_loaded('zlib') )
                 {
@@ -49,7 +57,7 @@ if ( $board_config['gzip_compress'] )
         }
         else if ( $phpver > '4.0' )
         {
-                if ( strstr($HTTP_SERVER_VARS['HTTP_ACCEPT_ENCODING'], 'gzip') )
+                if ( strstr((string) $_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') )
                 {
                         if ( extension_loaded('zlib') )
                         {
@@ -322,7 +330,8 @@ if (!isset($nav_links))
 
 $nav_links_html = '';
 $nav_link_proto = '<link rel="%s" href="%s" title="%s" />' . "\n";
-while( list($nav_item, $nav_array) = @each($nav_links) )
+//while( [$nav_item, $nav_array] = each($nav_links) ) maybe ghost
+foreach ($nav_links as $nav_item => $nav_array)
 {
         if ( !empty($nav_array['url']) )
         {
@@ -331,15 +340,14 @@ while( list($nav_item, $nav_array) = @each($nav_links) )
         else
         {
                 // We have a nested array, used for items like <link rel='chapter'> that can occur more than once.
-                while( list(,$nested_array) = each($nav_array) )
-                {
-                        $nav_links_html .= sprintf($nav_link_proto, $nav_item, $nested_array['url'], $nested_array['title']);
+                foreach ($nav_array as $nested_array) {
+                    $nav_links_html .= sprintf($nav_link_proto, $nav_item, $nested_array['url'], $nested_array['title']);
                 }
         }
 }
 
 // Format Timezone. We are unable to use array_pop here, because of PHP3 compatibility
-$l_timezone = explode('.', $board_config['board_timezone']);
+$l_timezone = explode('.', (string) $board_config['board_timezone']);
 $l_timezone = (count($l_timezone) > 1 && $l_timezone[count($l_timezone)-1] != 0) ? $lang[sprintf('%.1f', $board_config['board_timezone'])] : $lang[number_format($board_config['board_timezone'])];
 //
 // The following assigns all _common_ variables that may be used at any point
@@ -471,7 +479,7 @@ else
 
 // Work around for "current" Apache 2 + PHP module which seems to not
 // cope with private cache control setting
-if (!empty($HTTP_SERVER_VARS['SERVER_SOFTWARE']) && strstr($HTTP_SERVER_VARS['SERVER_SOFTWARE'], 'Apache/2'))
+if (!empty($_SERVER['SERVER_SOFTWARE']) && strstr((string) $_SERVER['SERVER_SOFTWARE'], 'Apache/2'))
 {
         header ('Cache-Control: no-cache, pre-check=0, post-check=0');
 }
@@ -484,4 +492,3 @@ header ('Pragma: no-cache');
 
 $template->pparse('overall_header');
 
-?>
