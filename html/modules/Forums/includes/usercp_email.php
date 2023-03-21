@@ -59,6 +59,11 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if ( !defined('IN_PHPBB') )
 {
         die("Hacking attempt");
@@ -68,14 +73,14 @@ if ( !defined('IN_PHPBB') )
 // Is send through board enabled? No, return to index
 if (!$board_config['board_email_form'])
 {
-        $header_location = ( @preg_match("/Microsoft|WebSTAR|Xitami/", $_SERVER["SERVER_SOFTWARE"]) ) ? "Refresh: 0; URL=" : "Location: ";
+        $header_location = ( preg_match("/Microsoft|WebSTAR|Xitami/", (string) $_SERVER["SERVER_SOFTWARE"]) ) ? "Refresh: 0; URL=" : "Location: ";
         header($header_location . append_sid("index.$phpEx", true));
         exit;
 }
 
-if ( !empty($HTTP_GET_VARS[POST_USERS_URL]) || !empty($HTTP_POST_VARS[POST_USERS_URL]) )
+if ( !empty($_GET[POST_USERS_URL]) || !empty($_POST[POST_USERS_URL]) )
 {
-        $user_id = ( !empty($HTTP_GET_VARS[POST_USERS_URL]) ) ? intval($HTTP_GET_VARS[POST_USERS_URL]) : intval($HTTP_POST_VARS[POST_USERS_URL]);
+        $user_id = ( !empty($_GET[POST_USERS_URL]) ) ? intval($_GET[POST_USERS_URL]) : intval($_POST[POST_USERS_URL]);
 }
 else
 {
@@ -106,13 +111,13 @@ if ( $result = $db->sql_query($sql) )
                         message_die(GENERAL_MESSAGE, $lang['Flood_email_limit']);
                 }
 
-                if ( isset($HTTP_POST_VARS['submit']) )
+                if ( isset($_POST['submit']) )
                 {
                         $error = FALSE;
 
-                        if ( !empty($HTTP_POST_VARS['subject']) )
+                        if ( !empty($_POST['subject']) )
                         {
-                                $subject = trim(stripslashes($HTTP_POST_VARS['subject']));
+                                $subject = trim(stripslashes((string) $_POST['subject']));
                         }
                         else
                         {
@@ -120,9 +125,9 @@ if ( $result = $db->sql_query($sql) )
                                 $error_msg = ( !empty($error_msg) ) ? $error_msg . '<br />' . $lang['Empty_subject_email'] : $lang['Empty_subject_email'];
                         }
 
-                        if ( !empty($HTTP_POST_VARS['message']) )
+                        if ( !empty($_POST['message']) )
                         {
-                                $message = trim(stripslashes($HTTP_POST_VARS['message']));
+                                $message = trim(stripslashes((string) $_POST['message']));
                         }
                         else
                         {
@@ -163,7 +168,7 @@ if ( $result = $db->sql_query($sql) )
                                         $emailer->send();
                                         $emailer->reset();
 
-                                        if ( !empty($HTTP_POST_VARS['cc_email']) )
+                                        if ( !empty($_POST['cc_email']) )
                                         {
                                                 $emailer->from($userdata['user_email']);
                                                 $emailer->replyto($userdata['user_email']);
@@ -248,4 +253,3 @@ else
         message_die(GENERAL_MESSAGE, $lang['User_not_exist']);
 }
 
-?>
