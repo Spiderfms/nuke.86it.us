@@ -297,8 +297,8 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/search.php',
 		///__DIR__ . '/modules/Forums/usercp_confirm.php',
 		///__DIR__ . '/modules/Forums/viewforum.php',
-		__DIR__ . '/modules/Forums/viewonline.php',
-		//__DIR__ . '/modules/Forums/viewtopic.php',
+		///__DIR__ . '/modules/Forums/viewonline.php',
+		///__DIR__ . '/modules/Forums/viewtopic.php',
 
 		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 

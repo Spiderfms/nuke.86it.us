@@ -351,7 +351,7 @@ function init_userprefs($userdata)
 		$default_lang = phpbb_ltrim(basename((string) phpbb_rtrim($board_config['default_lang'])), "'");
 	}
 
-	if ( !file_exists(@phpbb_realpath($phpbb_root_path . 'language/lang_' . $default_lang . '/lang_main.'.$phpEx)) )
+	if ( !file_exists(phpbb_realpath($phpbb_root_path . 'language/lang_' . $default_lang . '/lang_main.'.$phpEx)) )
 	{
 		if ( $userdata['user_id'] != ANONYMOUS )
 		{
@@ -366,7 +366,7 @@ function init_userprefs($userdata)
 			$default_lang = 'english';
 		}
 
-		if ( !file_exists(@phpbb_realpath($phpbb_root_path . 'language/lang_' . $default_lang . '/lang_main.'.$phpEx)) )
+		if ( !file_exists(phpbb_realpath($phpbb_root_path . 'language/lang_' . $default_lang . '/lang_main.'.$phpEx)) )
 		{
 			message_die(CRITICAL_ERROR, 'Could not locate valid language pack');
 		}
@@ -406,7 +406,7 @@ function init_userprefs($userdata)
 
 	if ( defined('IN_ADMIN') )
 	{
-		if( !file_exists(@phpbb_realpath($phpbb_root_path . 'language/lang_' . $board_config['default_lang'] . '/lang_admin.'.$phpEx)) )
+		if( !file_exists(phpbb_realpath($phpbb_root_path . 'language/lang_' . $board_config['default_lang'] . '/lang_admin.'.$phpEx)) )
 		{
 			$board_config['default_lang'] = 'english';
 		}
@@ -504,16 +504,17 @@ function setup_style($style)
                 if (file_exists("themes/$ThemeSel/$template_name/index_body.tpl")) {
                     include($template_path . $template_name . '/' . $template_name . '.cfg');
                 } else {
-		@include($phpbb_root_path . $template_path . $template_name . '/' . $template_name . '.cfg');
+		include($phpbb_root_path . $template_path . $template_name . '/' . $template_name . '.cfg');
                 }
 		if ( !defined('TEMPLATE_CONFIG') )
 		{
 			message_die(CRITICAL_ERROR, "Could not open $template_name template config file", '', __LINE__, __FILE__);
 		}
 
-		$img_lang = ( file_exists(@phpbb_realpath($phpbb_root_path . $current_template_path . '/images/lang_' . $board_config['default_lang'])) ) ? $board_config['default_lang'] : 'english';
+		$img_lang = ( file_exists(phpbb_realpath($phpbb_root_path . $current_template_path . '/images/lang_' . $board_config['default_lang'])) ) ? $board_config['default_lang'] : 'english';
 
-		while( [$key, $value] = @each($images) )
+		//while( [$key, $value] = each($images) ) maybe ghost
+		foreach ($images as $key => $value)
 		{
 			if ( !is_array($value) )
 			{
@@ -547,14 +548,15 @@ function create_date($format, $gmepoch, $tz)
 
 	if ( empty($translate) && $board_config['default_lang'] != 'english' )
 	{
-		@reset($lang['datetime']);
-		while ( [$match, $replace] = @each($lang['datetime']) )
+		reset($lang['datetime']);
+		//while ( [$match, $replace] = each($lang['datetime']) ) maybe ghost
+		foreach ($lang['datetime'] as $match => $replace)
 		{
 			$translate[$match] = $replace;
 		}
 	}
 
-	return ( !empty($translate) ) ? strtr(@gmdate($format, $gmepoch + (3600 * $tz)), $translate) : @gmdate($format, $gmepoch + (3600 * $tz));
+	return ( !empty($translate) ) ? strtr(gmdate($format, $gmepoch + (3600 * $tz)), $translate) : gmdate($format, $gmepoch + (3600 * $tz));
 }
 
 //
@@ -924,7 +926,7 @@ function phpbb_realpath($path)
 {
 	global $phpbb_root_path, $phpEx;
 
-	return (!@function_exists('realpath') || !@realpath($phpbb_root_path . 'modules/Forums/includes/functions.'.$phpEx)) ? $path : @realpath($path);
+	return (!function_exists('realpath') || !realpath($phpbb_root_path . 'modules/Forums/includes/functions.'.$phpEx)) ? $path : realpath($path);
 }
 
 function redirect($url)
@@ -948,7 +950,7 @@ function redirect($url)
 	$url = preg_replace('#^\/?(.*?)\/?$#', '/\1', trim((string) $url));
 
 	// Redirect via an HTML form for PITA webservers
-	if (@preg_match('/Microsoft|WebSTAR|Xitami/', getenv('SERVER_SOFTWARE')))
+	if (preg_match('/Microsoft|WebSTAR|Xitami/', getenv('SERVER_SOFTWARE')))
 	{
 		header('Refresh: 0; URL=' . $server_protocol . $server_name . $server_port . $script_name . $url);
 		echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta http-equiv="refresh" content="0; url=' . $server_protocol . $server_name . $server_port . $script_name . $url . '"><title>Redirect</title></head><body><div align="center">If your browser does not support meta redirection please click <a href="' . $server_protocol . $server_name . $server_port . $script_name . $url . '">HERE</a> to be redirected</div></body></html>';

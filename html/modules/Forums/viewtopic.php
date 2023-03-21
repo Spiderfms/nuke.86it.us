@@ -19,6 +19,19 @@
  *   (at your option) any later version.
  *
  ***************************************************************************/
+ 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * PregReplaceEModifierRector (https://wiki.php.net/rfc/remove_preg_replace_eval_modifier https://stackoverflow.com/q/19245205/1348344)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * TernaryToNullCoalescingRector
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
+ * ClosureToArrowFunctionRector (https://wiki.php.net/rfc/arrow_functions_v2)
+ * StrStartsWithRector (https://wiki.php.net/rfc/add_str_starts_with_and_ends_with_functions)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if ( !defined('MODULE_FILE') )
 {
 	die("You can't access this file directly...");
@@ -42,21 +55,21 @@ include_once("includes/bbcode.php");
 // Start initial var setup
 //
 $topic_id = $post_id = 0;
-if ( isset($HTTP_GET_VARS[POST_TOPIC_URL]) )
+if ( isset($_GET[POST_TOPIC_URL]) )
 {
-        $topic_id = intval($HTTP_GET_VARS[POST_TOPIC_URL]);
+        $topic_id = intval($_GET[POST_TOPIC_URL]);
 }
-else if ( isset($HTTP_GET_VARS['topic']) )
+else if ( isset($_GET['topic']) )
 {
-        $topic_id = intval($HTTP_GET_VARS['topic']);
-}
-
-if ( isset($HTTP_GET_VARS[POST_POST_URL]))
-{
-        $post_id = intval($HTTP_GET_VARS[POST_POST_URL]);
+        $topic_id = intval($_GET['topic']);
 }
 
-$start = ( isset($HTTP_GET_VARS['start']) ) ? intval($HTTP_GET_VARS['start']) : 0;
+if ( isset($_GET[POST_POST_URL]))
+{
+        $post_id = intval($_GET[POST_POST_URL]);
+}
+
+$start = ( isset($_GET['start']) ) ? intval($_GET['start']) : 0;
 
 if (!$topic_id && !$post_id)
 {
@@ -67,16 +80,16 @@ if (!$topic_id && !$post_id)
 // Find topic id if user requested a newer
 // or older topic
 //
-if ( isset($HTTP_GET_VARS['view']) && empty($HTTP_GET_VARS[POST_POST_URL]) )
+if ( isset($_GET['view']) && empty($_GET[POST_POST_URL]) )
 {
-        if ( $HTTP_GET_VARS['view'] == 'newest' )
+        if ( $_GET['view'] == 'newest' )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
 
-                if ( isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_sid']) || isset($HTTP_GET_VARS['sid']) )
+                if ( isset($_COOKIE[$board_config['cookie_name'] . '_sid']) || isset($_GET['sid']) )
                 {
-                        $session_id = isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_sid']) ? $HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_sid'] : $HTTP_GET_VARS['sid'];
-                        if (!preg_match('/^[A-Za-z0-9]*$/', $session_id))
+                        $session_id = $_COOKIE[$board_config['cookie_name'] . '_sid'] ?? $_GET['sid'];
+                        if (!preg_match('/^[A-Za-z0-9]*$/', (string) $session_id))
                         {
                         $session_id = '';
                         }
@@ -109,10 +122,10 @@ if ( isset($HTTP_GET_VARS['view']) && empty($HTTP_GET_VARS[POST_POST_URL]) )
                 header($header_location . append_sid("viewtopic.$phpEx?" . POST_TOPIC_URL . "=$topic_id", true));
                 exit;
         }
-        else if ( $HTTP_GET_VARS['view'] == 'next' || $HTTP_GET_VARS['view'] == 'previous' )
+        else if ( $_GET['view'] == 'next' || $_GET['view'] == 'previous' )
         {
-                $sql_condition = ( $HTTP_GET_VARS['view'] == 'next' ) ? '>' : '<';
-                $sql_ordering = ( $HTTP_GET_VARS['view'] == 'next' ) ? 'ASC' : 'DESC';
+                $sql_condition = ( $_GET['view'] == 'next' ) ? '>' : '<';
+                $sql_ordering = ( $_GET['view'] == 'next' ) ? 'ASC' : 'DESC';
 
                 $sql = "SELECT t.topic_id
 			FROM " . TOPICS_TABLE . " t, " . TOPICS_TABLE . " t2
@@ -134,7 +147,7 @@ if ( isset($HTTP_GET_VARS['view']) && empty($HTTP_GET_VARS[POST_POST_URL]) )
                 }
                 else
                 {
-                        $message = ( $HTTP_GET_VARS['view'] == 'next' ) ? 'No_newer_topics' : 'No_older_topics';
+                        $message = ( $_GET['view'] == 'next' ) ? 'No_newer_topics' : 'No_older_topics';
                         message_die(GENERAL_MESSAGE, $message);
                 }
         }
@@ -189,7 +202,7 @@ if( !$is_auth['auth_view'] || !$is_auth['auth_read'] )
         {
 		$redirect = ($post_id) ? POST_POST_URL . "=$post_id" : POST_TOPIC_URL . "=$topic_id";
 		$redirect .= ($start) ? "&start=$start" : '';
-                $header_location = ( @preg_match("/Microsoft|WebSTAR|Xitami/", $_SERVER["SERVER_SOFTWARE"]) ) ? "Refresh: 0; URL=" : "Location: ";
+                $header_location = ( preg_match("/Microsoft|WebSTAR|Xitami/", (string) $_SERVER["SERVER_SOFTWARE"]) ) ? "Refresh: 0; URL=" : "Location: ";
                 header($header_location . append_sid("login.$phpEx?redirect=viewtopic.$phpEx&$redirect", true));
                 exit;
         }
@@ -230,9 +243,9 @@ if( $userdata['session_logged_in'] )
 
         if ( $row = $db->sql_fetchrow($result) )
         {
-                if ( isset($HTTP_GET_VARS['unwatch']) )
+                if ( isset($_GET['unwatch']) )
                 {
-                        if ( $HTTP_GET_VARS['unwatch'] == 'topic' )
+                        if ( $_GET['unwatch'] == 'topic' )
                         {
                                 $is_watching_topic = 0;
 
@@ -273,9 +286,9 @@ if( $userdata['session_logged_in'] )
         }
         else
         {
-                if ( isset($HTTP_GET_VARS['watch']) )
+                if ( isset($_GET['watch']) )
                 {
-                        if ( $HTTP_GET_VARS['watch'] == 'topic' )
+                        if ( $_GET['watch'] == 'topic' )
                         {
                                 $is_watching_topic = TRUE;
 
@@ -303,11 +316,11 @@ if( $userdata['session_logged_in'] )
 }
 else
 {
-        if ( isset($HTTP_GET_VARS['unwatch']) )
+        if ( isset($_GET['unwatch']) )
         {
-                if ( $HTTP_GET_VARS['unwatch'] == 'topic' )
+                if ( $_GET['unwatch'] == 'topic' )
                 {
-                        $header_location = ( @preg_match("/Microsoft|WebSTAR|Xitami/", $_SERVER["SERVER_SOFTWARE"]) ) ? "Refresh: 0; URL=" : "Location: ";
+                        $header_location = ( preg_match("/Microsoft|WebSTAR|Xitami/", (string) $_SERVER["SERVER_SOFTWARE"]) ) ? "Refresh: 0; URL=" : "Location: ";
                         header($header_location . append_sid("login.$phpEx?redirect=viewtopic.$phpEx&" . POST_TOPIC_URL . "=$topic_id&unwatch=topic", true));
                         exit;
                 }
@@ -327,9 +340,9 @@ else
 $previous_days = array(0, 1, 7, 14, 30, 90, 180, 364);
 $previous_days_text = array($lang['All_Posts'], $lang['1_Day'], $lang['7_Days'], $lang['2_Weeks'], $lang['1_Month'], $lang['3_Months'], $lang['6_Months'], $lang['1_Year']);
 
-if( !empty($HTTP_POST_VARS['postdays']) || !empty($HTTP_GET_VARS['postdays']) )
+if( !empty($_POST['postdays']) || !empty($_GET['postdays']) )
 {
-        $post_days = ( !empty($HTTP_POST_VARS['postdays']) ) ? intval($HTTP_POST_VARS['postdays']) : intval($HTTP_GET_VARS['postdays']);
+        $post_days = ( !empty($_POST['postdays']) ) ? intval($_POST['postdays']) : intval($_GET['postdays']);
         $min_post_time = time() - (intval($post_days) * 86400);
 
         $sql = "SELECT COUNT(p.post_id) AS num_posts
@@ -346,7 +359,7 @@ if( !empty($HTTP_POST_VARS['postdays']) || !empty($HTTP_GET_VARS['postdays']) )
 
         $limit_posts_time = "AND p.post_time >= $min_post_time ";
 
-        if ( !empty($HTTP_POST_VARS['postdays']))
+        if ( !empty($_POST['postdays']))
         {
                 $start = 0;
         }
@@ -370,9 +383,9 @@ $select_post_days .= '</select>';
 //
 // Decide how to order the post display
 //
-if ( !empty($HTTP_POST_VARS['postorder']) || !empty($HTTP_GET_VARS['postorder']) )
+if ( !empty($_POST['postorder']) || !empty($_GET['postorder']) )
 {
-	$post_order = (!empty($HTTP_POST_VARS['postorder'])) ? htmlspecialchars($HTTP_POST_VARS['postorder']) : htmlspecialchars($HTTP_GET_VARS['postorder']);
+	$post_order = (!empty($_POST['postorder'])) ? htmlspecialchars((string) $_POST['postorder']) : htmlspecialchars((string) $_GET['postorder']);
         $post_time_order = ($post_order == "asc") ? "ASC" : "DESC";
 }
 else
@@ -483,17 +496,17 @@ obtain_word_list($orig_word, $replacement_word);
 //
 if ( count($orig_word) )
 {
-        $topic_title = preg_replace($orig_word, $replacement_word, $topic_title);
+        $topic_title = preg_replace($orig_word, $replacement_word, (string) $topic_title);
 }
 
 //
 // Was a highlight request part of the URI?
 //
 $highlight_match = $highlight = '';
-if (isset($HTTP_GET_VARS['highlight']))
+if (isset($_GET['highlight']))
 {
         // Split words and phrases
-        $words = explode(' ', trim(htmlspecialchars($HTTP_GET_VARS['highlight'])));
+        $words = explode(' ', trim(htmlspecialchars((string) $_GET['highlight'])));
 
         for($i = 0; $i < sizeof($words); $i++)
         {
@@ -504,7 +517,7 @@ if (isset($HTTP_GET_VARS['highlight']))
         }
         unset($words);
 
-	$highlight = urlencode($HTTP_GET_VARS['highlight']);
+	$highlight = urlencode((string) $_GET['highlight']);
         $highlight_match = phpbb_rtrim($highlight_match, "\\");
 }
 
@@ -544,8 +557,8 @@ $post_alt = ( $forum_topic_data['forum_status'] == FORUM_LOCKED ) ? $lang['Forum
 //
 if ( $userdata['session_logged_in'] )
 {
-        $tracking_topics = ( isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_t']) ) ? unserialize($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_t']) : array();
-        $tracking_forums = ( isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f']) ) ? unserialize($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f']) : array();
+        $tracking_topics = ( isset($_COOKIE[$board_config['cookie_name'] . '_t']) ) ? unserialize($_COOKIE[$board_config['cookie_name'] . '_t']) : array();
+        $tracking_forums = ( isset($_COOKIE[$board_config['cookie_name'] . '_f']) ) ? unserialize($_COOKIE[$board_config['cookie_name'] . '_f']) : array();
 
         if ( !empty($tracking_topics[$topic_id]) && !empty($tracking_forums[$forum_id]) )
         {
@@ -560,7 +573,7 @@ if ( $userdata['session_logged_in'] )
                 $topic_last_read = $userdata['user_lastvisit'];
         }
 
-        if ( count($tracking_topics) >= 150 && empty($tracking_topics[$topic_id]) )
+        if ( (is_countable($tracking_topics) ? count($tracking_topics) : 0) >= 150 && empty($tracking_topics[$topic_id]) )
         {
                 asort($tracking_topics);
                 unset($tracking_topics[key($tracking_topics)]);
@@ -568,7 +581,7 @@ if ( $userdata['session_logged_in'] )
 
         $tracking_topics[$topic_id] = time();
 
-        setcookie($board_config['cookie_name'] . '_t', serialize($tracking_topics), 0, $board_config['cookie_path'], $board_config['cookie_domain'], $board_config['cookie_secure']);
+        setcookie($board_config['cookie_name'] . '_t', serialize($tracking_topics), ['expires' => 0, 'path' => $board_config['cookie_path'], 'domain' => $board_config['cookie_domain'], 'secure' => $board_config['cookie_secure']]);
 }
 
 //
@@ -701,7 +714,7 @@ if ( !empty($forum_topic_data['topic_vote']) )
         if ( $vote_info = $db->sql_fetchrowset($result) )
         {
                 $db->sql_freeresult($result);
-                $vote_options = count($vote_info);
+                $vote_options = is_countable($vote_info) ? count($vote_info) : 0;
 
                 $vote_id = $vote_info[0]['vote_id'];
                 $vote_title = $vote_info[0]['vote_text'];
@@ -718,9 +731,9 @@ if ( !empty($forum_topic_data['topic_vote']) )
                 $user_voted = ( $row = $db->sql_fetchrow($result) ) ? TRUE : 0;
                 $db->sql_freeresult($result);
 
-                if ( isset($HTTP_GET_VARS['vote']) || isset($HTTP_POST_VARS['vote']) )
+                if ( isset($_GET['vote']) || isset($_POST['vote']) )
                 {
-                        $view_result = ( ( ( isset($HTTP_GET_VARS['vote']) ) ? $HTTP_GET_VARS['vote'] : $HTTP_POST_VARS['vote'] ) == 'viewresult' ) ? TRUE : 0;
+                        $view_result = ( ( $_GET['vote'] ?? $_POST['vote'] ) == 'viewresult' ) ? TRUE : 0;
                 }
                 else
                 {
@@ -743,7 +756,7 @@ if ( !empty($forum_topic_data['topic_vote']) )
                         }
 
                         $vote_graphic = 0;
-                        $vote_graphic_max = count($images['voting_graphic']);
+                        $vote_graphic_max = is_countable($images['voting_graphic']) ? count($images['voting_graphic']) : 0;
 
                         for($i = 0; $i < $vote_options; $i++)
                         {
@@ -755,7 +768,7 @@ if ( !empty($forum_topic_data['topic_vote']) )
 
                                 if ( count($orig_word) )
                                 {
-                                        $vote_info[$i]['vote_option_text'] = preg_replace($orig_word, $replacement_word, $vote_info[$i]['vote_option_text']);
+                                        $vote_info[$i]['vote_option_text'] = preg_replace($orig_word, $replacement_word, (string) $vote_info[$i]['vote_option_text']);
                                 }
 
                                 $template->assign_block_vars("poll_option", array(
@@ -784,7 +797,7 @@ if ( !empty($forum_topic_data['topic_vote']) )
                         {
                                 if ( count($orig_word) )
                                 {
-                                        $vote_info[$i]['vote_option_text'] = preg_replace($orig_word, $replacement_word, $vote_info[$i]['vote_option_text']);
+                                        $vote_info[$i]['vote_option_text'] = preg_replace($orig_word, $replacement_word, (string) $vote_info[$i]['vote_option_text']);
                                 }
 
                                 $template->assign_block_vars("poll_option", array(
@@ -805,7 +818,7 @@ if ( !empty($forum_topic_data['topic_vote']) )
 
                 if ( count($orig_word) )
                 {
-                        $vote_title = preg_replace($orig_word, $replacement_word, $vote_title);
+                        $vote_title = preg_replace($orig_word, $replacement_word, (string) $vote_title);
                 }
 
                 $s_hidden_fields .= '<input type="hidden" name="sid" value="' . $userdata['session_id'] . '" />';
@@ -846,7 +859,7 @@ for($i = 0; $i < $total_posts; $i++)
         $poster_posts = ( $postrow[$i]['user_id'] != ANONYMOUS ) ? $lang['Posts'] . ': ' . $postrow[$i]['user_posts'] : '';
 
         $poster_from = ( $postrow[$i]['user_from'] && $postrow[$i]['user_id'] != ANONYMOUS ) ? $lang['Location'] . ': ' . $postrow[$i]['user_from'] : '';
-        $poster_from = ereg_replace(".gif", "", $poster_from);
+        $poster_from = preg_replace('#.gif#m', "", $poster_from);
         $poster_joined = ( $postrow[$i]['user_id'] != ANONYMOUS ) ? $lang['Joined'] . ': ' . $postrow[$i]['user_regdate'] : '';
 
 	$poster_avatar = '';
@@ -966,7 +979,7 @@ for($i = 0; $i < $total_posts; $i++)
                 if (( $postrow[$i]['user_website'] == "http:///") || ( $postrow[$i]['user_website'] == "http://")){
                     $postrow[$i]['user_website'] =  "";
                 }
-                if (($postrow[$i]['user_website'] != "" ) && (substr($postrow[$i]['user_website'],0, 7) != "http://")) {
+                if (($postrow[$i]['user_website'] != "" ) && (!str_starts_with((string) $postrow[$i]['user_website'], "http://"))) {
                     $postrow[$i]['user_website'] = "http://".$postrow[$i]['user_website'];
                 }
 
@@ -1021,7 +1034,7 @@ for($i = 0; $i < $total_posts; $i++)
         $quote_img = '<a href="' . $temp_url . '"><img src="' . $images['icon_quote'] . '" alt="' . $lang['Reply_with_quote'] . '" title="' . $lang['Reply_with_quote'] . '" border="0" /></a>';
         $quote = '<a href="' . $temp_url . '">' . $lang['Reply_with_quote'] . '</a>';
 
-        $temp_url = append_sid("search.$phpEx?search_author=" . urlencode($postrow[$i]['username']) . "&amp;showresults=posts");
+        $temp_url = append_sid("search.$phpEx?search_author=" . urlencode((string) $postrow[$i]['username']) . "&amp;showresults=posts");
 	$search_img = '<a href="' . $temp_url . '"><img src="' . $images['icon_search'] . '" alt="' . sprintf($lang['Search_user_posts'], $postrow[$i]['username']) . '" title="' . sprintf($lang['Search_user_posts'], $postrow[$i]['username']) . '" border="0" /></a>';
 	$search = '<a href="' . $temp_url . '">' . sprintf($lang['Search_user_posts'], $postrow[$i]['username']) . '</a>';
 
@@ -1086,12 +1099,12 @@ for($i = 0; $i < $total_posts; $i++)
         {
                 if ( $user_sig != '' )
                 {
-                        $user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", $user_sig);
+                        $user_sig = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", (string) $user_sig);
                 }
 
                 if ( $postrow[$i]['enable_html'] )
                 {
-                        $message = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", $message);
+                        $message = preg_replace('#(<)([\/]?.*?)(>)#is', "&lt;\\2&gt;", (string) $message);
                 }
         }
 
@@ -1100,12 +1113,12 @@ for($i = 0; $i < $total_posts; $i++)
         //
 	if ($user_sig != '' && $user_sig_bbcode_uid != '')
 	{
-		$user_sig = ($board_config['allow_bbcode']) ? bbencode_second_pass($user_sig, $user_sig_bbcode_uid) : preg_replace("/\:$user_sig_bbcode_uid/si", '', $user_sig);
+		$user_sig = ($board_config['allow_bbcode']) ? bbencode_second_pass($user_sig, $user_sig_bbcode_uid) : preg_replace("/\:$user_sig_bbcode_uid/si", '', (string) $user_sig);
 	}
 
 	if ($bbcode_uid != '')
 	{
-		$message = ($board_config['allow_bbcode']) ? bbencode_second_pass($message, $bbcode_uid) : preg_replace("/\:$bbcode_uid/si", '', $message);
+		$message = ($board_config['allow_bbcode']) ? bbencode_second_pass($message, $bbcode_uid) : preg_replace("/\:$bbcode_uid/si", '', (string) $message);
 	}
 
         if ( $user_sig != '' )
@@ -1136,7 +1149,7 @@ for($i = 0; $i < $total_posts; $i++)
         if ($highlight_match)
         {
 		// This has been back-ported from 3.0 CVS
-		$message = preg_replace('#(?!<.*)(?<!\w)(' . $highlight_match . ')(?!\w|[^<>]*>)#i', '<b style="color:#'.$theme['fontcolor3'].'">\1</b>', $message);
+		$message = preg_replace('#(?!<.*)(?<!\w)(' . $highlight_match . ')(?!\w|[^<>]*>)#i', '<b style="color:#'.$theme['fontcolor3'].'">\1</b>', (string) $message);
         }
 
         //
@@ -1144,14 +1157,14 @@ for($i = 0; $i < $total_posts; $i++)
         //
         if (count($orig_word))
         {
-                $post_subject = preg_replace($orig_word, $replacement_word, $post_subject);
+                $post_subject = preg_replace($orig_word, $replacement_word, (string) $post_subject);
 
                 if ($user_sig != '')
                 {
-			$user_sig = str_replace('\"', '"', substr(@preg_replace('#(\>(((?>([^><]+|(?R)))*)\<))#se', "@preg_replace(\$orig_word, \$replacement_word, '\\0')", '>' . $user_sig . '<'), 1, -1));
+			$user_sig = str_replace('\"', '"', substr(preg_replace_callback('#(\>(((?>([^><]+|(?R)))*)\<))#s', fn($matches) => preg_replace($orig_word, $replacement_word, (string) $matches[0]), '>' . $user_sig . '<'), 1, -1));
                 }
 
-		$message = str_replace('\"', '"', substr(@preg_replace('#(\>(((?>([^><]+|(?R)))*)\<))#se', "@preg_replace(\$orig_word, \$replacement_word, '\\0')", '>' . $message . '<'), 1, -1));
+		$message = str_replace('\"', '"', substr(preg_replace_callback('#(\>(((?>([^><]+|(?R)))*)\<))#s', fn($matches) => preg_replace($orig_word, $replacement_word, (string) $matches[0]), '>' . $message . '<'), 1, -1));
         }
 
         //
@@ -1160,10 +1173,10 @@ for($i = 0; $i < $total_posts; $i++)
         //
         if ( $user_sig != '' )
         {
-                $user_sig = '<br />_________________<br />' . str_replace("\n", "\n<br />\n", $user_sig);
+                $user_sig = '<br />_________________<br />' . str_replace("\n", "\n<br />\n", (string) $user_sig);
         }
 
-        $message = str_replace("\n", "\n<br />\n", $message);
+        $message = str_replace("\n", "\n<br />\n", (string) $message);
 
         //
         // Editing information
@@ -1242,4 +1255,4 @@ $template->pparse('body');
 
 include("modules/Forums/includes/page_tail.php");
 
-?>
+
