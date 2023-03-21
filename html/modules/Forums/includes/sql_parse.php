@@ -81,7 +81,7 @@
 //
 function remove_comments(&$output)
 {
-        $lines = explode("\n", $output);
+        $lines = explode("\n", (string) $output);
         $output = "";
 
         // try to keep mem. use down
@@ -115,7 +115,7 @@ function remove_comments(&$output)
 //
 function remove_remarks($sql)
 {
-        $lines = explode("\n", $sql);
+        $lines = explode("\n", (string) $sql);
 
         // try to keep mem. use down
         $sql = "";
@@ -151,7 +151,7 @@ function remove_remarks($sql)
 function split_sql_file($sql, $delimiter)
 {
         // Split up our string into "possible" SQL statements.
-        $tokens = explode($delimiter, $sql);
+        $tokens = explode($delimiter, (string) $sql);
 
         // try to save mem.
         $sql = "";
