@@ -13,6 +13,7 @@
 /************************************************************************/
 
 /* Applied rules:
+ * ArrayKeyFirstLastRector (https://tomasvotruba.com/blog/2018/08/16/whats-new-in-php-73-in-30-seconds-in-diffs/#2-first-and-last-array-key)
  * DirNameFileConstantToDirConstantRector
  * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
  * LongArrayToShortArrayRector
@@ -982,7 +983,8 @@ function main($user) {
 
 function new_user() {
 	
-	//$prefix = null;
+	$prefix = null;
+    //$prefix = null;
     global $my_headlines, $module_name, $db, $gfx_chk, $user;
 	
 	if (!is_user()) {
@@ -1190,24 +1192,24 @@ function mail_password($username, $code) {
 													  ._YOURNEWPASSWORD." $newpass\n\n "
 													  ._YOUCANCHANGE." $nukeurl/modules.php?name=$module_name\n\n"
 													  ._IFYOUDIDNOTASK."";
-													  
+
 			$subject = ""._USERPASSWORD4." $username";
 			mail((string) $user_email, $subject, $message, "From: $adminmail\nX-Mailer: PHP/" . phpversion());
 			/* Next step: add the new password to the database */
 			$cryptpass = md5((string) $newpass);
-			
+
 			$query = "UPDATE ".$user_prefix."_users SET user_password='$cryptpass' WHERE username='$username'";
 			if (!$db->sql_query($query)) {
 				echo ""._UPDATEFAILED."";
 			}
-			
+
 			include ("header.php");
 			OpenTable();
 			echo "<center>"._PASSWORD4." $username "._MAILED."<br><br>"._GOBACK."</center>";
 			CloseTable();
-		
+
 			include ("footer.php");
-			
+
 			/* If no Code, send it */
 		
 		} else {
@@ -1587,11 +1589,10 @@ function edituser() {
 		}
 		closedir($dir);
 		ksort($avatar_images);
-		reset($avatar_images);
 		
 		if( empty($category) )
 		{
-			$category = key($avatar_images);
+			$category = array_key_first($avatar_images);
 		}
 		reset($avatar_images);
 		$s_categories = '<select name="avatarcategory">';
@@ -2070,7 +2071,8 @@ function savehome($user_id, $username, $storynum, $ublockon, $ublock, $broadcast
 
 function savetheme($user_id, $theme) {
 	
-	//$prefix = null;
+	$theme_id = null;
+ //$prefix = null;
     //$theme_id = null;
     
 	global $prefix, $user, $cookie, $userinfo, $user_prefix, $db, $module_name;

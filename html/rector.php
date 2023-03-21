@@ -320,7 +320,7 @@ return static function (RectorConfig $rectorConfig): void {
 
 		///__DIR__ . '/modules/Surveys/index.php',
 
-		///__DIR__ . '/modules/Your_Account/index.php',
+		__DIR__ . '/modules/Your_Account/index.php',
 		///__DIR__ . '/modules/Your_Account/navbar.php',
 
 		///__DIR__ . '/modules/Feedback/index.php',
