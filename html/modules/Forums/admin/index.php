@@ -28,15 +28,16 @@
  * NullToStrictStringFuncCallArgRector
  */
  
-define('IN_PHPBB', 1);
-
+defined('IN_PHPBB') or define('IN_PHPBB', 1);
+define('INSIDE_MOD', 1);
 //
 // Load default header
 //
+require('./../phpbb_paths.php');
 $no_page_header = TRUE;
-$phpbb_root_path = './../';
-require('./../extension.inc');
-require('./pagestart.' . $phpEx);
+$phpbb_root_path = PHPBB_BASE_DIR;
+require(PHPBB_BASE_DIR .'extension.inc');
+require(PHPBB_ADMIN_DIR .'pagestart.'.$phpEx);
 
 // ---------------
 // Begin functions
@@ -170,14 +171,13 @@ elseif( isset($_GET['pane']) && $_GET['pane'] == 'right' )
         $users_per_day = sprintf("%.2f", $total_users / $boarddays);
 
         $avatar_dir_size = 0;
-
-        if ($avatar_dir = opendir($phpbb_root_path . $board_config['avatar_path']))
+        if ($avatar_dir = opendir('../../../' . $board_config['avatar_path']))
         {
                 while( $file = readdir($avatar_dir) )
                 {
                         if( $file != "." && $file != ".." )
                         {
-                                $avatar_dir_size += filesize($phpbb_root_path . $board_config['avatar_path'] . "/" . $file);
+                                $avatar_dir_size += filesize('../../../' . $board_config['avatar_path'] . "/" . $file);
                         }
                 }
                 closedir($avatar_dir);

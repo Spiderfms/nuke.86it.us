@@ -458,15 +458,18 @@ function init_userprefs($userdata)
 
 function setup_style($style)
 {
-	$user = null;
+ $user = null;
  $cookie = [];
+ 
  global $db, $prefix, $board_config, $template, $images, $phpbb_root_path, $name;
+ 
         if($name == "Forums"){
-                cookiedecode($user);
+            cookiedecode($user);
             $info=$db->sql_query("select * from ".$prefix."_bbconfig where config_name='default_style'");
             $get_info=$db->sql_fetchrow($info);
             $default_style=$get_info['config_value'];
-            if($cookie[1] == "" AND $style != "$default_style") {
+            
+            if(isset($cookie[1]) && $cookie[1] == "" AND $style != "$default_style") {
                 $style = "$default_style";
             }
         }

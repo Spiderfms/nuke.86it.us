@@ -30,7 +30,7 @@
  * NullToStrictStringFuncCallArgRector
  */
  
-define('IN_PHPBB', 1);
+defined('IN_PHPBB') or define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
 {
@@ -250,20 +250,17 @@ function renumber_order($mode, $cat = 0)
 if( isset($_POST['addforum']) || isset($_POST['addcategory']) )
 {
         $mode = ( isset($_POST['addforum']) ) ? "addforum" : "addcat";
-
         if( $mode == "addforum" )
         {
-                (list($cat_id))[1] = current($_POST['addforum']);
-  (list($cat_id))['value'] = current($_POST['addforum']);
-  (list($cat_id))[0] = key($_POST['addforum']);
-  (list($cat_id))['key'] = key($_POST['addforum']);
-  next($_POST['addforum']);
-  $cat_id = intval($cat_id);
+                //list($cat_id) = each($_POST['addforum']);
+				foreach (array_keys($_POST['addforum']) as $cat_id)
+                $cat_id = intval($cat_id);
                 //
                 // stripslashes needs to be run on this because slashes are added when the forum name is posted
                 //
-                $forumname = stripslashes((string) $_POST['forumname'][$cat_id]);
+               $forumname = stripslashes($_POST['forumname'][$cat_id]);
         }
+
 }
 
 if( !empty($mode) )

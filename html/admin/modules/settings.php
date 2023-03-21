@@ -119,10 +119,10 @@ if ($row['radminsuper'] == 1) {
 		options_menu("general");
 		OpenTable();
 		$row = $db->sql_fetchrow($db->sql_query("SELECT sitename, nukeurl, slogan, startdate, adminmail, admingraphic, gfx_chk, nuke_editor, display_errors from ".$prefix."_config"));
-		$sitename = filter($row['sitename'], "nohtml", 0, preview);
+		$sitename = filter($row['sitename'], "nohtml", 0, 'preview');
 		$nukeurl = filter($row['nukeurl'], "nohtml");
-		$slogan = filter($row['slogan'], "nohtml", 0, preview);
-		$startdate = filter($row['startdate'], "nohtml", 0, preview);
+		$slogan = filter($row['slogan'], "nohtml", 0, 'preview');
+		$startdate = filter($row['startdate'], "nohtml", 0, 'preview');
 		$admingraphic = intval($row['admingraphic']);
 		$gfx_chk = intval($row['gfx_chk']);
 		$nuke_editor = intval($row['nuke_editor']);
@@ -144,6 +144,9 @@ if ($row['radminsuper'] == 1) {
 		} else {
 			echo "<input type='radio' name='xadmingraphic' value='1'>" . _YES . " &nbsp;<input type='radio' name='xadmingraphic' value='0' checked>" . _NO . "";
 		}
+
+		$sel1 = ""; $sel2 = ""; $sel3 = ""; $sel4 = ""; $sel5 = ""; $sel6 = ""; $sel7 = "";  $sel8 = ""; 
+
 		if ($gfx_chk == 0) { $sel1 = "selected"; }
 		if ($gfx_chk == 1) { $sel2 = "selected"; }
 		if ($gfx_chk == 2) { $sel3 = "selected"; }
@@ -152,6 +155,8 @@ if ($row['radminsuper'] == 1) {
 		if ($gfx_chk == 5) { $sel6 = "selected"; }
 		if ($gfx_chk == 6) { $sel7 = "selected"; }
 		if ($gfx_chk == 7) { $sel8 = "selected"; }
+
+		
 		echo "</td></tr><tr><td>"
 			."Graphics Security Check:</td><td>"
 			."<select name='xgfx_chk'>"

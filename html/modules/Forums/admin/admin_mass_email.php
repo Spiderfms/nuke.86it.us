@@ -25,7 +25,7 @@
  * NullToStrictStringFuncCallArgRector
  */
  
-define('IN_PHPBB', 1);
+defined('IN_PHPBB') or define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
 {
@@ -152,7 +152,7 @@ if ( isset($_POST['submit']) )
         }
 }
 
-if ( $error )
+if (isset($error))
 {
         $template->set_filenames(array(
                 'reg_header' => 'error_body.tpl')
@@ -206,7 +206,7 @@ $template->assign_vars(array(
         'L_EMAIL_SUBJECT' => $lang['Subject'],
         'L_EMAIL_MSG' => $lang['Message'],
         'L_EMAIL' => $lang['Email'],
-        'L_NOTICE' => $notice,
+        'L_NOTICE' => $notice ?? '',
 
         'S_USER_ACTION' => append_sid('admin_mass_email.'.$phpEx),
         'S_GROUP_SELECT' => $select_list)

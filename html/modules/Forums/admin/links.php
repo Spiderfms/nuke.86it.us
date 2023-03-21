@@ -36,4 +36,3 @@ global $admin_file;
 # Initial CVS Addition
 #
 
-?>

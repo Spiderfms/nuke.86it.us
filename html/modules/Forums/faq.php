@@ -29,9 +29,15 @@ if ( !defined('MODULE_FILE') )
 {
 	die("You can't access this file directly...");
 }
-$module_name = basename(dirname(__FILE__));
-require("modules/".$module_name."/nukebb.php");
-
+if (!isset($popup) OR ($popup != "1"))
+    {
+        $module_name = basename(dirname(__FILE__));
+        require("modules/".$module_name."/nukebb.php");
+    }
+    else
+    {
+        $phpbb_root_path = 'modules/Forums/';
+    }
 define('IN_PHPBB', true);
 include($phpbb_root_path . 'extension.inc');
 include($phpbb_root_path . 'common.'.$phpEx);

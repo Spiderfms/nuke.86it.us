@@ -98,7 +98,7 @@ function language_select($default, $select_name = "language", $dirname="modules/
 
         $lang_select = '<select name="' . $select_name . '">';
         //while ( [$displayname, $filename] = each($lang) ) maybe ghost
-		foreach ($langs as $displayname => $filename)
+		foreach ($lang as $displayname => $filename)
         {
                 $selected = ( strtolower((string) $default) == strtolower((string) $filename) ) ? ' selected="selected"' : '';
                 $lang_select .= '<option value="' . $filename . '"' . $selected . '>' . ucwords((string) $displayname) . '</option>';

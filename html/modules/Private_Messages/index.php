@@ -1718,7 +1718,9 @@ else if ( $submit || $refresh || $mode != '' )
         $template->set_filenames(array(
                 'body' => 'posting_body.tpl')
         );
-    if ($forum_on) {
+    
+	global $forum_on; 
+	if ($forum_on) {
         make_jumpbox('viewforum.'.$phpEx);
     }
 
@@ -1810,7 +1812,7 @@ else if ( $submit || $refresh || $mode != '' )
                 'BBCODE_STATUS' => sprintf($bbcode_status, '<a href="' . append_sid("faq.$phpEx?mode=bbcode") . '" target="_phpbbcode">', '</a>'),
                 'FORUM_NAME' => $lang['Private_Message'],
 
-                'BOX_NAME' => $l_box_name,
+                'BOX_NAME' => $l_box_name ?? '',
                 'INBOX_IMG' => $inbox_img,
                 'SENTBOX_IMG' => $sentbox_img,
                 'OUTBOX_IMG' => $outbox_img,

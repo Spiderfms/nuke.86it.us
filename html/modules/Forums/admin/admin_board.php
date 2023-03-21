@@ -16,7 +16,7 @@
  * NullToStrictStringFuncCallArgRector
  */
  
-define('IN_PHPBB', 1);
+defined('IN_PHPBB') or define('IN_PHPBB', 1);
 
 if( !empty($setmodules) )
 {
@@ -113,6 +113,7 @@ $activation_admin = ( $new['require_activation'] == USER_ACTIVATION_ADMIN ) ? "c
 $confirm_yes = ($new['enable_confirm']) ? 'checked="checked"' : '';
 $confirm_no = (!$new['enable_confirm']) ? 'checked="checked"' : '';
 
+if(!isset($new['allow_autologin'])) { $new['allow_autologin'] = ''; }
 $allow_autologin_yes = ($new['allow_autologin']) ? 'checked="checked"' : ''; 
 $allow_autologin_no = (!$new['allow_autologin']) ? 'checked="checked"' : '';
 
@@ -157,6 +158,8 @@ $template->set_filenames(array(
 //
 $new['site_desc'] = str_replace('"', '&quot;', (string) $new['site_desc']);
 $new['sitename'] = str_replace('"', '&quot;', strip_tags((string) $new['sitename']));
+if(!isset($new['max_autologin_time']))
+$new['max_autologin_time'] = '';
 $template->assign_vars(array(
 	"S_CONFIG_ACTION" => append_sid("admin_board.$phpEx"),
 
@@ -211,8 +214,8 @@ $template->assign_vars(array(
 	'L_MAX_LOGIN_ATTEMPTS_EXPLAIN'	=> $lang['Max_login_attempts_explain'],
 	'L_LOGIN_RESET_TIME'			=> $lang['Login_reset_time'],
 	'L_LOGIN_RESET_TIME_EXPLAIN'	=> $lang['Login_reset_time_explain'],
-	'MAX_LOGIN_ATTEMPTS'			=> $new['max_login_attempts'],
-	'LOGIN_RESET_TIME'				=> $new['login_reset_time'],
+	'MAX_LOGIN_ATTEMPTS'			=> $new['max_login_attempts'] ?? 10,
+	'LOGIN_RESET_TIME'				=> $new['login_reset_time'] ?? 15,
 
 	"L_BOARD_EMAIL_FORM" => $lang['Board_email_form'],
 	"L_BOARD_EMAIL_FORM_EXPLAIN" => $lang['Board_email_form_explain'],

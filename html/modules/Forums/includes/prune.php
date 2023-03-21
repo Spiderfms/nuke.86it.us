@@ -26,7 +26,7 @@ if ( !defined('IN_PHPBB') )
 }
 
 if (defined('FORUM_ADMIN')) {
-    require("modules/Forums/includes/functions_search.php");
+	require(PHPBB_INCLUDES_DIR .'functions_search.php');
 } else {
     require("modules/Forums/includes/functions_search.php");
 }

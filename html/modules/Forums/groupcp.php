@@ -1234,7 +1234,9 @@ else
                 }
         }
         $s_group_list = '<select name="' . POST_GROUPS_URL . '">' . $s_group_list_opt . '</select>';
-
+        
+		if(!isset($s_pending_groups_opt)) { $s_pending_groups_opt = ''; }
+		if(!isset($s_member_groups_opt)) { $s_member_groups_opt = ''; }
         if ( $s_group_list_opt != '' || $s_pending_groups_opt != '' || $s_member_groups_opt != '' )
         {
                 //

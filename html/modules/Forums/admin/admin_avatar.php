@@ -63,7 +63,8 @@
  * TernaryToNullCoalescingRector
  */
  
-define('IN_PHPBB', 1);
+defined('IN_PHPBB') or define('IN_PHPBB', 1);
+
 if( !empty($setmodules) )
 {
         $file = basename(__FILE__);
@@ -73,13 +74,11 @@ if( !empty($setmodules) )
 
 
 $root_path = "./../";
-$phpbb_root_path = './../';
-require($phpbb_root_path . 'extension.inc');
-include($phpbb_root_path . 'config.'.$phpEx);
-require('pagestart.' . $phpEx);
-
-//include($root_path . 'includes/constants.'.$phpEx);
-//include($root_path . 'includes/db.'.$phpEx);
+require('./../phpbb_paths.php');
+$no_page_header = TRUE;
+$phpbb_root_path = "./../";
+require(PHPBB_BASE_DIR .'extension.inc');
+require(PHPBB_ADMIN_DIR .'pagestart.'.$phpEx);
 
 
 // Any mode passed?
@@ -97,7 +96,7 @@ else
 $config_result = $db->sql_query("select config_name,config_value from ". CONFIG_TABLE ."");
 while ($config_row = $db->sql_fetchrow($config_result))
 {
-	$board_config[$config_row[config_name]] = $config_row[config_value];
+	$board_config[$config_row['config_name']] = $config_row['config_value'];
 }
 
 // Select all avatars and usernames that have an uploaded avatar currently
@@ -202,6 +201,7 @@ switch( $mode )
 					else
 					{
 						// Not used, safe to display delete link for admin
+						$PHP_SELF = &$_SERVER['PHP_SELF']; // maybe ghost
 						$delete_html = append_sid("$PHP_SELF?mode=delete&target=$file");
 						print "<tr><td class=avatar_listing bgcolor=$alter><img src=$real_avatar_dir/$file><br>$file</td>
                                                            <td class=avatar_listing bgcolor=$alter>$stats[7] Bytes</td>

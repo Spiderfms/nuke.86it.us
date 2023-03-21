@@ -182,6 +182,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/admin/modules/blocks.php',
 		///__DIR__ . '/admin/modules/authors.php',
 		///__DIR__ . '/admin/modules/ipban.php',
+		   __DIR__ . '/admin/modules/settings.php',
           #__DIR__ . '/blocks',
 		///__DIR__ . '/blocks/blocks-Modules.php',
         ///__DIR__ . '/install/includes/database.php',
@@ -235,7 +236,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/admin/admin_groups.php',
 		///__DIR__ . '/modules/Forums/admin/admin_mass_email.php',
 		///__DIR__ . '/modules/Forums/admin/admin_ranks.php',
-		///__DIR__ . '/modules/Forums/admin/admin_smilies.php',
+		//__DIR__ . '/modules/Forums/admin/admin_smilies.php',
 		///__DIR__ . '/modules/Forums/admin/admin_styles.php',
 		///__DIR__ . '/modules/Forums/admin/admin_ug_auth.php', HAD PROBLEMS
 		///__DIR__ . '/modules/Forums/admin/admin_user_ban.php',
@@ -294,6 +295,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/viewforum.php',
 		///__DIR__ . '/modules/Forums/viewonline.php',
 		///__DIR__ . '/modules/Forums/viewtopic.php',
+		///__DIR__ . '/modules/Forums/copyright.php',
 
 		///__DIR__ . '/modules/Journal/index.php',
 

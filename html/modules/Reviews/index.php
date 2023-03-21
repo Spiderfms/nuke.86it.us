@@ -345,14 +345,14 @@ function reviews_index() {
 	$y = 1;
 	for ($x = 0; $x < 10; $x++)	{
 		$myrow = $db->sql_fetchrow($result_pop);
-		$id = intval($myrow['id']);
-		$title = filter($myrow['title'], "nohtml");
-		$hits = intval($myrow['hits']);
+		$id = intval($myrow['id'] ?? 0);
+		$title = filter($myrow['title'] ?? '', "nohtml");
+		$hits = intval($myrow['hits'] ?? 0);
 		echo "<tr><td width=\"50%\" bgcolor=\"$bgcolor3\">$y) <a href=\"modules.php?name=$module_name&rop=showcontent&amp;id=$id\">$title</a></td>";
 		$myrow2 = $db->sql_fetchrow($result_rec);
-		$id = intval($myrow2['id']);
-		$title = filter($myrow2['title'], "nohtml");
-		$hits = intval($myrow2['hits']);
+		$id = intval($myrow2['id'] ?? '');
+		$title = filter($myrow2['title'] ?? '', "nohtml");
+		$hits = intval($myrow2['hits'] ?? 0);
 		echo "<td width=\"50%\" bgcolor=\"$bgcolor3\">$y) <a href=\"modules.php?name=$module_name&rop=showcontent&amp;id=$id\">$title</a></td></tr>";
 		$y++;
 	}
