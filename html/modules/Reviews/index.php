@@ -16,10 +16,19 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * BinaryOpBetweenNumberAndStringRector (https://3v4l.org/XPEEl)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
-if (stristr($_SERVER['QUERY_STRING'],'%25')) header("Location: index.php");
+if (stristr((string) $_SERVER['QUERY_STRING'],'%25')) header("Location: index.php");
 
 require_once("mainfile.php");
 $module_name = basename(dirname(__FILE__));
@@ -32,15 +41,15 @@ function alpha() {
 	$num = count($alphabet) - 1;
 	echo "<center>[ ";
 	$counter = 0;
-	while (list(, $ltr) = each($alphabet)) {
-		echo "<a href=\"modules.php?name=$module_name&rop=$ltr\">$ltr</a>";
-		if ( $counter == round($num/2) ) {
-			echo " ]\n<br>\n[ ";
-		} elseif ( $counter != $num ) {
-			echo "&nbsp;|&nbsp;\n";
-		}
-		$counter++;
-	}
+	foreach ($alphabet as $ltr) {
+     echo "<a href=\"modules.php?name=$module_name&rop=$ltr\">$ltr</a>";
+     if ( $counter == round($num/2) ) {
+   			echo " ]\n<br>\n[ ";
+   		} elseif ( $counter != $num ) {
+   			echo "&nbsp;|&nbsp;\n";
+   		}
+     $counter++;
+ }
 	echo " ]</center><br><br>\n\n\n";
 	echo "<center>[ <a href=\"modules.php?name=$module_name&rop=write_review\">"._WRITEREVIEW."</a> ]</center><br><br>\n\n";
 }
@@ -67,7 +76,9 @@ function display_score($score) {
 }
 
 function write_review() {
-	global $admin, $sitename, $user, $cookie, $prefix, $user_prefix, $currentlang, $multilingual, $db, $module_name;
+	$languageslist = [];
+ $language = null;
+ global $admin, $sitename, $user, $cookie, $prefix, $user_prefix, $currentlang, $multilingual, $db, $module_name;
 	include ('header.php');
 	OpenTable();
 	echo "
@@ -88,11 +99,11 @@ function write_review() {
 			}
 		}
 		closedir($handle);
-		$languageslist = explode(" ", $languageslist);
+		$languageslist = explode(" ", (string) $languageslist);
 		for ($i=0; $i < sizeof($languageslist); $i++) {
 			if(!empty($languageslist[$i])) {
 				echo "<option value=\"$languageslist[$i]\" ";
-				if($languageslist[$i]==strtolower($currentlang)) echo "selected";
+				if($languageslist[$i]==strtolower((string) $currentlang)) echo "selected";
 				echo ">$languageslist[$i]</option>\n";
 			}
 		}
@@ -110,7 +121,7 @@ function write_review() {
     <b>"._YOURNAME.":</b><br>";
 	if (is_user()) {
 		$result = $db->sql_query("select username, user_email from ".$user_prefix."_users where user_id = '".intval($cookie[0])."'");
-		list($rname, $email) = $db->sql_fetchrow($result);
+		[$rname, $email] = $db->sql_fetchrow($result);
 		$rname = filter($rname, "nohtml");
 		$email = filter($email, "nohtml");
 	}
@@ -195,7 +206,7 @@ function preview_review($date, $title, $text, $reviewer, $email, $score, $cover,
 		$error = 1;
 		echo ""._CHECKNAME."<br>";
 	} else if (!empty($reviewer) && !empty($email))
-	if (!(eregi("^[0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.[a-z]{2,3}$",$email))) {
+	if (!(preg_match('#^[0-9a-z]([\-_\.]?[0-9a-z])*@[0-9a-z]([\-\.]?[0-9a-z])*\.[a-z]{2,3}$#mi',(string) $email))) {
 		$error = 1;
 		/* eregi checks for a valid email! works nicely for me! */
 		echo ""._INVALIDEMAIL."<br>";
@@ -203,7 +214,7 @@ function preview_review($date, $title, $text, $reviewer, $email, $score, $cover,
 	if (($url_title != "" && $url =="") || ($url_title == "" && $url != "")) {
 		$error = 1;
 		echo ""._INVALIDLINK."<br>";
-	} else if (($url != "") && (!(eregi('(^http[s]*:[/]+)(.*)', $url))))
+	} else if (($url != "") && (!(preg_match('#(^http[s]*:[\/]+)(.*)#mi', (string) $url))))
 	$url = "http://" . $url;
 	/* If the user ommited the http, this nifty eregi will add it */
 	if (isset($error) AND ($error == 1))
@@ -212,9 +223,9 @@ function preview_review($date, $title, $text, $reviewer, $email, $score, $cover,
 	{
 		if (empty($date))
 		$date = date("Y-m-d", time());
-		$year2 = substr($date,0,4);
-		$month = substr($date,5,2);
-		$day = substr($date,8,2);
+		$year2 = substr((string) $date,0,4);
+		$month = substr((string) $date,5,2);
+		$day = substr((string) $date,8,2);
 		$fdate = date("F jS Y",mktime (0,0,0,$month,$day,$year2));
 		echo "<table border=\"0\" width=\"100%\"><tr><td colspan=\"2\">";
 		echo "<p><font class=\"title\"><i><b>$title</b></i></font><br>";
@@ -238,7 +249,7 @@ function preview_review($date, $title, $text, $reviewer, $email, $score, $cover,
 		}
 		echo "</font></blockquote>";
 		echo "</td></tr></table>";
-		$text = urlencode($text);
+		$text = urlencode((string) $text);
 		echo "<p><i>"._LOOKSRIGHT."</i> ";
 		echo "<input type=\"hidden\" name=\"id\" value=$id>
 		  <input type=\"hidden\" name=\"hits\" value=\"$hits\">
@@ -320,7 +331,7 @@ function reviews_index() {
 	echo "<table border=\"0\" width=\"95%\" CELLPADDING=\"2\" CELLSPACING=\"4\" align=\"center\">
     <tr><td colspan=\"2\"><center><font class=\"title\">"._RWELCOME."</font></center><br><br><br>";
 	$result = $db->sql_query("select title, description from ".$prefix."_reviews_main");
-	list($title, $description) = $db->sql_fetchrow($result);
+	[$title, $description] = $db->sql_fetchrow($result);
 	$title = filter($title, "nohtml");
 	$description = filter($description);
 	echo "<center><b>$title</b><br><br>$description</center>";
@@ -557,7 +568,8 @@ function r_comments($id, $title) {
 }
 
 function showcontent($id, $page) {
-	global $admin, $uimages, $prefix, $db, $module_name;
+	$next_page = null;
+ global $admin, $uimages, $prefix, $db, $module_name;
 	$id = intval($id);
 	$page = intval($page);
 	include ('header.php');
@@ -569,13 +581,13 @@ function showcontent($id, $page) {
 	$myrow = $db->sql_fetchrow($result);
 	$id = intval($myrow['id']);
 	$date = $myrow['date'];
-	$year = substr($date,0,4);
-	$month = substr($date,5,2);
-	$day = substr($date,8,2);
+	$year = substr((string) $date,0,4);
+	$month = substr((string) $date,5,2);
+	$day = substr((string) $date,8,2);
 	$fdate = date("F jS Y",mktime (0,0,0,$month,$day,$year));
 	$title = $myrow['title'];
 	$title = filter($title, "nohtml");
-	$text = urldecode(filter($myrow['text']));
+	$text = urldecode((string) filter($myrow['text']));
 	$cover = filter($myrow['cover'], "nohtml");
 	$reviewer = filter($myrow['reviewer'], "nohtml");
 	$email = filter($myrow['email'], "nohtml");
@@ -586,7 +598,7 @@ function showcontent($id, $page) {
 	$rlanguage = $myrow['rlanguage'];
 	$contentpages = explode( "[--pagebreak--]", $text );
 	$pageno = count($contentpages);
-	if ( $page=="" || $page < 1 )
+	if ( $page==0 || $page < 1 )
 	$page = 1;
 	if ( $page > $pageno )
 	$page = $pageno;
@@ -643,7 +655,19 @@ function showcontent($id, $page) {
 }
 
 function mod_review($id) {
-	global $admin, $prefix, $db, $module_name;
+	$date = null;
+ $title = null;
+ $languageslist = [];
+ $rlanguage = null;
+ $text = null;
+ $reviewer = null;
+ $email = null;
+ $score = null;
+ $url = null;
+ $url_title = null;
+ $cover = null;
+ $hits = null;
+ global $admin, $prefix, $db, $module_name;
 	$id = intval($id);
 	include ('header.php');
 	OpenTable();
@@ -657,7 +681,7 @@ function mod_review($id) {
 			$date = $myrow['date'];
 			$title = $myrow['title'];
 			$title = filter($title, "nohtml");
-			$text = urldecode(filter($myrow['text']));
+			$text = urldecode((string) filter($myrow['text']));
 			$cover = filter($myrow['cover'], "nohtml");
 			$reviewer = filter($myrow['reviewer'], "nohtml");
 			$email = filter($myrow['email'], "nohtml");
@@ -689,7 +713,7 @@ function mod_review($id) {
 			}
 		}
 		closedir($handle);
-		$languageslist = explode(" ", $languageslist);
+		$languageslist = explode(" ", (string) $languageslist);
 		for ($i=0; $i < sizeof($languageslist); $i++) {
 			if(!empty($languageslist[$i])) {
 				echo "<option value=\"$languageslist[$i]\" ";
@@ -768,7 +792,7 @@ if (!isset($order)) { $order = ""; }
 if (!isset($date)) { $date = ""; }
 if (!isset($hits)) { $hits = ""; }
 if (!isset($id)) { $id = ""; }
-if (strlen($rop) == 1 AND ctype_alnum($rop))
+if (strlen((string) $rop) == 1 AND ctype_alnum((string) $rop))
   reviews($rop, $field, $order);
 else switch($rop) {
 
@@ -813,4 +837,3 @@ else switch($rop) {
 	break;
 }
 
-?>
