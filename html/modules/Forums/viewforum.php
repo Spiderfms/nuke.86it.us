@@ -59,6 +59,14 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * TernaryToNullCoalescingRector
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if ( !defined('MODULE_FILE') )
 {
 	die("You can't access this file directly...");
@@ -79,24 +87,24 @@ include($phpbb_root_path . 'common.'.$phpEx);
 //
 // Start initial var setup
 //
-if ( isset($HTTP_GET_VARS[POST_FORUM_URL]) || isset($HTTP_POST_VARS[POST_FORUM_URL]) )
+if ( isset($_GET[POST_FORUM_URL]) || isset($_POST[POST_FORUM_URL]) )
 {
-        $forum_id = ( isset($HTTP_GET_VARS[POST_FORUM_URL]) ) ? intval($HTTP_GET_VARS[POST_FORUM_URL]) : intval($HTTP_POST_VARS[POST_FORUM_URL]);
+        $forum_id = ( isset($_GET[POST_FORUM_URL]) ) ? intval($_GET[POST_FORUM_URL]) : intval($_POST[POST_FORUM_URL]);
 }
-else if ( isset($HTTP_GET_VARS['forum']))
+else if ( isset($_GET['forum']))
 {
-        $forum_id = intval($HTTP_GET_VARS['forum']);
+        $forum_id = intval($_GET['forum']);
 }
 else
 {
         $forum_id = '';
 }
 
-$start = ( isset($HTTP_GET_VARS['start']) ) ? intval($HTTP_GET_VARS['start']) : 0;
+$start = ( isset($_GET['start']) ) ? intval($_GET['start']) : 0;
 
-if ( isset($HTTP_GET_VARS['mark']) || isset($HTTP_POST_VARS['mark']) )
+if ( isset($_GET['mark']) || isset($_POST['mark']) )
 {
-        $mark_read = (isset($HTTP_POST_VARS['mark'])) ? $HTTP_POST_VARS['mark'] : $HTTP_GET_VARS['mark'];
+        $mark_read = $_POST['mark'] ?? $_GET['mark'];
 }
 else
 {
@@ -154,7 +162,7 @@ if ( !$is_auth['auth_read'] || !$is_auth['auth_view'] )
         if ( !$userdata['session_logged_in'] )
         {
                 $redirect = POST_FORUM_URL . "=$forum_id" . ( ( isset($start) ) ? "&start=$start" : '' );
-                $header_location = ( @preg_match("/Microsoft|WebSTAR|Xitami/", $_SERVER["SERVER_SOFTWARE"]) ) ? "Refresh: 0; URL=" : "Location: ";
+                $header_location = ( preg_match("/Microsoft|WebSTAR|Xitami/", (string) $_SERVER["SERVER_SOFTWARE"]) ) ? "Refresh: 0; URL=" : "Location: ";
                 header($header_location . append_sid("login.$phpEx?redirect=viewforum.$phpEx&$redirect", true));
                 exit;
         }
@@ -186,10 +194,10 @@ if ( $mark_read == 'topics' )
 
                 if ( $row = $db->sql_fetchrow($result) )
                 {
-                        $tracking_forums = ( isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f']) ) ? unserialize($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f']) : array();
-                        $tracking_topics = ( isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_t']) ) ? unserialize($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_t']) : array();
+                        $tracking_forums = ( isset($_COOKIE[$board_config['cookie_name'] . '_f']) ) ? unserialize($_COOKIE[$board_config['cookie_name'] . '_f']) : array();
+                        $tracking_topics = ( isset($_COOKIE[$board_config['cookie_name'] . '_t']) ) ? unserialize($_COOKIE[$board_config['cookie_name'] . '_t']) : array();
 
-                        if ( ( count($tracking_forums) + count($tracking_topics) ) >= 150 && empty($tracking_forums[$forum_id]) )
+                        if ( ( (is_countable($tracking_forums) ? count($tracking_forums) : 0) + count($tracking_topics) ) >= 150 && empty($tracking_forums[$forum_id]) )
                         {
                                 asort($tracking_forums);
                                 unset($tracking_forums[key($tracking_forums)]);
@@ -199,7 +207,7 @@ if ( $mark_read == 'topics' )
                         {
                                 $tracking_forums[$forum_id] = time();
 
-                                setcookie($board_config['cookie_name'] . '_f', serialize($tracking_forums), 0, $board_config['cookie_path'], $board_config['cookie_domain'], $board_config['cookie_secure']);
+                                setcookie($board_config['cookie_name'] . '_f', serialize($tracking_forums), ['expires' => 0, 'path' => $board_config['cookie_path'], 'domain' => $board_config['cookie_domain'], 'secure' => $board_config['cookie_secure']]);
                         }
                 }
 
@@ -215,8 +223,8 @@ if ( $mark_read == 'topics' )
 // End handle marking posts
 //
 
-$tracking_topics = ( isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_t']) ) ? unserialize($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_t']) : '';
-$tracking_forums = ( isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f']) ) ? unserialize($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f']) : '';
+$tracking_topics = ( isset($_COOKIE[$board_config['cookie_name'] . '_t']) ) ? unserialize($_COOKIE[$board_config['cookie_name'] . '_t']) : '';
+$tracking_forums = ( isset($_COOKIE[$board_config['cookie_name'] . '_f']) ) ? unserialize($_COOKIE[$board_config['cookie_name'] . '_f']) : '';
 
 //
 // Do the forum Prune
@@ -294,9 +302,9 @@ unset($moderators);
 $previous_days = array(0, 1, 7, 14, 30, 90, 180, 364);
 $previous_days_text = array($lang['All_Topics'], $lang['1_Day'], $lang['7_Days'], $lang['2_Weeks'], $lang['1_Month'], $lang['3_Months'], $lang['6_Months'], $lang['1_Year']);
 
-if ( !empty($HTTP_POST_VARS['topicdays']) || !empty($HTTP_GET_VARS['topicdays']) )
+if ( !empty($_POST['topicdays']) || !empty($_GET['topicdays']) )
 {
-        $topic_days = ( !empty($HTTP_POST_VARS['topicdays']) ) ? intval($HTTP_POST_VARS['topicdays']) : intval($HTTP_GET_VARS['topicdays']);
+        $topic_days = ( !empty($_POST['topicdays']) ) ? intval($_POST['topicdays']) : intval($_GET['topicdays']);
         $min_topic_time = time() - ($topic_days * 86400);
 
         $sql = "SELECT COUNT(t.topic_id) AS forum_topics
@@ -314,7 +322,7 @@ if ( !empty($HTTP_POST_VARS['topicdays']) || !empty($HTTP_GET_VARS['topicdays'])
         $topics_count = ( $row['forum_topics'] ) ? $row['forum_topics'] : 1;
         $limit_topics_time = "AND p.post_time >= $min_topic_time";
 
-        if ( !empty($HTTP_POST_VARS['topicdays']) )
+        if ( !empty($_POST['topicdays']) )
         {
                 $start = 0;
         }
@@ -506,7 +514,7 @@ if( $total_topics )
         {
                 $topic_id = $topic_rowset[$i]['topic_id'];
 
-                $topic_title = ( count($orig_word) ) ? preg_replace($orig_word, $replacement_word, $topic_rowset[$i]['topic_title']) : $topic_rowset[$i]['topic_title'];
+                $topic_title = ( count($orig_word) ) ? preg_replace($orig_word, $replacement_word, (string) $topic_rowset[$i]['topic_title']) : $topic_rowset[$i]['topic_title'];
 
                 $replies = $topic_rowset[$i]['topic_replies'];
 
@@ -575,7 +583,7 @@ if( $total_topics )
                         {
                                 if( $topic_rowset[$i]['post_time'] > $userdata['user_lastvisit'] )
                                 {
-                                        if( !empty($tracking_topics) || !empty($tracking_forums) || isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f_all']) )
+                                        if( !empty($tracking_topics) || !empty($tracking_forums) || isset($_COOKIE[$board_config['cookie_name'] . '_f_all']) )
                                         {
                                                 $unread_topics = true;
 
@@ -595,9 +603,9 @@ if( $total_topics )
                                                         }
                                                 }
 
-                                                if( isset($HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f_all']) )
+                                                if( isset($_COOKIE[$board_config['cookie_name'] . '_f_all']) )
                                                 {
-                                                        if( $HTTP_COOKIE_VARS[$board_config['cookie_name'] . '_f_all'] >= $topic_rowset[$i]['post_time'] )
+                                                        if( $_COOKIE[$board_config['cookie_name'] . '_f_all'] >= $topic_rowset[$i]['post_time'] )
                                                         {
                                                                 $unread_topics = false;
                                                         }
@@ -748,4 +756,3 @@ $template->pparse('body');
 //
 include("includes/page_tail.php");
 
-?>
