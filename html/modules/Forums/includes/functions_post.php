@@ -20,6 +20,14 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * WhileEachToForeachRector (https://wiki.php.net/rfc/deprecations_php_7_2#each)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('IN_PHPBB'))
 {
         die('Hacking attempt');
@@ -42,7 +50,7 @@ function prepare_message($message, $html_on, $bbcode_on, $smile_on, $bbcode_uid 
         //
         // Clean up the message
         //
-        $message = trim($message);
+        $message = trim((string) $message);
 
         if ($html_on)
         {
@@ -61,7 +69,7 @@ function prepare_message($message, $html_on, $bbcode_on, $smile_on, $bbcode_uid 
 		foreach ($message_split as $part)
                 {
 			$tag = array(array_shift($matches[0]), array_shift($matches[1]), array_shift($matches[2]));
-			$message .= preg_replace($html_entities_match, $html_entities_replace, $part) . clean_html($tag);
+			$message .= preg_replace($html_entities_match, (string) $html_entities_replace, (string) $part) . clean_html($tag);
                 }
 
 		$message = addslashes($message);
@@ -69,7 +77,7 @@ function prepare_message($message, $html_on, $bbcode_on, $smile_on, $bbcode_uid 
         }
         else
         {
-                $message = preg_replace($html_entities_match, $html_entities_replace, $message);
+                $message = preg_replace($html_entities_match, (string) $html_entities_replace, $message);
         }
 
         if($bbcode_on && $bbcode_uid != '')
@@ -84,7 +92,7 @@ function unprepare_message($message)
 {
         global $unhtml_specialchars_match, $unhtml_specialchars_replace;
 
-        return preg_replace($unhtml_specialchars_match, $unhtml_specialchars_replace, $message);
+        return preg_replace($unhtml_specialchars_match, (string) $unhtml_specialchars_replace, (string) $message);
 }
 
 //
@@ -118,7 +126,7 @@ function prepare_post(&$mode, &$post_data, &$bbcode_on, &$html_on, &$smilies_on,
         // Check subject
         if (!empty($subject))
         {
-                $subject = htmlspecialchars(trim($subject));
+                $subject = htmlspecialchars(trim((string) $subject));
         }
         else if ($mode == 'newtopic' || ($mode == 'editpost' && $post_data['first_post']))
         {
@@ -129,7 +137,7 @@ function prepare_post(&$mode, &$post_data, &$bbcode_on, &$html_on, &$smilies_on,
         if (!empty($message))
         {
                 $bbcode_uid = ($bbcode_on) ? make_bbcode_uid() : '';
-                $message = prepare_message(trim($message), $html_on, $bbcode_on, $smilies_on, $bbcode_uid);
+                $message = prepare_message(trim((string) $message), $html_on, $bbcode_on, $smilies_on, $bbcode_uid);
         }
         else if ($mode != 'delete' && $mode != 'poll_delete')
         {
@@ -145,15 +153,15 @@ function prepare_post(&$mode, &$post_data, &$bbcode_on, &$html_on, &$smilies_on,
 
                 if (!empty($poll_title))
                 {
-                        $poll_title = htmlspecialchars(trim($poll_title));
+                        $poll_title = htmlspecialchars(trim((string) $poll_title));
                 }
 
                 if(!empty($poll_options))
                 {
                         $temp_option_text = array();
-                        while(list($option_id, $option_text) = @each($poll_options))
+                        while([$option_id, $option_text] = @each($poll_options))
                         {
-                                $option_text = trim($option_text);
+                                $option_text = trim((string) $option_text);
                                 if (!empty($option_text))
                                 {
 					$temp_option_text[intval($option_id)] = htmlspecialchars($option_text);
@@ -161,11 +169,11 @@ function prepare_post(&$mode, &$post_data, &$bbcode_on, &$html_on, &$smilies_on,
                         }
                         $option_text = $temp_option_text;
 
-                        if (count($poll_options) < 2)
+                        if ((is_countable($poll_options) ? count($poll_options) : 0) < 2)
                         {
                                 $error_msg .= (!empty($error_msg)) ? '<br />' . $lang['To_few_poll_options'] : $lang['To_few_poll_options'];
                         }
-                        else if (count($poll_options) > $board_config['max_poll_options'])
+                        else if ((is_countable($poll_options) ? count($poll_options) : 0) > $board_config['max_poll_options'])
                         {
                                 $error_msg .= (!empty($error_msg)) ? '<br />' . $lang['To_many_poll_options'] : $lang['To_many_poll_options'];
                         }
@@ -219,7 +227,7 @@ function submit_post($mode, &$post_data, &$message, &$meta, &$forum_id, &$topic_
 
         if ($mode == 'newtopic' || ($mode == 'editpost' && $post_data['first_post']))
         {
-                $topic_vote = (!empty($poll_title) && count($poll_options) >= 2) ? 1 : 0;
+                $topic_vote = (!empty($poll_title) && (is_countable($poll_options) ? count($poll_options) : 0) >= 2) ? 1 : 0;
 
 		$sql  = ($mode != "editpost") ? "INSERT INTO " . TOPICS_TABLE . " (topic_title, topic_poster, topic_time, forum_id, topic_status, topic_type, topic_vote) VALUES ('$post_subject', " . $userdata['user_id'] . ", $current_time, $forum_id, " . TOPIC_UNLOCKED . ", $topic_type, $topic_vote)" : "UPDATE " . TOPICS_TABLE . " SET topic_title = '$post_subject', topic_type = $topic_type " . (($post_data['edit_vote'] || !empty($poll_title)) ? ", topic_vote = " . $topic_vote : "") . " WHERE topic_id = $topic_id";
                 if (!$db->sql_query($sql))
@@ -252,12 +260,12 @@ function submit_post($mode, &$post_data, &$message, &$meta, &$forum_id, &$topic_
                 message_die(GENERAL_ERROR, 'Error in posting', '', __LINE__, __FILE__, $sql);
         }
 
-        add_search_words('single', $post_id, stripslashes($post_message), stripslashes($post_subject));
+        add_search_words('single', $post_id, stripslashes((string) $post_message), stripslashes((string) $post_subject));
 
         //
         // Add poll
         //
-        if (($mode == 'newtopic' || ($mode == 'editpost' && $post_data['edit_poll'])) && !empty($poll_title) && count($poll_options) >= 2)
+        if (($mode == 'newtopic' || ($mode == 'editpost' && $post_data['edit_poll'])) && !empty($poll_title) && (is_countable($poll_options) ? count($poll_options) : 0) >= 2)
         {
 		$sql = (!$post_data['has_poll']) ? "INSERT INTO " . VOTE_DESC_TABLE . " (topic_id, vote_text, vote_start, vote_length) VALUES ($topic_id, '$poll_title', $current_time, " . ($poll_length * 86400) . ")" : "UPDATE " . VOTE_DESC_TABLE . " SET vote_text = '$poll_title', vote_length = " . ($poll_length * 86400) . " WHERE topic_id = $topic_id";
                 if (!$db->sql_query($sql))
@@ -296,20 +304,19 @@ function submit_post($mode, &$post_data, &$message, &$meta, &$forum_id, &$topic_
                 @reset($poll_options);
 
                 $poll_option_id = 1;
-                while (list($option_id, $option_text) = each($poll_options))
-                {
-                        if (!empty($option_text))
-                        {
-                                $option_text = str_replace("\'", "''", htmlspecialchars($option_text));
-                                $poll_result = ($mode == "editpost" && isset($old_poll_result[$option_id])) ? $old_poll_result[$option_id] : 0;
+                foreach ($poll_options as $option_id => $option_text) {
+                    if (!empty($option_text))
+                    {
+                            $option_text = str_replace("\'", "''", htmlspecialchars((string) $option_text));
+                            $poll_result = ($mode == "editpost" && isset($old_poll_result[$option_id])) ? $old_poll_result[$option_id] : 0;
 
 				$sql = ($mode != "editpost" || !isset($old_poll_result[$option_id])) ? "INSERT INTO " . VOTE_RESULTS_TABLE . " (vote_id, vote_option_id, vote_option_text, vote_result) VALUES ($poll_id, $poll_option_id, '$option_text', $poll_result)" : "UPDATE " . VOTE_RESULTS_TABLE . " SET vote_option_text = '$option_text', vote_result = $poll_result WHERE vote_option_id = $option_id AND vote_id = $poll_id";
-                                if (!$db->sql_query($sql))
-                                {
-                                        message_die(GENERAL_ERROR, 'Error in posting', '', __LINE__, __FILE__, $sql);
-                                }
-                                $poll_option_id++;
-                        }
+                            if (!$db->sql_query($sql))
+                            {
+                                    message_die(GENERAL_ERROR, 'Error in posting', '', __LINE__, __FILE__, $sql);
+                            }
+                            $poll_option_id++;
+                    }
                 }
 
                 if ($delete_option_sql != '')
@@ -455,7 +462,8 @@ function update_post_stats(&$mode, &$post_data, &$forum_id, &$topic_id, &$post_i
 //
 function delete_post($mode, &$post_data, &$message, &$meta, &$forum_id, &$topic_id, &$post_id, &$poll_id)
 {
-	global $board_config, $lang, $db, $phpbb_root_path, $phpEx;
+	$forum_update_sql = null;
+ global $board_config, $lang, $db, $phpbb_root_path, $phpEx;
 	global $userdata, $user_ip;
 
         if ($mode != 'poll_delete')
@@ -620,11 +628,11 @@ function user_notification($mode, &$post_data, &$topic_title, &$forum_id, &$topi
                                         include("modules/Forums/includes/emailer.php");
                                         $emailer = new emailer($board_config['smtp_delivery']);
 
-                                        $script_name = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($board_config['script_path']));
+                                        $script_name = preg_replace('/^\/?(.*?)\/?$/', '\1', trim((string) $board_config['script_path']));
                                         $script_name = 'modules.php?name=Forums&file=viewtopic';
-                                        $server_name = trim($board_config['server_name']);
+                                        $server_name = trim((string) $board_config['server_name']);
                                         $server_protocol = ($board_config['cookie_secure']) ? 'https://' : 'http://';
-                                        $server_port = ($board_config['server_port'] <> 80) ? ':' . trim($board_config['server_port']) . '/' : '/';
+                                        $server_port = ($board_config['server_port'] <> 80) ? ':' . trim((string) $board_config['server_port']) . '/' : '/';
 
                                         $orig_word = array();
                                         $replacement_word = array();
@@ -633,38 +641,32 @@ function user_notification($mode, &$post_data, &$topic_title, &$forum_id, &$topi
                                         $emailer->from($board_config['board_email']);
                                         $emailer->replyto($board_config['board_email']);
 
-                                        $topic_title = (count($orig_word)) ? preg_replace($orig_word, $replacement_word, unprepare_message($topic_title)) : unprepare_message($topic_title);
+                                        $topic_title = (count($orig_word)) ? preg_replace($orig_word, $replacement_word, (string) unprepare_message($topic_title)) : unprepare_message($topic_title);
 
                                         @reset($bcc_list_ary);
-                                        while (list($user_lang, $bcc_list) = each($bcc_list_ary))
-                                        {
-                                                $emailer->use_template('topic_notify', $user_lang);
+                                        foreach ($bcc_list_ary as $user_lang => $bcc_list) {
+                                            $emailer->use_template('topic_notify', $user_lang);
+                                            for ($i = 0; $i < (is_countable($bcc_list) ? count($bcc_list) : 0); $i++)
+                                            {
+                                                    $emailer->bcc($bcc_list[$i]);
+                                            }
+                                            // The Topic_reply_notification lang string below will be used
+                                            // if for some reason the mail template subject cannot be read
+                                            // ... note it will not necessarily be in the posters own language!
+                                            $emailer->set_subject($lang['Topic_reply_notification']);
+                                            // This is a nasty kludge to remove the username var ... till (if?)
+                                            // translators update their templates
+                                            $emailer->msg = preg_replace('#[ ]?{USERNAME}#', '', (string) $emailer->msg);
+                                            $emailer->assign_vars(array(
+                                                    'EMAIL_SIG' => (!empty($board_config['board_email_sig'])) ? str_replace('<br />', "\n", "-- \n" . $board_config['board_email_sig']) : '',
+                                                    'SITENAME' => $board_config['sitename'],
+                                                    'TOPIC_TITLE' => $topic_title,
 
-                                                for ($i = 0; $i < count($bcc_list); $i++)
-                                                {
-                                                        $emailer->bcc($bcc_list[$i]);
-                                                }
-
-                                                // The Topic_reply_notification lang string below will be used
-                                                // if for some reason the mail template subject cannot be read
-                                                // ... note it will not necessarily be in the posters own language!
-                                                $emailer->set_subject($lang['Topic_reply_notification']);
-
-                                                // This is a nasty kludge to remove the username var ... till (if?)
-                                                // translators update their templates
-                                                $emailer->msg = preg_replace('#[ ]?{USERNAME}#', '', $emailer->msg);
-
-                                                $emailer->assign_vars(array(
-                                                        'EMAIL_SIG' => (!empty($board_config['board_email_sig'])) ? str_replace('<br />', "\n", "-- \n" . $board_config['board_email_sig']) : '',
-                                                        'SITENAME' => $board_config['sitename'],
-                                                        'TOPIC_TITLE' => $topic_title,
-
-                                                        'U_TOPIC' => $server_protocol . $server_name . $server_port . $script_name . '&' . POST_POST_URL . "=$post_id#$post_id",
-                                                        'U_STOP_WATCHING_TOPIC' => $server_protocol . $server_name . $server_port . $script_name . '&' . POST_TOPIC_URL . "=$topic_id&unwatch=topic")
-                                                );
-
-                                                $emailer->send();
-                                                $emailer->reset();
+                                                    'U_TOPIC' => $server_protocol . $server_name . $server_port . $script_name . '&' . POST_POST_URL . "=$post_id#$post_id",
+                                                    'U_STOP_WATCHING_TOPIC' => $server_protocol . $server_name . $server_port . $script_name . '&' . POST_TOPIC_URL . "=$topic_id&unwatch=topic")
+                                            );
+                                            $emailer->send();
+                                            $emailer->reset();
                                         }
                                 }
                         }
@@ -719,7 +721,8 @@ function user_notification($mode, &$post_data, &$topic_title, &$forum_id, &$topi
 //
 function generate_smilies($mode, $page_id)
 {
-	global $db, $board_config, $template, $lang, $images, $theme, $phpEx, $phpbb_root_path;
+	$nukeuser = null;
+ global $db, $board_config, $template, $lang, $images, $theme, $phpEx, $phpbb_root_path;
 	global $user_ip, $session_length, $starttime;
 	global $userdata;
 
@@ -760,7 +763,7 @@ function generate_smilies($mode, $page_id)
                 {
                         if (empty($rowset[$row['smile_url']]))
                         {
-                                $rowset[$row['smile_url']]['code'] = str_replace("'", "\\'", str_replace('\\', '\\\\', $row['code']));
+                                $rowset[$row['smile_url']]['code'] = str_replace("'", "\\'", str_replace('\\', '\\\\', (string) $row['code']));
                                 $rowset[$row['smile_url']]['emoticon'] = $row['emoticon'];
                                 $num_smilies++;
                         }
@@ -775,7 +778,7 @@ function generate_smilies($mode, $page_id)
                         $row = 0;
                         $col = 0;
 
-                        while (list($smile_url, $data) = @each($rowset))
+                        while ([$smile_url, $data] = @each($rowset))
                         {
                                 if (!$col)
                                 {
@@ -845,11 +848,11 @@ function clean_html($tag)
 		return '';
 	}
 
-	$allowed_html_tags = preg_split('/, */', strtolower($board_config['allow_html_tags']));
+	$allowed_html_tags = preg_split('/, */', strtolower((string) $board_config['allow_html_tags']));
 	$disallowed_attributes = '/^(?:style|on)/i';
 
 	// Check if this is an end tag
-	preg_match('/<[^\w\/]*\/[\W]*(\w+)/', $tag[0], $matches);
+	preg_match('/<[^\w\/]*\/[\W]*(\w+)/', (string) $tag[0], $matches);
 	if (sizeof($matches))
 	{
 		if (in_array(strtolower($matches[1]), $allowed_html_tags))
@@ -863,22 +866,22 @@ function clean_html($tag)
 }
 
 	// Check if this is an allowed tag
-	if (in_array(strtolower($tag[1]), $allowed_html_tags))
+	if (in_array(strtolower((string) $tag[1]), $allowed_html_tags))
 	{
 		$attributes = '';
 		if (!empty($tag[2]))
 		{
-			preg_match_all('/[\W]*?(\w+)[\W]*?=[\W]*?(["\'])((?:(?!\2).)*)\2/', $tag[2], $test);
+			preg_match_all('/[\W]*?(\w+)[\W]*?=[\W]*?(["\'])((?:(?!\2).)*)\2/', (string) $tag[2], $test);
 			for ($i = 0; $i < sizeof($test[0]); $i++)
 			{
-				if (preg_match($disallowed_attributes, $test[1][$i]))
+				if (preg_match($disallowed_attributes, (string) $test[1][$i]))
 				{
 					continue;
 				}
-				$attributes .= ' ' . $test[1][$i] . '=' . $test[2][$i] . str_replace(array('[', ']'), array('&#91;', '&#93;'), htmlspecialchars($test[3][$i])) . $test[2][$i];
+				$attributes .= ' ' . $test[1][$i] . '=' . $test[2][$i] . str_replace(array('[', ']'), array('&#91;', '&#93;'), htmlspecialchars((string) $test[3][$i])) . $test[2][$i];
 			}
 		}
-		if (in_array(strtolower($tag[1]), $allowed_html_tags))
+		if (in_array(strtolower((string) $tag[1]), $allowed_html_tags))
 		{
 			return '<' . $tag[1] . $attributes . '>';
 		}
@@ -893,4 +896,4 @@ function clean_html($tag)
 		return htmlspecialchars('<' .   $tag[1] . '>');
 	}
 }
-?>
+

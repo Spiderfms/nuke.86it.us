@@ -19,6 +19,15 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * WhileEachToForeachRector
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * CountOnNullRector (https://3v4l.org/Bndc9)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('IN_PHPBB')) {
 	die();
 }
@@ -27,7 +36,7 @@ function clean_words($mode, &$entry, &$stopword_list, &$synonym_list)
         static $drop_char_match =   array('^', '$', '&', '(', ')', '<', '>', '`', '\'', '"', '|', ',', '@', '_', '?', '%', '-', '~', '+', '.', '[', ']', '{', '}', ':', '\\', '/', '=', '#', '\'', ';', '!');
         static $drop_char_replace = array(' ', ' ', ' ', ' ', ' ', ' ', ' ', '',  '',   ' ', ' ', ' ', ' ', '',  ' ', ' ', '',  ' ',  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' , ' ', ' ', ' ', ' ',  ' ', ' ');
 
-        $entry = ' ' . strip_tags(strtolower($entry)) . ' ';
+        $entry = ' ' . strip_tags(strtolower((string) $entry)) . ' ';
 
         if ( $mode == 'post' )
         {
@@ -60,15 +69,15 @@ function clean_words($mode, &$entry, &$stopword_list, &$synonym_list)
         {
                 $entry = str_replace('*', ' ', $entry);
 
-                // 'words' that consist of <3 or >20 characters are removed.
+        // 'words' that consist of <3 or >20 characters are removed.
 		$entry = preg_replace('/[ ]([\S]{1,2}|[\S]{21,})[ ]/',' ', $entry);
         }
 
         if ( !empty($stopword_list) )
         {
-                for ($j = 0; $j < count($stopword_list); $j++)
+                for ($j = 0; $j < (is_countable($stopword_list) ? count($stopword_list) : 0); $j++)
                 {
-                        $stopword = trim($stopword_list[$j]);
+                        $stopword = trim((string) $stopword_list[$j]);
 
                         if ( $mode == 'post' || ( $stopword != 'not' && $stopword != 'and' && $stopword != 'or' ) )
                         {
@@ -79,12 +88,12 @@ function clean_words($mode, &$entry, &$stopword_list, &$synonym_list)
 
         if ( !empty($synonym_list) )
         {
-                for ($j = 0; $j < count($synonym_list); $j++)
+                for ($j = 0; $j < (is_countable($synonym_list) ? count($synonym_list) : 0); $j++)
                 {
-                        list($replace_synonym, $match_synonym) = split(' ', trim(strtolower($synonym_list[$j])));
+                        [$replace_synonym, $match_synonym] = preg_split('# #m', trim(strtolower((string) $synonym_list[$j])));
                         if ( $mode == 'post' || ( $match_synonym != 'not' && $match_synonym != 'and' && $match_synonym != 'or' ) )
                         {
-                                $entry =  str_replace(' ' . trim($match_synonym) . ' ', ' ' . trim($replace_synonym) . ' ', $entry);
+                                $entry =  str_replace(' ' . trim((string) $match_synonym) . ' ', ' ' . trim((string) $replace_synonym) . ' ', $entry);
                         }
                 }
         }
@@ -102,30 +111,32 @@ function split_words(&$entry, $mode = 'post')
         return $split_entries[1];
 */
 	// Trim 1+ spaces to one space and split this trimmed string into words.
-	return explode(' ', trim(preg_replace('#\s+#', ' ', $entry)));
+	return explode(' ', trim(preg_replace('#\s+#', ' ', (string) $entry)));
 }
 
 function add_search_words($mode, $post_id, $post_text, $post_title = '')
 {
+        $sql = null;
         global $db, $phpbb_root_path, $board_config, $lang;
 
-        $stopword_array = @file($phpbb_root_path . 'language/lang_' . $board_config['default_lang'] . "/search_stopwords.txt");
-        $synonym_array = @file($phpbb_root_path . 'language/lang_' . $board_config['default_lang'] . "/search_synonyms.txt");
+        $stopword_array = file($phpbb_root_path . 'language/lang_' . $board_config['default_lang'] . "/search_stopwords.txt");
+        $synonym_array = file($phpbb_root_path . 'language/lang_' . $board_config['default_lang'] . "/search_synonyms.txt");
 
         $search_raw_words = array();
         $search_raw_words['text'] = split_words(clean_words('post', $post_text, $stopword_array, $synonym_array));
         $search_raw_words['title'] = split_words(clean_words('post', $post_title, $stopword_array, $synonym_array));
-	@set_time_limit(0);
+	    set_time_limit(0);
         $word = array();
         $word_insert_sql = array();
-        while ( list($word_in, $search_matches) = @each($search_raw_words) )
+        //while ( [$word_in, $search_matches] = each($search_raw_words) ) maybe ghost
+		foreach ($search_raw_words as $word_in => $search_matches)
         {
                 $word_insert_sql[$word_in] = '';
                 if ( !empty($search_matches) )
                 {
-                        for ($i = 0; $i < count($search_matches); $i++)
+                        for ($i = 0; $i < (is_countable($search_matches) ? count($search_matches) : 0); $i++)
                         {
-                                $search_matches[$i] = trim($search_matches[$i]);
+                                $search_matches[$i] = trim((string) $search_matches[$i]);
 
                                 if( $search_matches[$i] != '' )
                                 {
@@ -237,7 +248,8 @@ function add_search_words($mode, $post_id, $post_text, $post_title = '')
                 }
         }
 
-        while( list($word_in, $match_sql) = @each($word_insert_sql) )
+        //while( [$word_in, $match_sql] = each($word_insert_sql) ) maybe ghost
+		foreach ($word_insert_sql as $word_in => $match_sql)
         {
                 $title_match = ( $word_in == 'title' ) ? 1 : 0;
 
@@ -282,10 +294,10 @@ function remove_common($mode, $fraction, $word_id_list = array())
         {
                 $common_threshold = floor($row['total_posts'] * $fraction);
 
-                if ( $mode == 'single' && count($word_id_list) )
+                if ( $mode == 'single' && (is_countable($word_id_list) ? count($word_id_list) : 0) )
                 {
                         $word_id_sql = '';
-                        for($i = 0; $i < count($word_id_list); $i++)
+                        for($i = 0; $i < (is_countable($word_id_list) ? count($word_id_list) : 0); $i++)
                         {
                                 $word_id_sql .= ( ( $word_id_sql != '' ) ? ', ' : '' ) . "'" . $word_id_list[$i] . "'";
                         }
@@ -435,7 +447,7 @@ function username_search($search_match)
         $username_list = '';
         if ( !empty($search_match) )
         {
-		$username_search = preg_replace('/\*/', '%', phpbb_clean_username($search_match));
+		$username_search = preg_replace('/\*/', '%', (string) phpbb_clean_username($search_match));
 
                 $sql = "SELECT username
                         FROM " . USERS_TABLE . "
@@ -495,4 +507,3 @@ function username_search($search_match)
         return;
 }
 
-?>
