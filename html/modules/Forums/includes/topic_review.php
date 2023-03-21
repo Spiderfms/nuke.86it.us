@@ -21,12 +21,18 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if (!defined('IN_PHPBB')) {
 	die();
 }
 
 function topic_review($topic_id, $is_inline_review)
 {
+        $nukeuser = null;
         global $db, $board_config, $template, $lang, $images, $theme, $phpEx, $phpbb_root_path, $userdata, $user_ip, $orig_word, $replacement_word, $starttime;
 
         if ( !$is_inline_review )
@@ -158,20 +164,20 @@ function topic_review($topic_id, $is_inline_review)
                         //
                         if ( !$board_config['allow_html'] && $row['enable_html'] )
                         {
-                                $message = preg_replace('#(<)([\/]?.*?)(>)#is', '&lt;\2&gt;', $message);
+                                $message = preg_replace('#(<)([\/]?.*?)(>)#is', '&lt;\2&gt;', (string) $message);
                         }
 
                         if ( $bbcode_uid != "" )
                         {
-                                $message = ( $board_config['allow_bbcode'] ) ? bbencode_second_pass($message, $bbcode_uid) : preg_replace('/\:[0-9a-z\:]+\]/si', ']', $message);
+                                $message = ( $board_config['allow_bbcode'] ) ? bbencode_second_pass($message, $bbcode_uid) : preg_replace('/\:[0-9a-z\:]+\]/si', ']', (string) $message);
                         }
 
                         $message = make_clickable($message);
 
                         if ( count($orig_word) )
                         {
-                                $post_subject = preg_replace($orig_word, $replacement_word, $post_subject);
-                                $message = preg_replace($orig_word, $replacement_word, $message);
+                                $post_subject = preg_replace($orig_word, (string) $replacement_word, (string) $post_subject);
+                                $message = preg_replace($orig_word, (string) $replacement_word, (string) $message);
                         }
 
                         if ( $board_config['allow_smilies'] && $row['enable_smilies'] )
@@ -179,7 +185,7 @@ function topic_review($topic_id, $is_inline_review)
                                 $message = smilies_pass($message);
                         }
 
-                        $message = str_replace("\n", '<br />', $message);
+                        $message = str_replace("\n", '<br />', (string) $message);
 
                         //
                         // Again this will be handled by the templating
@@ -226,4 +232,4 @@ function topic_review($topic_id, $is_inline_review)
         }
 }
 
-?>
+
