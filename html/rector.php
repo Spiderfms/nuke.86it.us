@@ -321,7 +321,9 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Reviews/admin/index.php',
 		///__DIR__ . '/modules/Reviews/index.php',
 
-		__DIR__ . '/modules/Search/index.php',
+		///__DIR__ . '/modules/Search/index.php',
+
+		__DIR__ . '/modules/Statistics/index.php',
 
 		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 

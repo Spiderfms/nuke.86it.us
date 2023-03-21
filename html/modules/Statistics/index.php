@@ -17,6 +17,12 @@
 /* the Free Software Foundation; either version 2 of the License.       */
 /************************************************************************/
 
+/* Applied rules:
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * NullToStrictStringFuncCallArgRector
+ */
+
 if (!defined('MODULE_FILE')) {
 	die ("You can't access this file directly...");
 }
@@ -36,12 +42,34 @@ $nowmonth = $dot[1];
 $nowyear = $dot[2];
 
 function Stats_Main() {
-	global $prefix, $db, $startdate, $sitename, $ThemeSel, $user_prefix, $Version_Num, $module_name, $textcolor2;
+	$firefox = [];
+ $total = null;
+ $netscape = [];
+ $msie = [];
+ $konqueror = [];
+ $opera = [];
+ $lynx = [];
+ $bot = [];
+ $b_other = [];
+ $windows = [];
+ $mac = [];
+ $linux = [];
+ $freebsd = [];
+ $sunos = [];
+ $irix = [];
+ $beos = [];
+ $os2 = [];
+ $aix = [];
+ $os_other = [];
+ $tnum = null;
+ $links = null;
+ $cat = null;
+ global $prefix, $db, $startdate, $sitename, $ThemeSel, $user_prefix, $Version_Num, $module_name, $textcolor2;
 	include("header.php");
 	$result = $db->sql_query("SELECT type, var, count from ".$prefix."_counter order by type desc");
 	while ($row = $db->sql_fetchrow($result)) {
-		$type = stripslashes(check_html($row['type'], "nohtml"));
-		$var = stripslashes(check_html($row['var'], "nohtml"));
+		$type = stripslashes((string) check_html($row['type'], "nohtml"));
+		$var = stripslashes((string) check_html($row['var'], "nohtml"));
 		$count = intval($row['count']);
 		if(($type == "total") && ($var == "hits")) {
 			$total = $count;
@@ -181,7 +209,7 @@ function Stats_Main() {
 function Stats($total) {
 	global $hlpfile,$nowyear,$nowmonth,$nowdate,$nowhour, $sitename, $startdate, $prefix, $db, $now, $module_name;
 	$row = $db->sql_query("SELECT count from ".$prefix."_counter order by type desc");
-	list($total) = $db->sql_fetchrow($row);
+	[$total] = $db->sql_fetchrow($row);
 	include ("header.php");
 	title("$sitename "._STATS."");
 	$total++;
@@ -281,7 +309,7 @@ function showYearStats($nowyear){
 	$m_size = getimagesize("themes/$ThemeSel/images/mainbar.gif");
 	$r_size = getimagesize("themes/$ThemeSel/images/rightbar.gif");
 	$resulttotal = $db->sql_query("SELECT sum(hits) as TotalHitsYear from ".$prefix."_stats_year");
-	list($TotalHitsYear) = $db->sql_fetchrow($resulttotal);
+	[$TotalHitsYear] = $db->sql_fetchrow($resulttotal);
 	$db->sql_freeresult($resulttotal);
 	$result = $db->sql_query("select year,hits from ".$prefix."_stats_year order by year");
 	echo "<center><b>"._YEARLYSTATS."</b></center><br>";
@@ -311,7 +339,7 @@ function showMonthStats($nowyear,$nowmonth){
 	$m_size = getimagesize("themes/$ThemeSel/images/mainbar.gif");
 	$r_size = getimagesize("themes/$ThemeSel/images/rightbar.gif");
 	$resultmonth = $db->sql_query("SELECT sum(hits) as TotalHitsMonth from ".$prefix."_stats_month where year='$nowyear'");
-	list($TotalHitsMonth) = $db->sql_fetchrow($resultmonth);
+	[$TotalHitsMonth] = $db->sql_fetchrow($resultmonth);
 	$db->sql_freeresult($resultmonth);
 	$result = $db->sql_query("select month,hits from ".$prefix."_stats_month where year='$nowyear'");
 	echo "<center><b>"._MONTLYSTATS." $nowyear</b></center><br>";
@@ -344,7 +372,7 @@ function showDailyStats($year,$month,$nowdate){
 	$m_size = getimagesize("themes/$ThemeSel/images/mainbar.gif");
 	$r_size = getimagesize("themes/$ThemeSel/images/rightbar.gif");
 	$resulttotal = $db->sql_query("SELECT sum(hits) as TotalHitsDate from ".$prefix."_stats_date where year='$year' and month='$month'");
-	list($TotalHitsDate) = $db->sql_fetchrow($resulttotal);
+	[$TotalHitsDate] = $db->sql_fetchrow($resulttotal);
 	$db->sql_freeresult($resulttotal);
 	$result = $db->sql_query("select year,month,date,hits from ".$prefix."_stats_date where year='$year' and month='$month' order by date");
 	$total = $db->sql_numrows($result);
@@ -388,7 +416,7 @@ function showHourlyStats($year,$month,$date){
 	$m_size = getimagesize("themes/$ThemeSel/images/mainbar.gif");
 	$r_size = getimagesize("themes/$ThemeSel/images/rightbar.gif");
 	$resulttotal = $db->sql_query("SELECT sum(hits) as TotalHitsHour from ".$prefix."_stats_hour where year='$year' and month='$month' and date='$date'");
-	list($TotalHitsHour) = $db->sql_fetchrow($resulttotal);
+	[$TotalHitsHour] = $db->sql_fetchrow($resulttotal);
 	$db->sql_freeresult($resulttotal);
 	$nowdate = date("d-m-Y");
 	$nowdate_arr = explode("-",$nowdate);
@@ -468,4 +496,3 @@ switch($op) {
 
 }
 
-?>
