@@ -21,17 +21,23 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * StrStartsWithRector (https://wiki.php.net/rfc/add_str_starts_with_and_ends_with_functions)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 if ( !defined('IN_PHPBB') )
 {
 	die("Hacking attempt");
 	exit;
 }
 
-if ( empty($HTTP_GET_VARS[POST_USERS_URL]) || $HTTP_GET_VARS[POST_USERS_URL] == ANONYMOUS )
+if ( empty($_GET[POST_USERS_URL]) || $_GET[POST_USERS_URL] == ANONYMOUS )
 {
 	message_die(GENERAL_MESSAGE, $lang['No_user_id_specified']);
 }
-$profiledata = get_userdata($HTTP_GET_VARS[POST_USERS_URL]);
+$profiledata = get_userdata($_GET[POST_USERS_URL]);
 if (!$profiledata)
 {
 	message_die(GENERAL_MESSAGE, $lang['No_user_id_specified']);
@@ -66,7 +72,7 @@ if (is_active("Forums")) {
 // Then calculate their posts per day
 //
 $regdate = $profiledata['user_regdate'];
-$nukedate = strtotime($regdate);
+$nukedate = strtotime((string) $regdate);
 $memberdays = max(1, round( ( time() - $nukedate ) / 86400 ));
 $posts_per_day = $profiledata['user_posts'] / $memberdays;
 
@@ -144,7 +150,7 @@ else
 if (( $profiledata['user-website'] == "http:///") || ( $profiledata['user_website'] == "http://")){
     $profiledata['user_website'] =  "";
 }
-if (($profiledata['user_website'] != "" ) && (substr($profiledata['user_website'],0, 7) != "http://")) {
+if (($profiledata['user_website'] != "" ) && (!str_starts_with((string) $profiledata['user_website'], "http://"))) {
     $profiledata['user_website'] = "http://".$profiledata['user_website'];
 }
 
@@ -173,7 +179,7 @@ $msn = $msn_img;
 $yim_img = ( $profiledata['user_yim'] ) ? '<a href="http://edit.yahoo.com/config/send_webmesg?.target=' . $profiledata['user_yim'] . '&amp;.src=pg"><img src="' . $images['icon_yim'] . '" alt="' . $lang['YIM'] . '" title="' . $lang['YIM'] . '" border="0" /></a>' : '';
 $yim = ( $profiledata['user_yim'] ) ? '<a href="http://edit.yahoo.com/config/send_webmesg?.target=' . $profiledata['user_yim'] . '&amp;.src=pg">' . $lang['YIM'] . '</a>' : '';
 
-$temp_url = append_sid("search.$phpEx?search_author=" . urlencode($profiledata['username']) . "&amp;showresults=posts");
+$temp_url = append_sid("search.$phpEx?search_author=" . urlencode((string) $profiledata['username']) . "&amp;showresults=posts");
 $search_img = '<a href="' . $temp_url . '"><img src="' . $images['icon_search'] . '" alt="' . $lang['Search_user_posts'] . '" title="' . sprintf($lang['Search_user_posts'], $profiledata['username']) . '" border="0" /></a>';
 $search = '<a href="' . $temp_url . '">' . sprintf($lang['Search_user_posts'], $profiledata['username']) . '</a>';
 
@@ -182,14 +188,14 @@ $search = '<a href="' . $temp_url . '">' . sprintf($lang['Search_user_posts'], $
 //
 $page_title = $lang['Viewing_profile'];
 include("modules/Forums/includes/page_header.php");
-$profiledata['user_from'] = str_replace(".gif", "", $profiledata['user_from']);
+$profiledata['user_from'] = str_replace(".gif", "", (string) $profiledata['user_from']);
 if (function_exists('get_html_translation_table'))
 {
 	$u_search_author = urlencode(strtr($profiledata['username'], array_flip(get_html_translation_table(HTML_ENTITIES))));
 }
 else
 {
-	$u_search_author = urlencode(str_replace(array('&amp;', '&#039;', '&quot;', '&lt;', '&gt;'), array('&', "'", '"', '<', '>'), $profiledata['username']));
+	$u_search_author = urlencode(str_replace(array('&amp;', '&#039;', '&quot;', '&lt;', '&gt;'), array('&', "'", '"', '<', '>'), (string) $profiledata['username']));
 }
 
 $template->assign_vars(array(
@@ -255,4 +261,3 @@ $template->pparse('body');
 
 include("modules/Forums/includes/page_tail.php");
 
-?>
