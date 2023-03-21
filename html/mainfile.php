@@ -20,6 +20,16 @@
  * SimplifyMirrorAssignRector
  * RemoveAlwaysTrueIfConditionRector
  * RemoveUnreachableStatementRector
+ * ReplaceHttpServerVarsByServerRector (https://blog.tigertech.net/posts/php-5-3-http-server-vars/)
+ * AddDefaultValueForUndefinedVariableRector (https://github.com/vimeo/psalm/blob/29b70442b11e3e66113935a2ee22e165a70c74a4/docs/fixing_code.md#possiblyundefinedvariable)
+ * RandomFunctionRector
+ * TernaryToNullCoalescingRector
+ * WrapVariableVariableNameInCurlyBracesRector (https://www.php.net/manual/en/language.variables.variable.php)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * SetCookieRector (https://www.php.net/setcookie https://wiki.php.net/rfc/same-site-cookie)
+ * StringifyStrNeedlesRector (https://wiki.php.net/rfc/deprecations_php_7_3#string_search_functions_with_integer_needle)
+ * StrStartsWithRector (https://wiki.php.net/rfc/add_str_starts_with_and_ends_with_functions)
+ * NullToStrictStringFuncCallArgRector 
  */
 
 define('NUKE_FILE', true);
@@ -80,7 +90,7 @@ function include_secure($file_name)
 # add 3rd party microtime
 function get_microtime() 
 {
-    list($usec, $sec) = explode(' ', microtime());
+    [$usec, $sec] = explode(' ', microtime());
     return ($usec + $sec);
 }
 
@@ -101,8 +111,8 @@ if(!ini_get('register_globals')){
 		function php_nuke_import_globals($array)
 		{
 			foreach ($array as $k => $v):
-			  global $$k;
-			  $$k = $v;
+			  global ${$k};
+			  ${$k} = $v;
 			endforeach;
 		}
 		if(!empty($_GET)){
@@ -119,20 +129,20 @@ if(!ini_get('register_globals')){
 
 # After doing those superglobals we can now use one
 # and check if this file isnt being accessed directly
-if (stristr(htmlentities($_SERVER['PHP_SELF']), "mainfile.php")) {
+if (stristr(htmlentities((string) $_SERVER['PHP_SELF']), "mainfile.php")) {
     header("Location: index.php");
     exit();
 }
 
 # idea based on Nuke Evolution
-$admin = (isset($_COOKIE['admin'])) ? $_COOKIE['admin'] : false;
-$user = (isset($_COOKIE['user'])) ? $_COOKIE['user'] : false;
+$admin = $_COOKIE['admin'] ?? false;
+$user = $_COOKIE['user'] ?? false;
 
 # idea based on Nuke Evolution
 if((isset($_POST['name']) && !empty($_POST['name'])) && (isset($_GET['name']) && !empty($_GET['name']))): 
-  $name = (isset($_GET['name']) && !stristr($_GET['name'],'..') && !stristr($_GET['name'],'://')) ? addslashes(trim($_GET['name'])) : false;
+  $name = (isset($_GET['name']) && !stristr((string) $_GET['name'],'..') && !stristr((string) $_GET['name'],'://')) ? addslashes(trim((string) $_GET['name'])) : false;
 else: 
-  $name = (isset($_REQUEST['name']) && !stristr($_REQUEST['name'],'..') && !stristr($_REQUEST['name'],'://')) ? addslashes(trim($_REQUEST['name'])) : false;
+  $name = (isset($_REQUEST['name']) && !stristr((string) $_REQUEST['name'],'..') && !stristr((string) $_REQUEST['name'],'://')) ? addslashes(trim((string) $_REQUEST['name'])) : false;
 endif;
 
 # idea based on Nuke Evolution
@@ -141,7 +151,7 @@ $start_time = get_microtime();
 
 # add Microsoft compatibilty
 # Stupid handle to create REQUEST_URI for IIS 5 servers
-if(preg_match('/IIS/', $_SERVER['SERVER_SOFTWARE']) && isset($_SERVER['SCRIPT_NAME'])):
+if(preg_match('/IIS/', (string) $_SERVER['SERVER_SOFTWARE']) && isset($_SERVER['SCRIPT_NAME'])):
     $requesturi = $_SERVER['SCRIPT_NAME'];
     if (isset($_SERVER['QUERY_STRING'])):
       $requesturi .= '?'.$_SERVER['QUERY_STRING'];
@@ -152,22 +162,22 @@ endif;
 # add refactoring compatibilty for rectorphp
 # PHP5 with register_long_arrays off?
 if(PHP_5 && (!ini_get('register_long_arrays') || ini_get('register_long_arrays') == '0' || strtolower(ini_get('register_long_arrays')) == 'off')):
-    $HTTP_POST_VARS =& $_POST;
-    $HTTP_GET_VARS =& $_GET;
-    $HTTP_SERVER_VARS =& $_SERVER;
-    $HTTP_COOKIE_VARS =& $_COOKIE;
-    $HTTP_ENV_VARS =& $_ENV;
-    $HTTP_POST_FILES =& $_FILES;
+    $_POST =& $_POST;
+    $_GET =& $_GET;
+    $_SERVER =& $_SERVER;
+    $_COOKIE =& $_COOKIE;
+    $_ENV =& $_ENV;
+    $_FILES =& $_FILES;
     if(isset($_SESSION)): 
-	  $HTTP_SESSION_VARS =& $_SESSION;
+	  $_SESSION =& $_SESSION;
 	endif;
 endif;
 
 # add compatibility for the 3rd party donations module
 if(isset($_COOKIE['DONATION'])):
-  setcookie('DONATION', null, time()-3600);
-  $type = preg_match('/IIS|Microsoft|WebSTAR|Xitami/', $_SERVER['SERVER_SOFTWARE']) ? 'Refresh: 0; URL=' : 'Location: ';
-  $url = str_replace('&amp;', "&", $url);
+  setcookie('DONATION', '', ['expires' => time()-3600]);
+  $type = preg_match('/IIS|Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ? 'Refresh: 0; URL=' : 'Location: ';
+  $url = str_replace('&amp;', "&", (string) $url);
   header($type . 'modules.php?name=Donations&op=thankyou');
 endif;
 
@@ -182,7 +192,7 @@ $rel_path['script'] = str_replace('\\', "/",$script_abs_path['dirname']);
 
 if(($rel_path['file'] === $rel_path['script']) && (strlen((string) $_SERVER['DOCUMENT_ROOT']) < strlen($script_abs_path['dirname']))): 
     $href_path = '/'.str_replace($_SERVER['DOCUMENT_ROOT'], '', $rel_path['script']);
-    if (substr($href_path, 0, 2) == '//'): 
+    if (str_starts_with($href_path, '//')): 
     $href_path = substr($href_path, 1);
 	endif;
 elseif(strlen($rel_path['file']) == (strlen((string) $_SERVER['DOCUMENT_ROOT']) - 1)): 
@@ -191,7 +201,7 @@ elseif(strlen($rel_path['script']) > strlen((string) $_SERVER['DOCUMENT_ROOT']) 
     $href_path = '';
 elseif(strlen($rel_path['file']) > strlen((string) $_SERVER['DOCUMENT_ROOT'])):
 	$href_path = '/'.str_replace($_SERVER['DOCUMENT_ROOT'], '', $rel_path['file']);
-	if(substr($href_path, 0, 2) == '//'): 
+	if(str_starts_with($href_path, '//')): 
     $href_path = substr($href_path, 1);
 	endif;
 else: 
@@ -335,7 +345,7 @@ $do_gzip_compress = false;
 
 if (GZIPSUPPORT && !ini_get('zlib.output_compression') 
 && isset($_SERVER['HTTP_ACCEPT_ENCODING']) 
-&& preg_match('/gzip/i', $_SERVER['HTTP_ACCEPT_ENCODING'])):
+&& preg_match('/gzip/i', (string) $_SERVER['HTTP_ACCEPT_ENCODING'])):
     
 	if (version_compare(PHPVERS, '8.0.0', '>=')): 
         ob_end_clean();  // never run this without doing an end clean first (Ernest Allen Buffington)
@@ -355,7 +365,7 @@ endif;
 $sanitize_rules = array("newlang"=>"/[a-z][a-z]/i","redirect"=>"/[a-z0-9]*/i");
 foreach($_REQUEST as $key=>$value)
 {
-    if(!isset($sanitize_rules[$key]) || preg_match($sanitize_rules[$key], $value))
+    if(!isset($sanitize_rules[$key]) || preg_match($sanitize_rules[$key], (string) $value))
     {
         $GLOBALS[$key] = $value;
     }    
@@ -363,7 +373,7 @@ foreach($_REQUEST as $key=>$value)
 
 if(!function_exists('stripos')) {
   function stripos_clone($haystack, $needle, $offset=0) {
-    $return = strpos(strtoupper($haystack), strtoupper($needle), $offset);
+    $return = strpos(strtoupper((string) $haystack), strtoupper((string) $needle), $offset);
   if ($return === false) {
     return false;
     } else {
@@ -373,7 +383,7 @@ if(!function_exists('stripos')) {
 } else {
   # But when this is PHP5, we use the original function
   function stripos_clone($haystack, $needle, $offset=0) {
-    $return = stripos($haystack, $needle, $offset=0);
+    $return = stripos((string) $haystack, (string) $needle, $offset=0);
   if ($return === false) {
     return false;
     } else {
@@ -389,18 +399,18 @@ $htmltags .= "[ <a href=\"javascript:history.go(-1)\"><b>Go Back</b></a> ]</div>
 
 if (!defined('ADMIN_FILE')) {
  foreach ($_GET as $sec_key => $secvalue) {
- if((preg_match('#<[^>]*script*"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*object*"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*iframe*"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*applet*"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*meta*"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*style*"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*form*"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*img*"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*onmouseover *"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#<[^>]*body *"?[^>]*#mi', $secvalue)) ||
-    (preg_match('#\([^>]*"?[^\)]*\)#mi', $secvalue)) ||
-    (preg_match('#"#mi', $secvalue)) ||
+ if((preg_match('#<[^>]*script*"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*object*"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*iframe*"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*applet*"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*meta*"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*style*"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*form*"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*img*"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*onmouseover *"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#<[^>]*body *"?[^>]*#mi', (string) $secvalue)) ||
+    (preg_match('#\([^>]*"?[^\)]*\)#mi', (string) $secvalue)) ||
+    (preg_match('#"#mi', (string) $secvalue)) ||
     (preg_match('#forum_admin#mi', $sec_key)) ||
     (preg_match('#inside_mod#mi', $sec_key)))
   {
@@ -409,14 +419,14 @@ if (!defined('ADMIN_FILE')) {
 }
 
  foreach ($_POST as $secvalue) {
-  if ((preg_match('#<[^>]*iframe*"?[^>]*#mi', $secvalue)) ||
-      (preg_match('#<[^>]*object*"?[^>]*#mi', $secvalue)) ||
-      (preg_match('#<[^>]*applet*"?[^>]*#mi', $secvalue)) ||
-      (preg_match('#<[^>]*meta*"?[^>]*#mi', $secvalue)) ||
-      (preg_match('#<[^>]*onmouseover*"?[^>]*#mi', $secvalue)) ||
-      (preg_match('#<[^>]script*"?[^>]*#mi', $secvalue)) ||
-      (preg_match('#<[^>]*body*"?[^>]*#mi', $secvalue)) ||
-      (preg_match('#<[^>]style*"?[^>]*#mi', $secvalue))) {
+  if ((preg_match('#<[^>]*iframe*"?[^>]*#mi', (string) $secvalue)) ||
+      (preg_match('#<[^>]*object*"?[^>]*#mi', (string) $secvalue)) ||
+      (preg_match('#<[^>]*applet*"?[^>]*#mi', (string) $secvalue)) ||
+      (preg_match('#<[^>]*meta*"?[^>]*#mi', (string) $secvalue)) ||
+      (preg_match('#<[^>]*onmouseover*"?[^>]*#mi', (string) $secvalue)) ||
+      (preg_match('#<[^>]script*"?[^>]*#mi', (string) $secvalue)) ||
+      (preg_match('#<[^>]*body*"?[^>]*#mi', (string) $secvalue)) ||
+      (preg_match('#<[^>]style*"?[^>]*#mi', (string) $secvalue))) {
    die ($htmltags);
   }
  }
@@ -545,8 +555,8 @@ if (is_array($userinfo) && isset($userinfo['user_active'])
 endif;
 
 # idea based on Nuke Evolution
-if(stristr($_SERVER['REQUEST_URI'], '.php/')):
-  redirect(str_replace('.php/', '.php', $_SERVER['REQUEST_URI']));
+if(stristr((string) $_SERVER['REQUEST_URI'], '.php/')):
+  redirect(str_replace('.php/', '.php', (string) $_SERVER['REQUEST_URI']));
 endif;
 
 # 3rd party Zend compatibility
@@ -606,7 +616,7 @@ $CensorMode = intval($row['CensorMode']);
 $CensorReplace = filter($row['CensorReplace'], "nohtml");
 $copyright = filter($row['copyright']);
 $Version_Num = floatval($row['Version_Num']);
-$domain = str_replace("http://", "", $nukeurl);
+$domain = str_replace("http://", "", (string) $nukeurl);
 $gfx_chk = intval($row['gfx_chk']);
 $display_errors = filter($row['display_errors']);
 $nuke_editor = intval($row['nuke_editor']);
@@ -625,13 +635,13 @@ if ($display_errors == 1) {
 }
 
 if (!defined('FORUM_ADMIN')) {
-    if ((isset($newlang)) AND (stristr($newlang,"."))) {
+    if ((isset($newlang)) AND (stristr((string) $newlang,"."))) {
 		if (file_exists("language/lang-".$newlang.".php")) {
-			setcookie("lang",$newlang,time()+31536000);
+			setcookie("lang",(string) $newlang,['expires' => time()+31536000]);
 			include_secure("language/lang-".$newlang.".php");
 			$currentlang = $newlang;
 		} else {
-			setcookie("lang",$language,time()+31536000);
+			setcookie("lang",(string) $language,['expires' => time()+31536000]);
 			include_secure("language/lang-".$language.".php");
 			$currentlang = $language;
 		}
@@ -639,23 +649,25 @@ if (!defined('FORUM_ADMIN')) {
 		include_secure("language/lang-".$lang.".php");
 		$currentlang = $lang;
 	} else {
-		setcookie("lang",$language,time()+31536000);
+		setcookie("lang",(string) $language,['expires' => time()+31536000]);
 		include_secure("language/lang-".$language.".php");
 		$currentlang = $language;
 	}
 }
 
 function makePass() {
-	$cons = "bcdfghjklmnpqrstvwxyz";
+	$con = [];
+ $voc = [];
+ $cons = "bcdfghjklmnpqrstvwxyz";
 	$vocs = "aeiou";
 	for ($x=0; $x < 6; $x++) {
 		mt_srand ((double) microtime() * 1000000);
-		$con[$x] = substr($cons, mt_rand(0, strlen($cons)-1), 1);
-		$voc[$x] = substr($vocs, mt_rand(0, strlen($vocs)-1), 1);
+		$con[$x] = substr($cons, random_int(0, strlen($cons)-1), 1);
+		$voc[$x] = substr($vocs, random_int(0, strlen($vocs)-1), 1);
 	}
 	mt_srand((double)microtime()*1000000);
-	$num1 = mt_rand(0, 9);
-	$num2 = mt_rand(0, 9);
+	$num1 = random_int(0, 9);
+	$num2 = random_int(0, 9);
 	$makepass = $con[0] . $voc[0] .$con[2] . $num1 . $num2 . $con[3] . $voc[3] . $con[4];
 	return($makepass);
 }
@@ -779,9 +791,9 @@ function update_points($id) {
   if (is_user()) {
     if(!is_array($user)) {
       $cookie = cookiedecode($user);
-      $username = trim($cookie[1]);
+      $username = trim((string) $cookie[1]);
     } else {
-      $username = trim($user[1]);
+      $username = trim((string) $user[1]);
     }
       $username = substr(htmlspecialchars(str_replace("\'", "'", trim($username))), 0, 25);
       $username = rtrim($username, "\\");	
@@ -789,7 +801,7 @@ function update_points($id) {
     if ($db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_groups")) > 0) {
       $id = intval($id);
       $result = $db->sql_query("SELECT points FROM ".$prefix."_groups_points WHERE id='$id'");
-      list($points) = $db->sql_fetchrow($result);
+      [$points] = $db->sql_fetchrow($result);
       $db->sql_freeresult($result);
       $rpoints = intval($points);
       $db->sql_query("UPDATE ".$user_prefix."_users SET points=points+".$rpoints." WHERE username='$username'");
@@ -853,19 +865,20 @@ function render_blocks($side, $blockfile, $title, $content, $bid, $url) {
 }
 
 function blocks($side) {
-	global $storynum, $prefix, $multilingual, $currentlang, $db, $admin, $user;
+	$pos = null;
+ global $storynum, $prefix, $multilingual, $currentlang, $db, $admin, $user;
 	if ($multilingual == 1) {
 		$querylang = "AND (blanguage='$currentlang' OR blanguage='')";
 	} else {
 		$querylang = "";
 	}
-	if (strtolower($side[0]) == "l") {
+	if (strtolower((string) $side[0]) == "l") {
 		$pos = "l";
-	} elseif (strtolower($side[0]) == "r") {
+	} elseif (strtolower((string) $side[0]) == "r") {
 		$pos = "r";
-	}  elseif (strtolower($side[0]) == "c") {
+	}  elseif (strtolower((string) $side[0]) == "c") {
 		$pos = "c";
-	} elseif  (strtolower($side[0]) == "d") {
+	} elseif  (strtolower((string) $side[0]) == "d") {
 		$pos = "d";
 	}
 	$side = $pos;
@@ -874,13 +887,13 @@ function blocks($side) {
 	while($row = $db->sql_fetchrow($result)) {
 		$bid = intval($row['bid']);
 		$title = filter($row['title'], "nohtml");
-		$content = stripslashes($row['content']);
+		$content = stripslashes((string) $row['content']);
 		$url = filter($row['url'], "nohtml");
 		$blockfile = filter($row['blockfile'], "nohtml");
 		$view = intval($row['view']);
 		$expire = intval($row['expire']);
 		$action = filter($row['action'], "nohtml");
-		$action = substr($action, 0,1);
+		$action = substr((string) $action, 0,1);
 		$now = time();
 		$sub = intval($row['subscription']);
 		if ($sub == 0 OR ($sub == 1 AND !paid())) {
@@ -1012,11 +1025,11 @@ function online() {
   $past = time()-3600;
   $sql = "DELETE FROM ".$prefix."_session WHERE time < '$past'";
   $db->sql_query($sql);
-  $sql = "SELECT time FROM ".$prefix."_session WHERE uname='".addslashes($uname)."'";
+  $sql = "SELECT time FROM ".$prefix."_session WHERE uname='".addslashes((string) $uname)."'";
   $result = $db->sql_query($sql);
   $ctime = time();
   if (!empty($uname)) {
-    $uname = substr($uname, 0,25);
+    $uname = substr((string) $uname, 0,25);
     $row = $db->sql_fetchrow($result);
     if ($row) {
       $db->sql_query("UPDATE ".$prefix."_session SET uname='".addslashes($uname)."', time='$ctime', host_addr='$ip', guest='$guest' WHERE uname='".addslashes($uname)."'");
@@ -1048,18 +1061,19 @@ function blockfileinc($title, $blockfile, $side=0) {
 }
 
 function selectlanguage() {
-	global $useflags, $currentlang;
+	$menulist = [];
+ global $useflags, $currentlang;
 	if ($useflags == 1) {
 		$title = _SELECTLANGUAGE;
 		$content = "<center><font class=\"content\">"._SELECTGUILANG."<br><br>";
 		$langdir = dir("language");
 		while($func=$langdir->read()) {
-			if(substr($func, 0, 5) == "lang-") {
+			if(str_starts_with($func, "lang-")) {
 				$menulist .= "$func ";
 			}
 		}
 		closedir($langdir->handle);
-		$menulist = explode(" ", $menulist);
+		$menulist = explode(" ", (string) $menulist);
 		sort($menulist);
 		for ($i=0; $i < sizeof($menulist); $i++) {
 			if($menulist[$i]!="") {
@@ -1099,7 +1113,8 @@ function selectlanguage() {
 }
 
 function ultramode() {
-	global $prefix, $db;
+	$querylang = null;
+ global $prefix, $db;
 	$ultra = "ultramode.txt";
 	$file = fopen($ultra, "w");
 	fwrite($file, "General purpose self-explanatory file with news headlines\n");
@@ -1110,7 +1125,7 @@ function ultramode() {
 		$raid = filter($row['aid'], "nohtml");
 		$rtitle = filter($row['title'], "nohtml");
 		$rtime = $row['time'];
-		$rhometext = filter(stripslashes($row['hometext']), "nohtml");
+		$rhometext = filter(stripslashes((string) $row['hometext']), "nohtml");
 		$rcomments = intval($row['comments']);
 		$rtopic = intval($row['topic']);
 		$row2 = $db->sql_fetchrow($db->sql_query("select topictext, topicimage from ".$prefix."_topics where topicid='$rtopic'"));
@@ -1153,7 +1168,7 @@ function cookiedecode($trash=0)
 function Fix_Quotes($str, $nohtml=false) 
 {
     if($nohtml): 
-	    $str = strip_tags($str);
+	    $str = strip_tags((string) $str);
 	  endif;
     
 	return $str;
@@ -1161,7 +1176,7 @@ function Fix_Quotes($str, $nohtml=false)
 
 function FixQuotes ($what = "") {
 	while (stristr($what ?? '', "\\\\'")) {
-		$what = str_replace("\\\\'","'",$what);
+		$what = str_replace("\\\\'","'",(string) $what);
 	}
 	return $what;
 }
@@ -1187,15 +1202,15 @@ function check_words($Message) {
 			$Replace = $CensorReplace;
 			if (isset($CensorMode) && $CensorMode === 1) {
 				for ($i = 0; $i < count($CensorList); $i++) {
-					$EditedMessage = preg_replace("$CensorList[$i]([^a-zA-Z0-9])","$Replace\\1",$EditedMessage);
+					$EditedMessage = preg_replace("$CensorList[$i]([^a-zA-Z0-9])","$Replace\\1",(string) $EditedMessage);
 				}
 			} elseif (isset($CensorMode) && $CensorMode === 2) {
 				for ($i = 0; $i < count($CensorList); $i++) {
-					$EditedMessage = preg_replace("(^|[^[:alnum:]])$CensorList[$i]","\\1$Replace",$EditedMessage);
+					$EditedMessage = preg_replace("(^|[^[:alnum:]])$CensorList[$i]","\\1$Replace",(string) $EditedMessage);
 				}
 			} elseif (isset($CensorMode) && $CensorMode === 3) {
 				for ($i = 0; $i < count($CensorList); $i++) {
-					$EditedMessage = preg_replace("$CensorList[$i]","$Replace",$EditedMessage);
+					$EditedMessage = preg_replace("$CensorList[$i]","$Replace",(string) $EditedMessage);
 				}
 			}
 		}
@@ -1218,7 +1233,7 @@ function delQuotes($string){
 	$i=0;
 	$attrib=-1; # Are us in an HTML attrib ?   -1: no attrib   0: name of the attrib   1: value of the atrib
 	$quote=0;   # Is a string quote delimited opened ? 0=no, 1=yes
-	$len = strlen($string);
+	$len = strlen((string) $string);
 	while ($i<$len) {
 		switch($string[$i]) { # What car is it in the buffer ?
 		case "\"": #"       # a quote.
@@ -1260,7 +1275,8 @@ function delQuotes($string){
 }
 
 function check_html ($str, $strip="") {
-	/* The core of this code has been lifted from phpslash */
+	$AllowableHTML = [];
+ /* The core of this code has been lifted from phpslash */
 	/* which is licenced under the GPL. */
 	include("config.php");
 	if ($strip == "nohtml")
@@ -1281,7 +1297,7 @@ function check_html ($str, $strip="") {
 		$l = strlen($reg[0]);
 		$a = [];
 		
-		if ($reg[1][0] == "/") 
+		if (isset($reg[1][0]) && $reg[1][0] == "/") 
 		{
 		  $tag = strtolower(substr($reg[1],1));
 		}
@@ -1336,7 +1352,7 @@ function filter_text($Message, $strip="") {
 function filter($what, $strip="", $save="", $type="") {
 	if ($strip == "nohtml") {
 		$what = check_html($what, $strip);
-		$what = htmlentities(trim($what), ENT_QUOTES);
+		$what = htmlentities(trim((string) $what), ENT_QUOTES);
 		// If the variable $what doesn't comes from a preview screen should be converted
 		if ($type != "preview" AND $save != 1) {
 			$what = html_entity_decode($what, ENT_QUOTES);
@@ -1345,9 +1361,9 @@ function filter($what, $strip="", $save="", $type="") {
 	if ($save == 1) {
 		$what = check_words($what);
 		$what = check_html($what, $strip);
-		$what = addslashes($what);
+		$what = addslashes((string) $what);
 	} else {
-		$what = stripslashes(FixQuotes($what ?? ''));
+		$what = stripslashes((string) FixQuotes($what ?? ''));
 		$what = check_words($what);
 		$what = check_html($what, $strip);
 	}
@@ -1384,7 +1400,7 @@ function formatTimestamp($time) {
 	{
       $time -= date("Z");
       $datetime = strftime(_DATESTRING, $time);
-      $datetime = ucfirst($datetime);
+      $datetime = ucfirst((string) $datetime);
 	}
     return $datetime;
 }
@@ -1449,7 +1465,7 @@ function adminblock() {
 	if (is_admin()) {
 	    $sql = "SELECT title, content FROM ".$prefix."_blocks WHERE bkey='admin'";
 		$result = $db->sql_query($sql);
-		while (list($title, $content) = $db->sql_fetchrow($result)) {
+		while ([$title, $content] = $db->sql_fetchrow($result)) {
 			$content = filter($content);
 			$title = filter($title, "nohtml");
 			$content = "<span class=\"content\">".$content."</span>";
@@ -1481,7 +1497,7 @@ function loginbox() {
 	global $user, $sitekey, $gfx_chk;
 	mt_srand ((double)microtime()*1000000);
 	$maxran = 1000000;
-	$random_num = mt_rand(0, $maxran);
+	$random_num = random_int(0, $maxran);
 	$datekey = date("F j");
 	$rcode = hexdec(md5($_SERVER['HTTP_USER_AGENT'] . $sitekey . $random_num . $datekey));
 	$code = substr($rcode, 2, 6);
@@ -1548,7 +1564,7 @@ function headlines($bid, $cenbox=0) {
 	$cont = 0;
 	if ($otime < $past) {
 		$btime = time();
-		$rdf = parse_url($url);
+		$rdf = parse_url((string) $url);
 		$fp = fsockopen($rdf['host'], 80, $errno, $errstr, 15);
 		if (!$fp) {
 			$content = "";
@@ -1603,7 +1619,7 @@ function headlines($bid, $cenbox=0) {
 		}
 		$db->sql_query("UPDATE ".$prefix."_blocks SET content='$content', time='$btime' WHERE bid='$bid'");
 	}
-	$siteurl = str_replace("http://","",$url);
+	$siteurl = str_replace("http://","",(string) $url);
 	$siteurl = explode("/",$siteurl);
 	if (($cont == 1) OR (!empty($content))) {
 		$content .= "<br><a href=\"http://$siteurl[0]\" target=\"blank\"><b>"._HREADMORE."</b></a></font>";
@@ -1641,7 +1657,7 @@ function automated_news() {
 	while ($row = $db->sql_fetchrow($result)) {
 		$anid = intval($row['anid']);
 		$time = $row['time'];
-		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', $time, $date);
+		preg_match ('#([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})#m', (string) $time, $date);
 		if (($date[1] <= $year) AND ($date[2] <= $month) AND ($date[3] <= $day)) {
 			if (($date[4] < $hour) AND ($date[5] >= $min) OR ($date[4] <= $hour) AND ($date[5] <= $min)) {
 				$result2 = $db->sql_query("SELECT * FROM ".$prefix."_autonews WHERE anid='$anid'");
@@ -1688,7 +1704,8 @@ function themecenterbox($title, $content) {
 }
 
 function public_message() {
-	global $prefix, $user_prefix, $db, $user, $admin, $p_msg, $cookie, $broadcast_msg;
+	$t_off = null;
+ global $prefix, $user_prefix, $db, $user, $admin, $p_msg, $cookie, $broadcast_msg;
 	if ($broadcast_msg == 1) {
 		if (is_user()) {
 			cookiedecode($user);
@@ -1739,7 +1756,7 @@ function public_message() {
 				} else {
 					$mid = base64_encode($mid);
 					$mid = addslashes($mid);
-					setcookie("p_msg",$mid,time()+600);
+					setcookie("p_msg",$mid,['expires' => time()+600]);
 				}
 			}
 		}
@@ -1777,7 +1794,7 @@ function removecrlf($str) {
 }
 
 function validate_mail($email) {
-  if(strlen($email) < 7 || !preg_match('#^[_\\\\\.0-9a-z\-]+@([0-9a-z][0-9a-z\-]+\.)+[a-z]{2,6}$#mi',$email)) {
+  if(strlen((string) $email) < 7 || !preg_match('#^[_\\\\\.0-9a-z\-]+@([0-9a-z][0-9a-z\-]+\.)+[a-z]{2,6}$#mi',(string) $email)) {
      OpenTable();
      echo _ERRORINVEMAIL;
      CloseTable();
@@ -1810,7 +1827,7 @@ function paid() {
 				$subject = "$sitename: "._SUBEXPIRED."";
 				$body = ""._HELLO." $cookie[1]:\n\n"._SUBSCRIPTIONAT." $sitename "._HASEXPIRED."\n$renew\n\n"._HOPESERVED."\n\n$sitename "._TEAM."\n$nukeurl";
 				$row = $db->sql_fetchrow($db->sql_query("SELECT user_email FROM ".$user_prefix."_users WHERE id='$cookie[0]' AND nickname='$cookie[1]' AND password='$cookie[2]'"));
-				mail($row['user_email'], $subject, $body, "From: $from\nX-Mailer: PHP/" . phpversion());
+				mail((string) $row['user_email'], $subject, $body, "From: $from\nX-Mailer: PHP/" . phpversion());
 			}
 			return 1;
 		}
@@ -1830,13 +1847,13 @@ function ads($position) {
 	if ($numrows > 1) {
 		$numrows = $numrows-1;
 		mt_srand((double)microtime()*1000000);
-		$bannum = mt_rand(0, $numrows);
+		$bannum = random_int(0, $numrows);
 	} else {
 		$bannum = 0;
 	}
 	$sql = "SELECT bid, impmade, imageurl, clickurl, alttext FROM ".$prefix."_banner WHERE position='$position' AND active='1' LIMIT $bannum,1";
 	$result = $db->sql_query($sql);
-	list($bid, $impmade, $imageurl, $clickurl, $alttext) = $db->sql_fetchrow($result);
+	[$bid, $impmade, $imageurl, $clickurl, $alttext] = $db->sql_fetchrow($result);
 	$bid = intval($bid);
 	$imageurl = filter($imageurl, "nohtml");
 	$clickurl = filter($clickurl, "nohtml");
@@ -1845,7 +1862,7 @@ function ads($position) {
 	if($numrows > 0) {
 		$sql2 = "SELECT cid, imptotal, impmade, clicks, date, ad_class, ad_code, ad_width, ad_height FROM ".$prefix."_banner WHERE bid='$bid'";
 		$result2 = $db->sql_query($sql2);
-		list($cid, $imptotal, $impmade, $clicks, $date, $ad_class, $ad_code, $ad_width, $ad_height) = $db->sql_fetchrow($result2);
+		[$cid, $imptotal, $impmade, $clicks, $date, $ad_class, $ad_code, $ad_width, $ad_height] = $db->sql_fetchrow($result2);
 		$cid = intval($cid);
 		$imptotal = intval($imptotal);
 		$impmade = intval($impmade);
@@ -1858,7 +1875,7 @@ function ads($position) {
 			$db->sql_query("UPDATE ".$prefix."_banner SET active='0' WHERE bid='$bid'");
 			$sql3 = "SELECT name, contact, email FROM ".$prefix."_banner_clients WHERE cid='$cid'";
 			$result3 = $db->sql_query($sql3);
-			list($c_name, $c_contact, $c_email) = $db->sql_fetchrow($result3);
+			[$c_name, $c_contact, $c_email] = $db->sql_fetchrow($result3);
 			$c_name = filter($c_name, "nohtml");
 			$c_contact = filter($c_contact, "nohtml");
 			$c_email = filter($c_email, "nohtml");
@@ -1882,7 +1899,7 @@ function ads($position) {
 			}
 		}
 		if ($ad_class == "code") {
-			$ad_code = stripslashes(FixQuotes($ad_code));
+			$ad_code = stripslashes((string) FixQuotes($ad_code));
 			$ads = "<center>$ad_code</center>";
 		} elseif ($ad_class == "flash") {
 			$ads = "<center>
@@ -1907,20 +1924,21 @@ function ads($position) {
 }
 
 function redir($content) {
-	global $nukeurl;
+	$linkpos = null;
+ global $nukeurl;
 	unset($location);
 	$content = filter($content);
 	$links = array();
 	$hrefs = array();
 	$pos = 0;
-	while (!(($pos = strpos($content,"<",$pos)) === false)) {
+	while (!(($pos = strpos((string) $content,"<",$pos)) === false)) {
 		$pos++;
-		$endpos = strpos($content,">",$pos);
-		$tag = substr($content,$pos,$endpos-$pos);
+		$endpos = strpos((string) $content,">",$pos);
+		$tag = substr((string) $content,$pos,$endpos-$pos);
 		$tag = trim($tag);
 		if (isset($location)) {
 			if (!strcasecmp(strtok($tag," "),"/A")) {
-				$link = substr($content,$linkpos,$pos-1-$linkpos);
+				$link = substr((string) $content,$linkpos,$pos-1-$linkpos);
 				$links[] = $link;
 				$hrefs[] = $location;
 				unset($location);
@@ -1928,18 +1946,9 @@ function redir($content) {
 			$pos = $endpos+1;
 		} else {
 			if (!strcasecmp(strtok($tag," "),"A")) {
-				if (preg_match('#HREF[ 	
+				if (preg_match('#HREF[]*=[]*"([^"]*)"#mi',$tag,$regs));
+				else if (preg_match('#HREF[]*=[]*([^ ]*)#mi',$tag,$regs));	
 
-]*=[ 	
-
-]*"([^"]*)"#mi',$tag,$regs));
-				else if (preg_match('#HREF[ 	
-
-]*=[ 	
-
-]*([^ 	
-
-]*)#mi',$tag,$regs));
 				else $regs[1] = "";
 				if ($regs[1]) {
 					$location = $regs[1];
@@ -1953,7 +1962,7 @@ function redir($content) {
 	}
 	for ($i=0; $i<sizeof($hrefs); $i++) {
 		$url = urlencode($hrefs[$i]);
-		$content = str_replace("<a href=\"$hrefs[$i]\">", "<a href=\"$nukeurl/index.php?url=$url\" target=\"_blank\">", $content);
+		$content = str_replace("<a href=\"$hrefs[$i]\">", "<a href=\"$nukeurl/index.php?url=$url\" target=\"_blank\">", (string) $content);
 	}
 	return($content);
 }

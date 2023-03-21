@@ -362,6 +362,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
     $karma_help = null;
     $change_karma = null;
     $cont = null;
+	$rdf = [];
 
     global $articlecomm, $user, $cookie, $sitename, $prefix, $user_prefix, $db, $admin, $broadcast_msg, $my_headlines, $module_name, $subscription_url, $admin_file;
 
@@ -766,14 +767,13 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				$siteurl = explode("/", (string) $siteurl);
 				$title = "http://$siteurl[0]";
 			}
-            //if(!isset($url))
-			//$url = 'http://'.$_SERVER['SERVER_NAME'].'/backend.php';			
-			
-			var_dump($url);
+            
+			if(!isset($url))
+			$url = 'http://'.$_SERVER['SERVER_NAME'].'/backend.php';			
 			
 		    $rdf = parse_url((string) $url);
 
-			$fp = fsockopen($rdf['host'], 80, $errno, $errstr, 15);
+			$fp = fsockopen($rdf['host'] ?? $_SERVER['SERVER_NAME'], 80, $errno, $errstr, 15);
 	
 			 if (!$fp) {
 				$content = "<center><font class=\"content\">"._RSSPROBLEM."</font></center>";
@@ -781,6 +781,12 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 			
 	
 			if ($fp) {
+			    if(!isset($rdf['query']))
+			    $rdf['query'] = 'HTTP/1.0';
+
+			    if(!isset($rdf['host']))
+			    $rdf['host'] = $_SERVER['SERVER_NAME'];
+
 				fputs($fp, "GET " . $rdf['path'] . "?" . $rdf['query'] . " HTTP/1.0\r\n");
 				fputs($fp, "HOST: " . $rdf['host'] . "\r\n\r\n");
 				$string	= "";
@@ -795,6 +801,7 @@ function userinfo($username, $bypass=0, $hid=0, $url=0) {
 				$content = "<font class=\"content\">";
 	
 				for ($i=0;$i<10;$i++) {
+					if (!isset($items[$i])){ $items[$i] = ''; }
 					$link = preg_replace('#.*<link>#m',"",$items[$i]);
 					$link = preg_replace('#<\/link>.*#m',"",(string) $link);
 					$link = stripslashes((string) check_html($link, "nohtml"));

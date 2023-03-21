@@ -18,7 +18,7 @@
  *   (at your option) any later version.
  *
  ***************************************************************************/
-if (!eregi("modules.php", $_SERVER['SCRIPT_NAME'])) {
+if (!preg_match('#modules.php#mi', (string) $_SERVER['SCRIPT_NAME'])) {
     die ("You can't access this file directly...");
 }
 $module_name = basename(dirname(__FILE__));
@@ -37,24 +37,24 @@ init_userprefs($userdata);
 // End session management
 //
 
-$start = ( isset($HTTP_GET_VARS['start']) ) ? intval($HTTP_GET_VARS['start']) : 0;
+$start = ( isset($_GET['start']) ) ? intval($_GET['start']) : 0;
 
-if ( isset($HTTP_GET_VARS['mode']) || isset($HTTP_POST_VARS['mode']) )
+if ( isset($_GET['mode']) || isset($_POST['mode']) )
 {
-	$mode = ( isset($HTTP_POST_VARS['mode']) ) ? htmlspecialchars($HTTP_POST_VARS['mode']) : htmlspecialchars($HTTP_GET_VARS['mode']);
+	$mode = ( isset($_POST['mode']) ) ? htmlspecialchars($_POST['mode']) : htmlspecialchars($_GET['mode']);
 }
 else
 {
 	$mode = 'joined';
 }
 
-if(isset($HTTP_POST_VARS['order']))
+if(isset($_POST['order']))
 {
-	$sort_order = ($HTTP_POST_VARS['order'] == 'ASC') ? 'ASC' : 'DESC';
+	$sort_order = ($_POST['order'] == 'ASC') ? 'ASC' : 'DESC';
 }
-else if(isset($HTTP_GET_VARS['order']))
+else if(isset($_GET['order']))
 {
-	$sort_order = ($HTTP_GET_VARS['order'] == 'ASC') ? 'ASC' : 'DESC';
+	$sort_order = ($_GET['order'] == 'ASC') ? 'ASC' : 'DESC';
 }
 else
 {
@@ -324,4 +324,3 @@ $template->pparse('body');
 
 include("modules/Forums/includes/page_tail.php");
 
-?>

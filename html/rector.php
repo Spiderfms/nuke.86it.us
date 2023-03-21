@@ -175,14 +175,14 @@ return static function (RectorConfig $rectorConfig): void {
 	$rectorConfig->rule(MysqlQueryMysqlErrorWithLinkRector::class);
 		
     $rectorConfig->paths([
-        #__DIR__ . '/admin',
+          #__DIR__ . '/admin',
 		///__DIR__ . '/admin/modules/backup/backup.php',
 		///__DIR__ . '/admin/modules/backup/backupdownload.php',
 		///__DIR__ . '/admin/modules/modules.php',
 		///__DIR__ . '/admin/modules/blocks.php',
 		///__DIR__ . '/admin/modules/authors.php',
 		///__DIR__ . '/admin/modules/ipban.php',
-        #__DIR__ . '/blocks',
+          #__DIR__ . '/blocks',
 		///__DIR__ . '/blocks/blocks-Modules.php',
         ///__DIR__ . '/install/includes/database.php',
 		///__DIR__ . '/install/install2.php',
@@ -191,9 +191,9 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/includes/classes/class.debugger.php',
 		///__DIR__ . '/includes/counter.php',
 		///__DIR__ . '/includes/ipban.php',
-        #__DIR__ . '/install',
-        #__DIR__ . '/language',
-        #__DIR__ . '/modules',
+          #__DIR__ . '/install',
+          #__DIR__ . '/language',
+          #__DIR__ . '/modules',
 
 		///__DIR__ . '/modules/Advertising/index.php',
 
@@ -300,6 +300,11 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/viewonline.php',
 		///__DIR__ . '/modules/Forums/viewtopic.php',
 
+		///__DIR__ . '/modules/Journal/index.php',
+
+		//__DIR__ . '/modules/Member_List/index.php',
+		//__DIR__ . '/modules/Member_List/copyright.php',
+		
 		///__DIR__ . '/modules/Topics/index.php', Mucho Fuckups Here
 
 		///__DIR__ . '/modules/Private_Messages/index.php',
@@ -320,7 +325,7 @@ return static function (RectorConfig $rectorConfig): void {
 
 		///__DIR__ . '/modules/Surveys/index.php',
 
-		__DIR__ . '/modules/Your_Account/index.php',
+		//__DIR__ . '/modules/Your_Account/index.php',
 		///__DIR__ . '/modules/Your_Account/navbar.php',
 
 		///__DIR__ . '/modules/Feedback/index.php',
@@ -333,7 +338,7 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/footer.php',
 		///__DIR__ . '/header.php',
 		///__DIR__ . '/index.php',
-		///__DIR__ . '/mainfile.php',
+		//__DIR__ . '/mainfile.php',
 		///__DIR__ . '/modules.php',
     ]);
 
