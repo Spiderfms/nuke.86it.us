@@ -257,8 +257,8 @@ return static function (RectorConfig $rectorConfig): void {
 		#__DIR__ . '/modules/Forums/includes/bbcode.php', LOCKEDUP WHEN TRYING TO RUN
 		///__DIR__ . '/modules/Forums/includes/constants.php',
 		///__DIR__ . '/modules/Forums/includes/emailer.php',
-		__DIR__ . '/modules/Forums/includes/functions.php',
-		//__DIR__ . '/modules/Forums/includes/functions_admin.php',
+		///__DIR__ . '/modules/Forums/includes/functions.php',
+		__DIR__ . '/modules/Forums/includes/functions_admin.php',
 		//__DIR__ . '/modules/Forums/includes/functions_nuke.php',
 		//__DIR__ . '/modules/Forums/includes/functions_post.php',
 		//__DIR__ . '/modules/Forums/includes/functions_search.php',
