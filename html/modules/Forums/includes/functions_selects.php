@@ -58,6 +58,13 @@
  *
  ***************************************************************************/
 
+/* Applied rules:
+ * WhileEachToForeachRector
+ * EregToPregMatchRector (http://php.net/reference.pcre.pattern.posix https://stackoverflow.com/a/17033826/1348344 https://docstore.mik.ua/orelly/webprog/pcook/ch13_02.htm)
+ * ListToArrayDestructRector (https://wiki.php.net/rfc/short_list_syntax https://www.php.net/manual/en/migration71.new-features.php#migration71.new-features.symmetric-array-destructuring)
+ * NullToStrictStringFuncCallArgRector
+ */
+ 
 //
 // Pick a language, any language ...
 //
@@ -70,12 +77,12 @@ function language_select($default, $select_name = "language", $dirname="modules/
 {
         global $phpEx;
 
-        $dir = @opendir($dirname);
+        $dir = opendir($dirname);
 
         $lang = array();
-        while ( $file = @readdir($dir) )
+        while ( $file = readdir($dir) )
         {
-                if ( ereg("^lang_", $file) && !is_file($dirname . "/" . $file) && !is_link($dirname . "/" . $file) )
+                if ( preg_match('#^lang_#m', $file) && !is_file($dirname . "/" . $file) && !is_link($dirname . "/" . $file) )
                 {
                         $filename = trim(str_replace("lang_", "", $file));
                         $displayname = preg_replace("/^(.*?)_(.*)$/", "\\1 [ \\2 ]", $filename);
@@ -84,16 +91,17 @@ function language_select($default, $select_name = "language", $dirname="modules/
                 }
         }
 
-        @closedir($dir);
+        closedir($dir);
 
-        @asort($lang);
-        @reset($lang);
+        asort($lang);
+        reset($lang);
 
         $lang_select = '<select name="' . $select_name . '">';
-        while ( list($displayname, $filename) = @each($lang) )
+        //while ( [$displayname, $filename] = each($lang) ) maybe ghost
+		foreach ($langs as $displayname => $filename)
         {
-                $selected = ( strtolower($default) == strtolower($filename) ) ? ' selected="selected"' : '';
-                $lang_select .= '<option value="' . $filename . '"' . $selected . '>' . ucwords($displayname) . '</option>';
+                $selected = ( strtolower((string) $default) == strtolower((string) $filename) ) ? ' selected="selected"' : '';
+                $lang_select .= '<option value="' . $filename . '"' . $selected . '>' . ucwords((string) $displayname) . '</option>';
         }
         $lang_select .= '</select>';
 
@@ -140,7 +148,8 @@ function tz_select($default, $select_name = 'timezone')
         }
         $tz_select = '<select name="' . $select_name . '">';
 
-        while( list($offset, $zone) = @each($lang['tz']) )
+        //while( [$offset, $zone] = each($lang['tz']) ) maybe ghost
+		foreach ($lang['tz'] as $offset => $zone)
         {
                 $selected = ( $offset == $default ) ? ' selected="selected"' : '';
                 $tz_select .= '<option value="' . $offset . '"' . $selected . '>' . $zone . '</option>';
@@ -150,4 +159,3 @@ function tz_select($default, $select_name = 'timezone')
         return $tz_select;
 }
 
-?>
