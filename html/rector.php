@@ -278,8 +278,8 @@ return static function (RectorConfig $rectorConfig): void {
 		///__DIR__ . '/modules/Forums/includes/usercp_activate.php',
 		///__DIR__ . '/modules/Forums/includes/usercp_avatar.php',
 		///__DIR__ . '/modules/Forums/includes/usercp_email.php',
-		__DIR__ . '/modules/Forums/includes/usercp_register.php',
-		//__DIR__ . '/modules/Forums/includes/usercp_sendpassword.php',
+		///__DIR__ . '/modules/Forums/includes/usercp_register.php',
+		__DIR__ . '/modules/Forums/includes/usercp_sendpassword.php',
 		//__DIR__ . '/modules/Forums/includes/usercp_viewprofile.php',
 
 		//__DIR__ . '/modules/Forums/common.php',
