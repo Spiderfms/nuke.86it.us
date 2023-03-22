@@ -245,7 +245,7 @@ else
                 $adv = 1;
         }
 
-        $s_column_span == 0;
+        $s_column_span = 0; // maybe ghost
 
         if ( empty($adv) )
         {

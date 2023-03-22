@@ -397,41 +397,41 @@ $htmltags = "<div align=\"center\"><img src=\"images/logo.gif\"><br><br><b>";
 $htmltags .= "The html tags you attempted to use are not allowed</b><br><br>";
 $htmltags .= "[ <a href=\"javascript:history.go(-1)\"><b>Go Back</b></a> ]</div>";
 
-if (!defined('ADMIN_FILE')) {
- foreach ($_GET as $sec_key => $secvalue) {
- if((preg_match('#<[^>]*script*"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*object*"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*iframe*"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*applet*"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*meta*"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*style*"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*form*"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*img*"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*onmouseover *"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#<[^>]*body *"?[^>]*#mi', (string) $secvalue)) ||
-    (preg_match('#\([^>]*"?[^\)]*\)#mi', (string) $secvalue)) ||
-    (preg_match('#"#mi', (string) $secvalue)) ||
-    (preg_match('#forum_admin#mi', $sec_key)) ||
-    (preg_match('#inside_mod#mi', $sec_key)))
-  {
-   die ($htmltags);
+if (!defined('ADMIN_FILE')) 
+{
+  foreach ($_GET as $sec_key => $secvalue) {
+    if((preg_match('#<[^>]*script*"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*object*"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*iframe*"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*applet*"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*meta*"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*style*"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*form*"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*img*"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*onmouseover *"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#<[^>]*body *"?[^>]*#mi', (string) $secvalue)) ||
+       (preg_match('#\([^>]*"?[^\)]*\)#mi', (string) $secvalue)) ||
+       (preg_match('#"#mi', (string) $secvalue)) ||
+       (preg_match('#forum_admin#mi', $sec_key)) ||
+       (preg_match('#inside_mod#mi', $sec_key)))
+    {
+      die ($htmltags);
   }
-}
 
- foreach ($_POST as $secvalue) {
-  if ((preg_match('#<[^>]*iframe*"?[^>]*#mi', (string) $secvalue)) ||
-      (preg_match('#<[^>]*object*"?[^>]*#mi', (string) $secvalue)) ||
-      (preg_match('#<[^>]*applet*"?[^>]*#mi', (string) $secvalue)) ||
-      (preg_match('#<[^>]*meta*"?[^>]*#mi', (string) $secvalue)) ||
-      (preg_match('#<[^>]*onmouseover*"?[^>]*#mi', (string) $secvalue)) ||
-      (preg_match('#<[^>]script*"?[^>]*#mi', (string) $secvalue)) ||
-      (preg_match('#<[^>]*body*"?[^>]*#mi', (string) $secvalue)) ||
-      (preg_match('#<[^>]style*"?[^>]*#mi', (string) $secvalue))) {
-   die ($htmltags);
+  foreach ($_POST as $secvalue) {
+     if ((preg_match('#<[^>]*iframe*"?[^>]*#mi', (string) $secvalue)) ||
+         (preg_match('#<[^>]*object*"?[^>]*#mi', (string) $secvalue)) ||
+         (preg_match('#<[^>]*applet*"?[^>]*#mi', (string) $secvalue)) ||
+         (preg_match('#<[^>]*meta*"?[^>]*#mi', (string) $secvalue)) ||
+         (preg_match('#<[^>]*onmouseover*"?[^>]*#mi', (string) $secvalue)) ||
+         (preg_match('#<[^>]script*"?[^>]*#mi', (string) $secvalue)) ||
+         (preg_match('#<[^>]*body*"?[^>]*#mi', (string) $secvalue)) ||
+         (preg_match('#<[^>]style*"?[^>]*#mi', (string) $secvalue))) {
+         die ($htmltags);
+     }
   }
  }
 }
-
 # Include the required PHP-Nuke config file
 require_once(INCLUDE_PATH."config.php");
 

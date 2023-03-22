@@ -197,7 +197,7 @@ else if ( isset($_POST['group_update']) )
                 }
 
                 $row = $db->sql_fetchrow($result);
-                if (intval($row['auth_mod']) == 1)
+                if (intval($row['auth_mod'] ?? 0) == 1)
                 {
                         // Yes, get the assigned users and update their Permission if they are no longer moderator of one of the forums
                         $sql = "SELECT user_id FROM " . USER_GROUP_TABLE . "
