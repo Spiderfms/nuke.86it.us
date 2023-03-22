@@ -1285,8 +1285,8 @@ else
                         'S_HIDDEN_FIELDS' => $s_hidden_fields,
 
                         'GROUP_LIST_SELECT' => $s_group_list,
-                        'GROUP_PENDING_SELECT' => $s_pending_groups,
-                        'GROUP_MEMBER_SELECT' => $s_member_groups)
+                        'GROUP_PENDING_SELECT' => $s_pending_groups ?? '',
+                        'GROUP_MEMBER_SELECT' => $s_member_groups ?? '')
                 );
 
                 $template->pparse('user');

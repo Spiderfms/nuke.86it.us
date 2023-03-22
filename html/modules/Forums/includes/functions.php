@@ -549,17 +549,21 @@ function create_date($format, $gmepoch, $tz)
 	global $board_config, $lang;
 	static $translate;
 
-	if ( empty($translate) && $board_config['default_lang'] != 'english' )
-	{
-		reset($lang['datetime']);
-		//while ( [$match, $replace] = each($lang['datetime']) ) maybe ghost
-		foreach ($lang['datetime'] as $match => $replace)
-		{
-			$translate[$match] = $replace;
-		}
-	}
+    if(empty($translate) && $board_config['default_lang'] != 'english'):
 
-	return ( !empty($translate) ) ? strtr(gmdate($format, $gmepoch + (3600 * $tz)), $translate) : gmdate($format, $gmepoch + (3600 * $tz));
+		reset($lang['datetime']);
+
+		foreach ($lang['datetime'] as $match => $replace):
+
+            $translate[$match] = $replace;
+
+        endforeach;
+
+		unset($replace); // break the reference with the last element
+
+    endif;
+	
+    return (!empty($translate)) ? strtr(gmdate((string)$format, (int)$gmepoch + (3600 * (int)$tz)), (string)$translate) : gmdate((string)$format, (int)$gmepoch + (3600 * (int)$tz));
 }
 
 //
