@@ -45,7 +45,10 @@ include($phpbb_root_path . 'common.'.$phpEx);
 function generate_user_info(&$row, $date_format, $group_mod, &$from, &$posts, &$joined, &$poster_avatar, &$profile_img, &$profile, &$search_img, &$search, &$pm_img, &$pm, &$email_img, &$email, &$www_img, &$www, &$icq_status_img, &$icq_img, &$icq, &$aim_img, &$aim, &$msn_img, &$msn, &$yim_img, &$yim)
 {
         $username = null;
+
         global $lang, $images, $board_config, $phpEx;
+
+        if(!isset($row['user_avatar_type'])) { $row['user_avatar_type'] = ''; }
 
         $from = ( !empty($row['user_from']) ) ? $row['user_from'] : '&nbsp;';
         $joined = create_date($date_format, $row['user_regdate'], $board_config['board_timezone']);
@@ -997,8 +1000,8 @@ else if ( $group_id )
                 'S_GROUP_CLOSED_CHECKED' => ( $group_info['group_type'] == GROUP_CLOSED ) ? ' checked="checked"' : '',
                 'S_GROUP_HIDDEN_CHECKED' => ( $group_info['group_type'] == GROUP_HIDDEN ) ? ' checked="checked"' : '',
                 'S_HIDDEN_FIELDS' => $s_hidden_fields,
-                'S_MODE_SELECT' => $select_sort_mode,
-                'S_ORDER_SELECT' => $select_sort_order,
+                'S_MODE_SELECT' => $select_sort_mode ?? '',
+                'S_ORDER_SELECT' => $select_sort_order ?? '',
                 'S_GROUPCP_ACTION' => append_sid("groupcp.$phpEx?" . POST_GROUPS_URL . "=$group_id"))
         );
 
