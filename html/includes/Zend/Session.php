@@ -804,8 +804,12 @@ class Zend_Session extends Zend_Session_Abstract
                 315554400, // strtotime('1980-01-01'),
                 $cookie_params['path'],
                 $cookie_params['domain'],
-                $cookie_params['secure']
+                $cookie_params['secure'],
+				true,
+				'none'
                 );
+			   // maybe ghost cookies
+
         }
     }
 

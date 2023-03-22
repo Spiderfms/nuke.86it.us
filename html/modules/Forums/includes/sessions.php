@@ -260,8 +260,23 @@ function session_begin($user_id, $user_ip, $page_id, $auto_create = 0, $enable_a
 	$userdata['session_admin'] = $admin;
 	$userdata['session_key'] = $sessiondata['autologinid'];
 
-	setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
-	setcookie($cookiename . '_sid', (string) $session_id, ['expires' => 0, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
+	setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 
+	                                                           'path' => $cookiepath, 
+															   'domain' => $cookiedomain, 
+															   'secure' => true,
+															   'httponly' => true,
+															   'samesite' => 'None'
+															   ]);
+															   //maybe ghost cookies
+	
+	setcookie($cookiename . '_sid', (string) $session_id, ['expires' => 0, 
+	                                                       'path' => $cookiepath, 
+														   'domain' => $cookiedomain, 
+														   'secure' => true,
+														   'httponly' => true,
+														   'samesite' => 'None'
+														   ]);
+														   //maybe ghost cookies
 
 	$SID = 'sid=' . $session_id;
 
@@ -378,8 +393,21 @@ function session_pagestart($user_ip, $thispage_id, $nukeuser)
 
 					session_clean($userdata['session_id']);
 
-					setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
-					setcookie($cookiename . '_sid', (string) $session_id, ['expires' => 0, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
+					setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 
+					                                                           'path' => $cookiepath, 
+																			   'domain' => $cookiedomain, 
+                                                                               'secure' => true,
+															                   'httponly' => true,
+																	           'samesite' => 'None'
+																			   ]);
+																			   
+					setcookie($cookiename . '_sid', (string) $session_id, ['expires' => 0, 
+					                                                       'path' => $cookiepath, 
+																		   'domain' => $cookiedomain, 
+                                                                           'secure' => true,
+															               'httponly' => true,
+																	       'samesite' => 'None'
+																		   ]);
 				}
 
 				// Add the session_key to the userdata array if it is set
@@ -474,8 +502,23 @@ function session_end($session_id, $user_id)
 	$db->sql_freeresult($result);
 
 
-	setcookie($cookiename . '_data', '', ['expires' => $current_time - 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
-	setcookie($cookiename . '_sid', '', ['expires' => $current_time - 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
+	setcookie($cookiename . '_data', '', ['expires' => $current_time - 31536000, 
+	                                      'path' => $cookiepath, 
+										  'domain' => $cookiedomain, 
+				 						  'secure' => true,
+										  'httponly' => true,
+										  'samesite' => 'None'
+										  ]);
+										  //maybe ghost cookies
+										  
+	setcookie($cookiename . '_sid', '', ['expires' => $current_time - 31536000, 
+	                                     'path' => $cookiepath, 
+										 'domain' => $cookiedomain, 
+				 						 'secure' => true,
+										 'httponly' => true,
+										 'samesite' => 'None'
+										 ]);
+										 //maybe ghost cookies
 
 	return true;
 }
@@ -565,7 +608,14 @@ function session_reset_keys($user_id, $user_ip)
 		$cookiedomain = $board_config['cookie_domain'];
 		$cookiesecure = $board_config['cookie_secure'];
 
-		setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 'path' => $cookiepath, 'domain' => $cookiedomain, 'secure' => $cookiesecure]);
+		setcookie($cookiename . '_data', serialize($sessiondata), ['expires' => $current_time + 31536000, 
+		                                                           'path' => $cookiepath, 
+																   'domain' => $cookiedomain, 
+				 												   'secure' => true,
+															       'httponly' => true,
+																   'samesite' => 'None'
+																   ]);
+																   //maybe ghost cookies
 		
 		$userdata['session_key'] = $auto_login_key;
 		unset($sessiondata);

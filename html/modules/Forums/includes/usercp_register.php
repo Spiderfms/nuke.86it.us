@@ -1180,7 +1180,12 @@ else
 
 function docookie($setuser_id, $setusername, $setuser_password, $setstorynum, $setumode, $setuorder, $setthold, $setnoscore, $setublockon, $settheme, $setcommentmax) {
     $info = base64_encode("$setuser_id:$setusername:$setuser_password:$setstorynum:$setumode:$setuorder:$setthold:$setnoscore:$setublockon:$settheme:$setcommentmax");
-    setcookie("user","$info",['expires' => time()+15552000]);
+    setcookie("user","$info",['expires' => time()+15552000,
+	                          'secure' => true,
+							  'httponly'true,
+	                          'samesite' 'None'
+							  ]);
+							  // maybe ghost cookies
 }
 $template->pparse('body');
 

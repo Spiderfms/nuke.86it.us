@@ -197,9 +197,14 @@ function rate_article($sid, $score, $random_num="", $gfx_check="") {
 					die();
 				} else {
 					$ip = $_SERVER['REMOTE_ADDR'];
-					$result = $db->sql_query("update ".$prefix."_stories set score=score+$score, ratings=ratings+1, rating_ip='$ip' where sid='$sid'");
+					$result = $db->sql_query("UPDATE ".$prefix."_stories SET score=score+$score, ratings=ratings+1, rating_ip='$ip' WHERE sid='$sid'");
 					$info = base64_encode("$rcookie$sid:");
-					setcookie("ratecookie","$info",['expires' => time()+86400]);
+					setcookie("ratecookie","$info",['expires' => time()+86400,
+					                                'secure' => true,
+													'httponly' => true,
+													'samesite' => 'None'
+												   ]);
+												   //maybe ghost cookies
 					update_points(7);
 					Header("Location: modules.php?name=News&op=rate_complete&sid=$sid&score=$score");
 				}

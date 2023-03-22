@@ -207,7 +207,14 @@ if ( $mark_read == 'topics' )
                         {
                                 $tracking_forums[$forum_id] = time();
 
-                                setcookie($board_config['cookie_name'] . '_f', serialize($tracking_forums), ['expires' => 0, 'path' => $board_config['cookie_path'], 'domain' => $board_config['cookie_domain'], 'secure' => $board_config['cookie_secure']]);
+                                setcookie($board_config['cookie_name'] . '_f', serialize($tracking_forums), ['expires' => 0, 
+								                                                                             'path' => $board_config['cookie_path'], 
+																											 'domain' => $board_config['cookie_domain'], 
+																											 'secure' => true,
+																											 'httponly' => true,
+																											 'samesite' => 'None'
+																											 ]);
+																											 // maybe ghost cookies
                         }
                 }
 

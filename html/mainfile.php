@@ -73,6 +73,16 @@ define('PHPVERS', phpversion());
 define('PHP_5', version_compare(PHPVERS, '5.0.0', '>='));
 $phpver = phpversion();
 
+// samesite cookies fix - maybe ghost cookies
+$arr_cookie_options = array (
+'expires' => time() + 60*60*24*30, 
+'path' => '/', 
+'domain' => ''.$_SERVER['HTTP_HOST'].'', // get the server host automaticly
+'secure' => true,     // or false
+'httponly' => true,    // or false
+'samesite' => 'None' // None || Lax  || Strict
+);
+
 # define anything only once
 function define_once($constant, $value) 
 {
@@ -175,7 +185,7 @@ endif;
 
 # add compatibility for the 3rd party donations module
 if(isset($_COOKIE['DONATION'])):
-  setcookie('DONATION', '', ['expires' => time()-3600]);
+  setcookie('DONATION', '', $arr_cookie_options);
   $type = preg_match('/IIS|Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ? 'Refresh: 0; URL=' : 'Location: ';
   $url = str_replace('&amp;', "&", (string) $url);
   header($type . 'modules.php?name=Donations&op=thankyou');
@@ -625,7 +635,7 @@ $mtime = explode(" ",$mtime);
 $mtime = $mtime[1] + $mtime[0];
 $start_time = $mtime;
 $pagetitle = "";
-
+				
 // Error reporting, to be set in config.php
 error_reporting(E_ALL^E_NOTICE);
 if ($display_errors == 1) {
@@ -637,11 +647,11 @@ if ($display_errors == 1) {
 if (!defined('FORUM_ADMIN')) {
     if ((isset($newlang)) AND (stristr((string) $newlang,"."))) {
 		if (file_exists("language/lang-".$newlang.".php")) {
-			setcookie("lang",(string) $newlang,['expires' => time()+31536000]);
+			setcookie("lang",(string) $newlang, $arr_cookie_options);
 			include_secure("language/lang-".$newlang.".php");
 			$currentlang = $newlang;
 		} else {
-			setcookie("lang",(string) $language,['expires' => time()+31536000]);
+			setcookie("lang",(string) $language, $arr_cookie_options);
 			include_secure("language/lang-".$language.".php");
 			$currentlang = $language;
 		}
@@ -649,7 +659,7 @@ if (!defined('FORUM_ADMIN')) {
 		include_secure("language/lang-".$lang.".php");
 		$currentlang = $lang;
 	} else {
-		setcookie("lang",(string) $language,['expires' => time()+31536000]);
+		setcookie("lang",(string) $language, $arr_cookie_options);
 		include_secure("language/lang-".$language.".php");
 		$currentlang = $language;
 	}
@@ -1756,7 +1766,7 @@ function public_message() {
 				} else {
 					$mid = base64_encode($mid);
 					$mid = addslashes($mid);
-					setcookie("p_msg",$mid,['expires' => time()+600]);
+					setcookie("p_msg",$mid, $arr_cookie_options);
 				}
 			}
 		}

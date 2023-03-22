@@ -47,7 +47,7 @@ if((stripos_clone($checkurl,'AddAuthor')) OR (stripos_clone($checkurl,'VXBkYXRlQ
 get_lang("admin");
 
 function create_first($name, $url, $email, $pwd, $user_new) {
-	global $prefix, $db, $user_prefix, $Default_Theme;
+	global $admin, $prefix, $db, $user_prefix, $Default_Theme, $admlanguage;
 	$first = $db->sql_numrows($db->sql_query("SELECT * FROM ".$prefix."_authors"));
 	if ($first == 0) {
 		$pwd = htmlentities($pwd);
@@ -142,8 +142,10 @@ if ((isset($aid)) && (isset($pwd)) && (isset($op)) && ($op == "login")) {
 		[$rpwd, $admlanguage] = $db->sql_fetchrow($result);
 		$admlanguage = addslashes($admlanguage);
 		if($rpwd == $pwd) {
+			if(isset($admlanguage)) { $admlanguage = 'english'; }
 			$admin = base64_encode("$aid:$pwd:$admlanguage");
-			setcookie("admin",$admin,['expires' => time()+2592000]);
+			//setcookie("admin",$admin,['expires' => time()+2592000]);
+			setcookie("admin", $admin, $arr_cookie_options);
 			unset($op);
 		}
 	}

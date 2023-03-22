@@ -47,7 +47,12 @@ if (isset($save) && $save AND is_user()) {
 	$db->sql_query("UPDATE ".$user_prefix."_users SET umode='$mode', uorder='$order', thold='$thold' where uid='$cookie[0]'");
 	getusrinfo($user);
 	$info = base64_encode("$userinfo[user_id]:$userinfo[username]:$userinfo[user_password]:$userinfo[storynum]:$userinfo[umode]:$userinfo[uorder]:$userinfo[thold]:$userinfo[noscore]");
-	setcookie("user","$info",['expires' => time()+$cookieusrtime]);
+	setcookie("user","$info",['expires' => time()+$cookieusrtime,
+	                           'secure' => true,
+							   'httponly' => true,
+							   'samesite' => 'None'
+							 ]);
+							 //maybe ghost cookies
 }
 
 if ($op == "Reply") {

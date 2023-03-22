@@ -72,7 +72,14 @@ if( $mark_read == 'forums' )
 {
 	if( $userdata['session_logged_in'] )
 	{
-		setcookie($board_config['cookie_name'] . '_f_all', time(), ['expires' => 0, 'path' => $board_config['cookie_path'], 'domain' => $board_config['cookie_domain'], 'secure' => $board_config['cookie_secure']]);
+		setcookie($board_config['cookie_name'] . '_f_all', time(), ['expires' => 0, 
+		                                                            'path' => $board_config['cookie_path'], 
+																	'domain' => $board_config['cookie_domain'], 
+																	'secure' => true,
+																	'httponly' => true,
+																	'samesite' => 'none'
+																	]);
+																	// maybe ghost cookies
 	}
 
 	$template->assign_vars(array(

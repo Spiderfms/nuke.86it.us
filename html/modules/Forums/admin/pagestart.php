@@ -37,11 +37,27 @@ include("../../../mainfile.php");
 $phpbb_root_path = './../';
 $phpEx = PHPBB_PHPEX;
 include($phpbb_root_path.'common.'.$phpEx);
+
+include(NUKE_BASE_DIR.'ips.php');
+
+if(isset($ips) && is_array($ips)) {
+    $ip_check = implode('|^',$ips);
+    if (!preg_match("/^".$ip_check."/",$_SERVER['REMOTE_ADDR']))
+    {
+        unset($aid);
+        unset($admin);
+        global $cookie;
+        $name = (isset($cookie[1]) && !empty($cookie[1])) ? $cookie[1] : _ANONYMOUS;
+        log_write('admin', $name.' used invalid IP address attempted to access the forum admin area', 'Security Breach');
+        die('Invalid IP<br />Access denied');
+    }
+    define('ADMIN_IP_LOCK',true);
+}
 //
 // Do a check to see if the nuke user is still valid.
 //
 
-global $admin, $prefix, $db, $cookie, $nukeuser, $user;
+global $admin, $userdata, $prefix, $db, $cookie, $nukeuser, $user;
 $admin = base64_decode((string) $admin);
 $admin = explode(":", $admin);
 $aid = "$admin[0]";
@@ -55,11 +71,18 @@ for ($i=0; $i < sizeof($admins); $i++) {
     }
 }
 
+
+
 $user = addslashes(base64_decode((string) $user));
-$cookie = explode(":", $user);
-$sql3 = "SELECT user_id, user_password, user_level FROM " . USERS_TABLE . "
-        WHERE username='$cookie[1]'";
-$result3 = $db->sql_query($sql3);
+
+if(!isset($cookie)) {
+  $cookie = explode(":", $user);
+}
+
+$un = "SELECT `username` FROM `".USERS_TABLE."` WHERE username='$cookie[1]' ";
+
+$result3 = $db->sql_query($un);
+
 if(!$result3) {
     message_die(GENERAL_ERROR, 'Could not query user account', '', __LINE__, __FILE__, $sql);
 }
@@ -78,29 +101,6 @@ if ((is_admin()) AND ($admin[1] == $row2['pwd'] && !empty($row2['pwd'])) AND ($r
 //
 $userdata = session_pagestart($user_ip, PAGE_INDEX, $nukeuser);
 init_userprefs($userdata);
-//
-// End session management
-//
-/*
-if( !$userdata['session_logged_in'] )
-{
-	redirect(append_sid("login.$phpEx?redirect=admin/index.$phpEx", true));
-}
-else if( $userdata['user_level'] != ADMIN )
-{
-        message_die(GENERAL_MESSAGE, $lang['Not_admin']);
-}
-
-if ($HTTP_GET_VARS['sid'] != $userdata['session_id'])
-{
-	redirect("index.$phpEx?sid=" . $userdata['session_id']);
-}
-
-if (!$userdata['session_admin'])
-{
-	redirect(append_sid("login.$phpEx?redirect=admin/index.$phpEx&admin=1", true));
-}
-*/
 if ( empty($no_page_header) )
 {
         // Not including the pageheader can be neccesarry if META tags are

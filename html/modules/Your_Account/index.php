@@ -1263,7 +1263,12 @@ function mail_password($username, $code) {
 
 function docookie($setuid, $setusername, $setpass, $setstorynum, $setumode, $setuorder, $setthold, $setnoscore, $setublockon, $settheme, $setcommentmax) {
 	$info = base64_encode("$setuid:$setusername:$setpass:$setstorynum:$setumode:$setuorder:$setthold:$setnoscore:$setublockon:$settheme:$setcommentmax");
-	setcookie("user","$info",['expires' => time()+2_592_000]);
+	setcookie("user","$info", ['expires' => time()+2_592_000,
+	                           'secure' => true,
+							   'httponly' => true,
+							   'samesite' => 'None'
+							  ]);
+							  //maybe ghost cookies
 }
 
 function login($username, $user_password, $redirect, $mode, $f, $t, $random_num, $gfx_check) {

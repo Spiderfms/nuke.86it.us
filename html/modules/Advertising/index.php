@@ -335,7 +335,8 @@ function client_valid($login, $pass) {
 		$row = $db->sql_fetchrow($db->sql_query("SELECT cid FROM ".$prefix."_banner_clients WHERE login='$login' AND passwd='$pass'"));
 		$cid = $row['cid'];
 		$info = base64_encode("$cid:$login:$pass");
-		setcookie("client","$info",['expires' => time()+86400]);
+		// maybe ghost cookies
+		setcookie("client", $info, $arr_cookie_options);
 		Header("Location: modules.php?name=$module_name&op=client_home");
 	}
 }

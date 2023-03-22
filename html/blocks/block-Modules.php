@@ -14,7 +14,7 @@
 
 if ( !defined('BLOCK_FILE') ) {
 	Header("Location: ../index.php");
-	fdie();
+	die();
 }
 
 global $prefix, $default_module, $db, $admin, $language, $currentlang;
@@ -138,4 +138,4 @@ if (file_exists("themes/$ThemeSel/module.php")) {
 	}
     }
 
-?> 
+

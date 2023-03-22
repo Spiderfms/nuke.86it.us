@@ -617,7 +617,14 @@ else if ( $submit || $confirm )
 
 			$tracking_topics[$topic_id] = time();
 
-			setcookie($board_config['cookie_name'] . '_t', serialize($tracking_topics), ['expires' => 0, 'path' => $board_config['cookie_path'], 'domain' => $board_config['cookie_domain'], 'secure' => $board_config['cookie_secure']]);
+			setcookie($board_config['cookie_name'] . '_t', serialize($tracking_topics), ['expires' => 0, 
+			                                                                             'path' => $board_config['cookie_path'], 
+																						 'domain' => $board_config['cookie_domain'], 
+																						 'secure' => true,
+																						 'httponly' => true,
+																						 'samesite' => 'None'
+																						 ]);
+																						 // maybe ghost cookies
 		}
 
 		$template->assign_vars(array(
