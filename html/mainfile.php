@@ -1276,7 +1276,7 @@ function delQuotes($string){
 
 function check_html ($str, $strip="") {
 	$AllowableHTML = [];
- /* The core of this code has been lifted from phpslash */
+    /* The core of this code has been lifted from phpslash */
 	/* which is licenced under the GPL. */
 	include("config.php");
 	if ($strip == "nohtml")
