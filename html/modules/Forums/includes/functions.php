@@ -215,27 +215,21 @@ function get_userdata($user, $force_str = false)
 
 function make_jumpbox($action, $match_forum_id = 0)
 {
-	global $template, $userdata, $lang, $db, $nav_links, $phpEx, $SID, $userdata;
+	$boxstring = null;
+ global $template, $userdata, $lang, $db, $nav_links, $phpEx, $SID;
 
 //	$is_auth = auth(AUTH_VIEW, AUTH_LIST_ALL, $userdata);
 
-/*****************************************************/
-/* Forum - Global Announce v.1.2.3             START */
-/*****************************************************/
 	$sql = "SELECT c.cat_id, c.cat_title, c.cat_order
 		FROM " . CATEGORIES_TABLE . " c, " . FORUMS_TABLE . " f
 		WHERE f.cat_id = c.cat_id
-		".(($userdata['user_level'] == ADMIN)? "" : "AND c.cat_title<>'global_announcement'" )."
 		GROUP BY c.cat_id, c.cat_title, c.cat_order
 		ORDER BY c.cat_order";
-/*****************************************************/
-/* Forum - Global Announce v.1.2.3               END */
-/*****************************************************/
 	if ( !($result = $db->sql_query($sql)) )
 	{
 		message_die(GENERAL_ERROR, "Couldn't obtain category list.", "", __LINE__, __FILE__, $sql);
 	}
-	
+
 	$category_rows = array();
 	while ( $row = $db->sql_fetchrow($result) )
 	{
