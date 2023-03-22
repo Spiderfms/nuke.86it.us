@@ -215,22 +215,27 @@ function get_userdata($user, $force_str = false)
 
 function make_jumpbox($action, $match_forum_id = 0)
 {
-	global $template, $userdata, $lang, $db, $nav_links, $phpEx, $SID;
-    
-	global $parent_lookup;	
+	global $template, $userdata, $lang, $db, $nav_links, $phpEx, $SID, $userdata;
 
 //	$is_auth = auth(AUTH_VIEW, AUTH_LIST_ALL, $userdata);
 
+/*****************************************************/
+/* Forum - Global Announce v.1.2.3             START */
+/*****************************************************/
 	$sql = "SELECT c.cat_id, c.cat_title, c.cat_order
 		FROM " . CATEGORIES_TABLE . " c, " . FORUMS_TABLE . " f
 		WHERE f.cat_id = c.cat_id
+		".(($userdata['user_level'] == ADMIN)? "" : "AND c.cat_title<>'global_announcement'" )."
 		GROUP BY c.cat_id, c.cat_title, c.cat_order
 		ORDER BY c.cat_order";
+/*****************************************************/
+/* Forum - Global Announce v.1.2.3               END */
+/*****************************************************/
 	if ( !($result = $db->sql_query($sql)) )
 	{
 		message_die(GENERAL_ERROR, "Couldn't obtain category list.", "", __LINE__, __FILE__, $sql);
 	}
-
+	
 	$category_rows = array();
 	while ( $row = $db->sql_fetchrow($result) )
 	{
@@ -262,18 +267,6 @@ function make_jumpbox($action, $match_forum_id = 0)
 				$boxstring_forums = '';
 				for($j = 0; $j < $total_forums; $j++)
 				{
-				
-                  if ($parent_lookup==$forum_rows[$j]['forum_id'] && !$assigned) 
-                  { 
-                     $template->assign_block_vars('switch_parent_link', array() ); 
-
-                     $template->assign_vars(array( 
-                        'PARENT_NAME' => $forum_rows[$j]['forum_name'], 
-                        'PARENT_URL'=>append_sid("viewforum.$phpEx?" . POST_FORUM_URL . "=" . $forum_rows[$j]['forum_id']) 
-                        )); 
-                     $assigned=TRUE; 
-                  }				
-				
 					if ( $forum_rows[$j]['cat_id'] == $category_rows[$i]['cat_id'] && $forum_rows[$j]['auth_view'] <= AUTH_REG )
 					{
 
