@@ -116,7 +116,6 @@ function split_words(&$entry, $mode = 'post')
 
 function add_search_words($mode, $post_id, $post_text, $post_title = '')
 {
-        $sql = null;
         global $db, $phpbb_root_path, $board_config, $lang;
 
         $stopword_array = file($phpbb_root_path . 'language/lang_' . $board_config['default_lang'] . "/search_stopwords.txt");
@@ -125,18 +124,17 @@ function add_search_words($mode, $post_id, $post_text, $post_title = '')
         $search_raw_words = array();
         $search_raw_words['text'] = split_words(clean_words('post', $post_text, $stopword_array, $synonym_array));
         $search_raw_words['title'] = split_words(clean_words('post', $post_title, $stopword_array, $synonym_array));
-	    set_time_limit(0);
+        set_time_limit(0);
         $word = array();
         $word_insert_sql = array();
-        //while ( [$word_in, $search_matches] = each($search_raw_words) ) maybe ghost
 		foreach ($search_raw_words as $word_in => $search_matches)
         {
                 $word_insert_sql[$word_in] = '';
                 if ( !empty($search_matches) )
                 {
-                        for ($i = 0; $i < (is_countable($search_matches) ? count($search_matches) : 0); $i++)
+                        for ($i = 0; $i < count($search_matches); $i++)
                         {
-                                $search_matches[$i] = trim((string) $search_matches[$i]);
+                                $search_matches[$i] = trim($search_matches[$i]);
 
                                 if( $search_matches[$i] != '' )
                                 {
@@ -207,6 +205,7 @@ function add_search_words($mode, $post_id, $post_text, $post_title = '')
                                 {
                                         case 'mysql':
                                         case 'mysql4':
+                                        case 'mysqli':
                                                 $value_sql .= ( ( $value_sql != '' ) ? ', ' : '' ) . '(\'' . $word[$i] . '\', 0)';
                                                 break;
                                         case 'mssql':
@@ -231,6 +230,7 @@ function add_search_words($mode, $post_id, $post_text, $post_title = '')
                         {
                                 case 'mysql':
                                 case 'mysql4':
+                                case 'mysqli':
                                         $sql = "INSERT IGNORE INTO " . SEARCH_WORD_TABLE . " (word_text, word_common)
                                                 VALUES $value_sql";
                                         break;
@@ -248,7 +248,6 @@ function add_search_words($mode, $post_id, $post_text, $post_title = '')
                 }
         }
 
-        //while( [$word_in, $match_sql] = each($word_insert_sql) ) maybe ghost
 		foreach ($word_insert_sql as $word_in => $match_sql)
         {
                 $title_match = ( $word_in == 'title' ) ? 1 : 0;
@@ -258,7 +257,9 @@ function add_search_words($mode, $post_id, $post_text, $post_title = '')
                         $sql = "INSERT INTO " . SEARCH_MATCH_TABLE . " (post_id, word_id, title_match)
                                 SELECT $post_id, word_id, $title_match
                                         FROM " . SEARCH_WORD_TABLE . "
-                                        WHERE word_text IN ($match_sql)";
+                                        WHERE word_text IN ($match_sql)
+					                    AND word_common <> 1";
+
                         if ( !$db->sql_query($sql) )
                         {
                                 message_die(GENERAL_ERROR, 'Could not insert new word matches', '', __LINE__, __FILE__, $sql);
