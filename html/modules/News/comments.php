@@ -538,7 +538,7 @@ function DisplayTopic ($sid, $pid=0, $tid=0, $mode="thread", $order=0, $thold=0,
 		$score = intval($row_q['score']);
 		$reason = intval($row_q['reason']);
 		$karma = $db->sql_fetchrow($db->sql_query("SELECT karma FROM ".$user_prefix."_users WHERE username='$c_name'"));
-		$karma = intval($karma['karma']);
+		$karma = intval($karma['karma'] ?? 0);
 		if (is_admin()) {
 			if ($karma == 1) {
 				$karma = "<img src=\"images/karma/1.gif\" border=\"0\" alt=\""._KARMALOW."\" title=\""._KARMALOW."\">&nbsp;";
@@ -590,7 +590,7 @@ function DisplayTopic ($sid, $pid=0, $tid=0, $mode="thread", $order=0, $thold=0,
 		}
 		if ($c_name != $anonymous) {
 			$row2 = $db->sql_fetchrow($db->sql_query("SELECT user_id FROM ".$user_prefix."_users WHERE username='$c_name'"));
-			$r_uid = intval($row2['user_id']);
+			$r_uid = intval($row2['user_id'] ?? 1);
 			echo "<br>(<a href=\"modules.php?name=Your_Account&amp;op=userinfo&amp;username=$c_name\">"._USERINFO."</a> ";
                         if(is_active("Private_Messages")) {
                           echo "| <a href=\"modules.php?name=Private_Messages&amp;mode=post&amp;u=$r_uid\">"._SENDAMSG."</a>";
@@ -598,7 +598,7 @@ function DisplayTopic ($sid, $pid=0, $tid=0, $mode="thread", $order=0, $thold=0,
                         echo "$journal) ";
 		}
 		$row_url = $db->sql_fetchrow($db->sql_query("SELECT user_website FROM ".$user_prefix."_users WHERE username='$c_name'"));
-		$url = filter($row_url['user_website'], "nohtml");
+		$url = filter($row_url['user_website'] ?? '', "nohtml");
 		if ($url != "http://" AND !empty($url) AND stripos_clone($url, "http://")) { echo "<a href=\"$url\" target=\"new\">$url</a> "; }
 
 		if(is_admin()) {
