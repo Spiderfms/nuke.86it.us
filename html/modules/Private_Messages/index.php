@@ -130,7 +130,7 @@ init_userprefs($userdata);
 //
 if ( $cancel )
 {
-        $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+        $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
         header($header_location . append_sid("privmsg.$phpEx?folder=$folder", true));
         exit;
 }
@@ -231,7 +231,7 @@ else if ( $mode == 'read' )
 
         if ( !$userdata['session_logged_in'] )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=$folder&mode=$mode&" . POST_POST_URL . "=$privmsgs_id", true));
                 exit;
         }
@@ -293,7 +293,7 @@ else if ( $mode == 'read' )
         //
         if ( !($privmsg = $db->sql_fetchrow($result)) )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("privmsg.$phpEx?folder=$folder", true));
                 exit;
         }
@@ -547,7 +547,7 @@ else if ( $mode == 'read' )
         $profile_img = '<a href="' . $temp_url . '"><img src="' . $images['icon_profile'] . '" alt="' . $lang['Read_profile'] . '" title="' . $lang['Read_profile'] . '" border="0" /></a>';
         $profile = '<a href="' . $temp_url . '">' . $lang['Read_profile'] . '</a>';
 
-	$temp_url = append_sid("privmsg.$phpEx?mode=post&amp;" . POST_USERS_URL . "=$user_id_from");
+	    $temp_url = append_sid("privmsg.$phpEx?mode=post&amp;" . POST_USERS_URL . "=$user_id_from");
         $pm_img = '<a href="' . $temp_url . '"><img src="' . $images['icon_pm'] . '" alt="' . $lang['Send_private_message'] . '" title="' . $lang['Send_private_message'] . '" border="0" /></a>';
         $pm = '<a href="' . $temp_url . '">' . $lang['Send_private_message'] . '</a>';
 
@@ -707,7 +707,7 @@ else if ( ( $delete && $mark_list ) || $delete_all )
 {
         if ( !$userdata['session_logged_in'] )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=inbox", true));
                 exit;
         }
@@ -940,7 +940,7 @@ else if ( $save && $mark_list && $folder != 'savebox' && $folder != 'outbox' )
 {
         if ( !$userdata['session_logged_in'] )
         {
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=inbox", true));
                 exit;
         }
@@ -1114,7 +1114,7 @@ else if ( $save && $mark_list && $folder != 'savebox' && $folder != 'outbox' )
                 {
                         message_die(GENERAL_ERROR, 'Could not save private messages', '', __LINE__, __FILE__, $saved_sql);
                 }
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("privmsg.$phpEx?folder=savebox", true));
                 exit;
         }
@@ -1124,7 +1124,7 @@ else if ( $submit || $refresh || $mode != '' )
         if ( !$userdata['session_logged_in'] )
         {
                 $user_id = ( isset($_GET[POST_USERS_URL]) ) ? '&' . POST_USERS_URL . '=' . intval($_GET[POST_USERS_URL]) : '';
-                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                 header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=$folder&mode=$mode" . $user_id, true));
                 exit;
         }
@@ -1212,7 +1212,7 @@ else if ( $submit || $refresh || $mode != '' )
         {
                 if ( !empty($_POST['username']) )
                 {
-			$to_username = phpbb_clean_username($_POST['username']);
+			            $to_username = phpbb_clean_username($_POST['username']);
 
                         $sql = "SELECT user_id, user_notify_pm, user_email, user_lang, user_active
                                 FROM " . USERS_TABLE . "
@@ -1421,9 +1421,9 @@ else if ( $submit || $refresh || $mode != '' )
                 // passed to the script, process it a little, do some checks
                 // where neccessary, etc.
                 //
-		$to_username = (isset($_POST['username']) ) ? trim(htmlspecialchars(stripslashes((string) $_POST['username']))) : '';
+		        $to_username = (isset($_POST['username']) ) ? trim(htmlspecialchars(stripslashes((string) $_POST['username']))) : '';
 
-		$privmsg_subject = ( isset($_POST['subject']) ) ? trim(htmlspecialchars(stripslashes((string) $_POST['subject']))) : '';
+		        $privmsg_subject = ( isset($_POST['subject']) ) ? trim(htmlspecialchars(stripslashes((string) $_POST['subject']))) : '';
                 $privmsg_message = ( isset($_POST['message']) ) ? trim((string) $_POST['message']) : '';
                 $privmsg_message = preg_replace('#<textarea>#si', '&lt;textarea&gt;', $privmsg_message);
                 if ( !$preview )
@@ -1485,8 +1485,8 @@ else if ( $submit || $refresh || $mode != '' )
 
                         $sql = "SELECT username
                                 FROM " . USERS_TABLE . "
-				WHERE user_id = $user_id
-                                        AND user_id <> " . ANONYMOUS;
+				                WHERE user_id = $user_id
+                                AND user_id <> " . ANONYMOUS;
                         if ( !($result = $db->sql_query($sql)) )
                         {
                                 $error = TRUE;
@@ -1515,7 +1515,7 @@ else if ( $submit || $refresh || $mode != '' )
 
                         if ( !($privmsg = $db->sql_fetchrow($result)) )
                         {
-                                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                                 header($header_location . append_sid("privmsg.$phpEx?folder=$folder", true));
                                 exit;
                         }
@@ -1555,7 +1555,7 @@ else if ( $submit || $refresh || $mode != '' )
 
                         if ( !($privmsg = $db->sql_fetchrow($result)) )
                         {
-                                $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+                                $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
                                 header($header_location . append_sid("privmsg.$phpEx?folder=$folder", true));
                                 exit;
                         }
@@ -1588,7 +1588,7 @@ else if ( $submit || $refresh || $mode != '' )
                         }
 		else
 		{
-			$privmsg_subject = $privmsg_message = $to_username = '';
+			            $privmsg_subject = $privmsg_message = $to_username = '';
                 }
         }
 
@@ -1804,9 +1804,9 @@ else if ( $submit || $refresh || $mode != '' )
         generate_smilies('inline', PAGE_PRIVMSGS);
 
         $template->assign_vars(array(
-                'SUBJECT' => $privmsg_subject,
-		'USERNAME' => $to_username,
-                'MESSAGE' => $privmsg_message,
+                'SUBJECT' => $privmsg_subject ?? '',
+		        'USERNAME' => $to_username ?? '',
+                'MESSAGE' => $privmsg_message ?? '',
                 'HTML_STATUS' => $html_status,
                 'SMILIES_STATUS' => $smilies_status,
                 'BBCODE_STATUS' => sprintf($bbcode_status, '<a href="' . append_sid("faq.$phpEx?mode=bbcode") . '" target="_phpbbcode">', '</a>'),
@@ -1899,7 +1899,7 @@ else if ( $submit || $refresh || $mode != '' )
 //
 if ( !$userdata['session_logged_in'] )
 {
-        $header_location = ( @preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
+        $header_location = ( preg_match('/Microsoft|WebSTAR|Xitami/', (string) $_SERVER['SERVER_SOFTWARE']) ) ? 'Refresh: 0; URL=' : 'Location: ';
         header($header_location . append_sid("login.$phpEx?redirect=privmsg.$phpEx&folder=inbox", true));
         exit;
 }
