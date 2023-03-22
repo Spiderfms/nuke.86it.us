@@ -16,7 +16,7 @@ if ( !defined('BLOCK_FILE') ) {
 	Header("Location: ../index.php");
 	die();
 }
-
+return;
 global $prefix, $db, $admin, $language, $currentlang;
 
 $ThemeSel = get_theme();

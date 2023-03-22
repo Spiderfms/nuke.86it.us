@@ -2243,7 +2243,7 @@ function savecomm($user_id, $username, $umode, $uorder, $thold, $noscore, $comme
 }
 
 function avatarlist($avatarcategory) {
-	
+	return;
 	$patterns = [];
     $replacements = [];
     
