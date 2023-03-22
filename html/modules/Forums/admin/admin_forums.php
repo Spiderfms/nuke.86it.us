@@ -330,7 +330,8 @@ if( !empty($mode) )
                         // the language files.
                         $lang['Status_unlocked'] ??= 'Unlocked';
                         $lang['Status_locked'] ??= 'Locked';
-
+                        if(!isset($forumunlocked)) { $forumunlocked = 0; }
+						if(!isset($forumlocked)) { $forumlocked = 1; }
                         $statuslist = "<option value=\"" . FORUM_UNLOCKED . "\" $forumunlocked>" . $lang['Status_unlocked'] . "</option>\n";
                         $statuslist .= "<option value=\"" . FORUM_LOCKED . "\" $forumlocked>" . $lang['Status_locked'] . "</option>\n";
 
@@ -936,7 +937,7 @@ if( !empty($mode) )
                         break;
         }
 
-        if ($show_index != TRUE)
+        if (!isset($show_index))
         {
                 include('./page_footer_admin.'.$phpEx);
                 exit;
@@ -1021,7 +1022,7 @@ if( $total_categories = $db->sql_numrows($q_categories) )
                                 $template->assign_block_vars("catrow.forumrow",        array(
                                         'FORUM_NAME' => $forum_rows[$j]['forum_name'],
                                         'FORUM_DESC' => $forum_rows[$j]['forum_desc'],
-                                        'ROW_COLOR' => $row_color,
+                                        'ROW_COLOR' => $row_color ?? '',
                                         'NUM_TOPICS' => $forum_rows[$j]['forum_topics'],
                                         'NUM_POSTS' => $forum_rows[$j]['forum_posts'],
 
