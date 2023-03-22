@@ -14,8 +14,8 @@
 
 define('MODULE_FILE', true);
 require_once("mainfile.php");
-
-if (isset($name) && $name == $_REQUEST['name']) {
+global $name;
+if ($name) {
   $name = addslashes(trim($name));
   $modstring = strtolower($_SERVER['QUERY_STRING']);
   if (stripos_clone($name, "..") OR ((stripos_clone($modstring,"&file=nickpage") || stripos_clone($modstring,"&user=")) AND ($name=="Private_Messages" OR $name=="Forums" OR $name=="Members_List"))) header("Location: index.php");

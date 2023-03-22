@@ -215,8 +215,9 @@ function get_userdata($user, $force_str = false)
 
 function make_jumpbox($action, $match_forum_id = 0)
 {
-	$boxstring = null;
- global $template, $userdata, $lang, $db, $nav_links, $phpEx, $SID;
+	global $template, $userdata, $lang, $db, $nav_links, $phpEx, $SID;
+    
+	global $parent_lookup;	
 
 //	$is_auth = auth(AUTH_VIEW, AUTH_LIST_ALL, $userdata);
 
@@ -236,7 +237,7 @@ function make_jumpbox($action, $match_forum_id = 0)
 		$category_rows[] = $row;
 	}
 
-    if ($total_categories = is_countable($category_rows) ? count($category_rows) : 0 )
+	if ( $total_categories = count($category_rows) )
 	{
 		$sql = "SELECT *
 			FROM " . FORUMS_TABLE . "
@@ -248,9 +249,7 @@ function make_jumpbox($action, $match_forum_id = 0)
 
 		$boxstring = '<select name="' . POST_FORUM_URL . '" onchange="if(this.options[this.selectedIndex].value != -1){ forms[\'jumpbox\'].submit() }"><option value="-1">' . $lang['Select_forum'] . '</option>';
 
-		
-        $forum_rows = [];
-		
+		$forum_rows = array();
 		while ( $row = $db->sql_fetchrow($result) )
 		{
 			$forum_rows[] = $row;
@@ -263,6 +262,18 @@ function make_jumpbox($action, $match_forum_id = 0)
 				$boxstring_forums = '';
 				for($j = 0; $j < $total_forums; $j++)
 				{
+				
+                  if ($parent_lookup==$forum_rows[$j]['forum_id'] && !$assigned) 
+                  { 
+                     $template->assign_block_vars('switch_parent_link', array() ); 
+
+                     $template->assign_vars(array( 
+                        'PARENT_NAME' => $forum_rows[$j]['forum_name'], 
+                        'PARENT_URL'=>append_sid("viewforum.$phpEx?" . POST_FORUM_URL . "=" . $forum_rows[$j]['forum_id']) 
+                        )); 
+                     $assigned=TRUE; 
+                  }				
+				
 					if ( $forum_rows[$j]['cat_id'] == $category_rows[$i]['cat_id'] && $forum_rows[$j]['auth_view'] <= AUTH_REG )
 					{
 
@@ -275,7 +286,9 @@ function make_jumpbox($action, $match_forum_id = 0)
 						// Add an array to $nav_links for the Mozilla navigation bar.
 						// 'chapter' and 'forum' can create multiple items, therefore we are using a nested array.
 						//
-						$nav_links['chapter forum'][$forum_rows[$j]['forum_id']] = ['url' => append_sid("viewforum.$phpEx?" . POST_FORUM_URL . "=" . $forum_rows[$j]['forum_id']), 
+						$nav_links['chapter forum'][$forum_rows[$j]['forum_id']] = array (
+							'url' => append_sid("viewforum.$phpEx?" . POST_FORUM_URL . "=" . $forum_rows[$j]['forum_id']),
+							'title' => $forum_rows[$j]['forum_name']
 						);
 
 					}
